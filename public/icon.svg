@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#c8102e"/>
+  <rect y="150" width="512" height="212" fill="#f1bf00"/>
+  <path d="M150 170h212a40 40 0 0 1 40 40v84a40 40 0 0 1-40 40H248l-64 52v-52h-34a40 40 0 0 1-40-40v-84a40 40 0 0 1 40-40z" fill="#fff"/>
+  <text x="256" y="286" font-family="Arial, Helvetica, sans-serif" font-size="110" font-weight="800" text-anchor="middle" fill="#c8102e">¡Hola!</text>
+</svg>
