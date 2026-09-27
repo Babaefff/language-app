@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '../components/Nav';
 
 const ITEMS = [
   { to: '/practice/verbs', icon: '🔁', title: 'Conjugation', text: 'Drill any tense, or browse full verb tables with audio.' },

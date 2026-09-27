@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '../components/Nav';
 import { UNITS, WORDS } from '../data/course';
 import { useProgress, streak, today } from '../lib/store';
 import { strength } from '../lib/srs';

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { Link } from '../components/Nav';
 import { READINGS } from '../data/readings';
 import { lookupWord } from '../data/course';
 import { VERB_MAP } from '../data/verbs';

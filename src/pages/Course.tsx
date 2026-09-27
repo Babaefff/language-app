@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '../components/Nav';
 import { unitsForLevel } from '../data/course';
 import { LEVEL_INFO, LEVELS } from '../data/types';
 import { useProgress } from '../lib/store';

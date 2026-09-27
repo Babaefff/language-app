@@ -1,4 +1,5 @@
-import { HashRouter, NavLink, Route, Routes, Link, useLocation } from 'react-router-dom';
+import { HashRouter, MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { Link, NavLink, PREVIEW } from './components/Nav';
 import { useEffect } from 'react';
 import { Home } from './pages/Home';
 import { Course } from './pages/Course';
@@ -82,10 +83,13 @@ function Shell() {
   );
 }
 
+// The preview keeps routes in memory: embedded viewers don't allow hash/URL navigation.
+const Router = PREVIEW ? MemoryRouter : HashRouter;
+
 export default function App() {
   return (
-    <HashRouter>
+    <Router>
       <Shell />
-    </HashRouter>
+    </Router>
   );
 }

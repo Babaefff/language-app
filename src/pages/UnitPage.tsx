@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Link } from '../components/Nav';
 import { UNIT_MAP, UNITS } from '../data/course';
 import { STEPS, stepExercises, type Exercise } from '../lib/exercises';
 import { addXp, applyWordResults, completeStep, useProgress } from '../lib/store';

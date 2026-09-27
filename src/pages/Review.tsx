@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from '../components/Nav';
 import { WORD_MAP } from '../data/course';
 import type { Word } from '../data/types';
 import { reviewExercise, type Exercise } from '../lib/exercises';
