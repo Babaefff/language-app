@@ -6,6 +6,7 @@ export function Settings() {
   const { settings } = useProgress();
   const [voices, setVoices] = useState(spanishVoices());
   const [msg, setMsg] = useState('');
+  const [confirmReset, setConfirmReset] = useState(false);
   const file = useRef<HTMLInputElement>(null);
   useEffect(() => { const off = onVoicesChanged(() => setVoices(spanishVoices())); return () => { off(); }; }, []);
 
@@ -86,7 +87,14 @@ export function Settings() {
             if (!f) return;
             try { importProgress(await f.text()); setMsg('Backup restored ✓'); } catch (err) { setMsg(String(err)); }
           }} />
-          <button className="btn danger" onClick={() => { if (confirm('Delete all progress on this device?')) { resetProgress(); setMsg('Progress reset.'); } }}>Reset progress</button>
+          {confirmReset ? (
+            <>
+              <button className="btn danger" onClick={() => { resetProgress(); setConfirmReset(false); setMsg('Progress reset.'); }}>Yes, delete all progress</button>
+              <button className="btn" onClick={() => setConfirmReset(false)}>Cancel</button>
+            </>
+          ) : (
+            <button className="btn danger" onClick={() => setConfirmReset(true)}>Reset progress</button>
+          )}
         </div>
         {msg && <p className="small">{msg}</p>}
       </section>
