@@ -4,6 +4,7 @@ import { Link } from '../components/Nav';
 import { READINGS } from '../data/readings';
 import { tokenize } from '../lib/text';
 import { gloss, type Gloss } from '../lib/gloss';
+import { splitSentences } from '../lib/audioKey';
 import { speak, stopSpeaking } from '../lib/speech';
 import { addXp, completeReading, gradeWord, useProgress } from '../lib/store';
 import { SpeakButton } from '../components/SpeakButton';
@@ -28,8 +29,7 @@ export function Readings() {
   );
 }
 
-/** Splits a paragraph into sentences so read-aloud can highlight as it goes. */
-const sentences = (p: string) => p.match(/[^.!?]+[.!?]+["”»]?\s*|[^.!?]+$/g) ?? [p];
+const sentences = splitSentences;
 
 export function ReadingPage() {
   const { id } = useParams();

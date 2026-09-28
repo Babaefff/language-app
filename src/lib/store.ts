@@ -7,6 +7,8 @@ export interface Settings {
   accent: 'es-ES' | 'es-MX' | 'any';
   autoplay: boolean;
   ticker: boolean;
+  /** Use generated natural-voice clips when available. */
+  natural: boolean;
   dailyGoal: number;
 }
 
@@ -35,7 +37,7 @@ const DEFAULT: Progress = {
   grammar: {},
   xp: {},
   conj: { right: 0, wrong: 0 },
-  settings: { rate: 0.9, voiceURI: null, accent: 'es-ES', autoplay: true, ticker: true, dailyGoal: 50 },
+  settings: { rate: 0.9, voiceURI: null, accent: 'es-ES', autoplay: true, ticker: true, natural: true, dailyGoal: 50 },
 };
 
 const isObj = (v: unknown): v is Record<string, never> => typeof v === 'object' && v !== null && !Array.isArray(v);

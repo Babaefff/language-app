@@ -46,6 +46,21 @@ npm run build && npx cap add android && npx cap open android   # build & sign in
 
 iOS works the same way (`@capacitor/ios`), but it needs a Mac with Xcode. The app already uses relative paths and hash routing, so it runs unchanged inside Capacitor.
 
+## Natural voice (Google Cloud Text-to-Speech)
+
+By default the app uses the device's built-in voice. For a natural, consistent voice everywhere, generate MP3 clips once:
+
+1. In [Google Cloud Console](https://console.cloud.google.com): create a project → enable **Cloud Text-to-Speech API** → *APIs & Services → Credentials → Create credentials → API key* (restrict it to the Text-to-Speech API).
+2. Run:
+   ```bash
+   npm run audio -- --dry                  # shows how many clips / characters
+   GOOGLE_TTS_KEY=your-key npm run audio   # ≈1 400 clips, ≈24k characters
+   GOOGLE_TTS_KEY=your-key npm run audio -- --verbs   # + every verb form (≈76k characters)
+   ```
+3. Commit `public/audio/`. The app plays a clip whenever one exists and falls back to the device voice otherwise (toggle in Settings).
+
+Choose another voice with `TTS_VOICE`, e.g. `es-US-Neural2-A` (Latin American) or `es-ES-Neural2-F` (male). Neural2 voices are free up to 1 million characters per month, so the whole course is well within the free tier. Re-running only generates new clips.
+
 ## Adding content
 
 - **Words / units:** `src/data/a1.ts`, `a2.ts`, `b1.ts`. Word rows are `[spanish, english, example?, exampleEnglish?]`. Grammar notes use a tiny markup: `## heading`, `- bullet`, `| table |`, `**bold**`, `*italic*`.
