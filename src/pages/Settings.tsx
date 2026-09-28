@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { exportProgress, importProgress, resetProgress, updateSettings, useProgress } from '../lib/store';
-import { clipCount, onVoicesChanged, spanishVoices, speak, speechSupported } from '../lib/speech';
+import { clipAccent, clipCount, onVoicesChanged, spanishVoices, speak, speechSupported } from '../lib/speech';
 
 export function Settings() {
   const { settings } = useProgress();
@@ -51,7 +51,7 @@ export function Settings() {
         <button className="btn" onClick={() => speak('Hola, ¿qué tal? Me llamo Lucía y aprendo español.')}>▶ Test voice</button>
         <label className="toggle">
           <input type="checkbox" checked={settings.natural} onChange={(e) => updateSettings({ natural: e.target.checked })} />
-          Use natural recorded voice ({clipCount() ? `${clipCount()} clips available` : 'not generated yet — see README'})
+          Use natural recorded voice ({clipCount() ? `${clipCount()} clips, ${clipAccent() === 'es-US' ? 'Latin American' : 'Spain'} accent` : 'not generated yet — see README'})
         </label>
         <label className="toggle"><input type="checkbox" checked={settings.autoplay} onChange={(e) => updateSettings({ autoplay: e.target.checked })} /> Play audio automatically</label>
       </section>

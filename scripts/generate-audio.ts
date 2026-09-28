@@ -5,7 +5,7 @@
  *   GOOGLE_TTS_KEY=... npm run audio -- --verbs # also every conjugated form (≈4 500 more clips)
  *   npm run audio -- --dry                      # just count clips and characters
  *
- * Options (env): TTS_VOICE (default es-ES-Neural2-A), TTS_LANG (default es-ES).
+ * Options (env): TTS_VOICE (default es-ES-Neural2-A; Latin America: es-US-Neural2-A), TTS_LANG (from the voice).
  * Existing clips are skipped, so re-running only generates what's new.
  */
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
@@ -16,13 +16,15 @@ import { VERBS } from '../src/data/verbs';
 import { conjugate, gerund, participle, TENSES } from '../src/lib/conjugate';
 import { audioFile, audioKey, speakable, splitSentences } from '../src/lib/audioKey';
 
-const OUT = new URL('../public/audio/', import.meta.url).pathname;
 const args = process.argv.slice(2);
 const dry = args.includes('--dry');
 const withVerbs = args.includes('--verbs');
 const key = process.env.GOOGLE_TTS_KEY;
 const voice = process.env.TTS_VOICE ?? 'es-ES-Neural2-A';
 const lang = process.env.TTS_LANG ?? voice.slice(0, 5);
+// Spain clips live in public/audio/, other accents in public/audio/<lang>/ (e.g. es-US);
+// the app picks the folder matching the accent chosen in Settings.
+const OUT = new URL(lang === 'es-ES' ? '../public/audio/' : `../public/audio/${lang}/`, import.meta.url).pathname;
 
 const texts = new Map<string, string>(); // key → text to synthesise
 const add = (t?: string) => {

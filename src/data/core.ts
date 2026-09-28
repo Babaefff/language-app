@@ -53,6 +53,46 @@ const CORE: WordRow[] = [
   ['tener razón', 'to be right'], ['tener miedo', 'to be afraid'], ['tener hambre', 'to be hungry'], ['tener sed', 'to be thirsty'],
   ['tener sueño', 'to be sleepy'], ['tener prisa', 'to be in a hurry'], ['tener suerte', 'to be lucky'], ['tener cuidado', 'to be careful'],
   ['dar igual', 'to not matter', 'Me da igual.', "I don't mind."],
+  // set 7 — body, nature and everyday nouns
+  ['el corazón', 'the heart'], ['la cara', 'the face'], ['la boca', 'the mouth'], ['la nariz', 'the nose'],
+  ['la oreja', 'the ear'], ['el diente', 'the tooth'], ['el dedo', 'the finger'], ['la voz', 'the voice'],
+  ['la luz', 'the light'], ['el fuego', 'the fire'], ['la tierra', 'the earth / the land'], ['el aire', 'the air'],
+  ['el camino', 'the path / the way'], ['el sitio', 'the place / the site'], ['la zona', 'the area'], ['el principio', 'the beginning'],
+  ['el fin', 'the end'], ['la mitad', 'the half'], ['el resto', 'the rest'], ['el tipo', 'the type / the guy'],
+  ['el nivel', 'the level'], ['la cantidad', 'the amount'], ['la calidad', 'the quality'], ['la decisión', 'the decision'],
+  ['la situación', 'the situation'],
+  // set 8 — useful verbs
+  ['recibir', 'to receive'], ['ofrecer', 'to offer'], ['explicar', 'to explain', '¿Me lo puedes explicar?', 'Can you explain it to me?'], ['enseñar', 'to teach / to show'],
+  ['contar', 'to count / to tell'], ['elegir', 'to choose'], ['decidir', 'to decide'], ['crecer', 'to grow'],
+  ['nacer', 'to be born'], ['morir', 'to die'], ['guardar', 'to keep / to save'], ['tirar', 'to throw / to pull'],
+  ['empujar', 'to push'], ['coger', 'to take / to catch (Spain)'], ['llenar', 'to fill'], ['faltar', 'to be missing', 'Me falta tiempo.', "I'm short of time."],
+  ['importar', 'to matter', 'No importa.', "It doesn't matter."], ['interesar', 'to interest'], ['encantar', 'to love (things)'], ['molestar', 'to bother'],
+  ['evitar', 'to avoid'], ['mejorar', 'to improve'], ['despertarse', 'to wake up'], ['sentarse', 'to sit down'],
+  ['vestirse', 'to get dressed'],
+  // set 9 — describing words
+  ['rápido', 'fast'], ['lento', 'slow'], ['fuerte', 'strong'], ['débil', 'weak'],
+  ['pobre', 'poor'], ['lleno', 'full'], ['vacío', 'empty'], ['caliente', 'hot (to touch)'],
+  ['duro', 'hard'], ['blando', 'soft'], ['bonito', 'pretty / nice'], ['hermoso', 'beautiful'],
+  ['raro', 'strange / rare'], ['libre', 'free (not busy)'], ['ocupado', 'busy'], ['listo', 'clever / ready'],
+  ['tranquilo', 'calm / quiet'], ['peligroso', 'dangerous'], ['famoso', 'famous'], ['privado', 'private'],
+  ['principal', 'main'], ['propio', 'own', 'Tengo mi propio coche.', 'I have my own car.'], ['único', 'only / unique'], ['verdadero', 'true / real'],
+  ['económico', 'economic / cheap'],
+  // set 10 — adverbs and expressions
+  ['rápidamente', 'quickly'], ['realmente', 'really'], ['finalmente', 'finally'], ['exactamente', 'exactly'],
+  ['incluso', 'even'], ['apenas', 'hardly / barely'], ['tal vez', 'maybe'], ['enseguida', 'right away'],
+  ['a menudo', 'often'], ['de repente', 'suddenly'], ['de nuevo', 'again'], ['otra vez', 'again / once more'],
+  ['al menos', 'at least'], ['por supuesto', 'of course'], ['sin duda', 'without a doubt'], ['a la vez', 'at the same time'],
+  ['delante de', 'in front of'], ['detrás de', 'behind'], ['fuera', 'outside'], ['arriba', 'up / upstairs'],
+  ['abajo', 'down / downstairs'], ['enfrente', 'opposite'], ['a tiempo', 'on time'], ['de momento', 'for now'],
+  ['poco a poco', 'little by little'],
+  // set 11 — ideas and abstract words
+  ['la guerra', 'the war'], ['la paz', 'the peace'], ['la muerte', 'the death'], ['el valor', 'the value / the courage'],
+  ['el sentido', 'the sense / the meaning'], ['el sentimiento', 'the feeling'], ['el recuerdo', 'the memory / the souvenir'], ['la memoria', 'the memory (ability)'],
+  ['la cultura', 'the culture'], ['el arte', 'the art'], ['la ciencia', 'the science'], ['la relación', 'the relationship'],
+  ['el cambio', 'the change'], ['la iglesia', 'the church'], ['existir', 'to exist'], ['aparecer', 'to appear'],
+  ['desaparecer', 'to disappear'], ['crear', 'to create'], ['construir', 'to build'], ['producir', 'to produce'],
+  ['mantener', 'to maintain / to keep'], ['lograr', 'to achieve'], ['aumentar', 'to increase'], ['llorar', 'to cry'],
+  ['sonreír', 'to smile'],
 ];
 
 const SENTENCES: SentenceRow[][] = [
@@ -62,9 +102,14 @@ const SENTENCES: SentenceRow[][] = [
   [['Es una idea muy buena.', "It's a very good idea."], ['No tengo tiempo hoy.', "I don't have time today."], ['Hay mucha gente en la plaza.', 'There are lots of people in the square.'], ['Es la última vez.', "It's the last time."]],
   [['Trabajo desde las nueve hasta las cinco.', 'I work from nine until five.'], ['La tienda está entre el banco y la farmacia.', 'The shop is between the bank and the pharmacy.'], ['Todavía no he comido.', "I still haven't eaten."], ['Habla demasiado rápido.', 'He speaks too fast.']],
   [['Tengo que estudiar esta noche.', 'I have to study tonight.'], ['Acabo de llegar a casa.', "I've just got home."], ['Tengo mucha hambre.', "I'm very hungry."], ['Hay que tener cuidado.', 'You have to be careful.']],
+  [['Me duele el corazón.', 'My heart hurts.'], ['Tiene una voz muy bonita.', 'She has a very beautiful voice.'], ['La mitad de la clase está enferma.', 'Half of the class is ill.'], ['Es una decisión difícil.', "It's a difficult decision."]],
+  [['¿Me puedes explicar la pregunta?', 'Can you explain the question to me?'], ['Mi abuela me enseñó a cocinar.', 'My grandmother taught me to cook.'], ['No me importa el precio.', "I don't care about the price."], ['Me despierto a las siete.', 'I wake up at seven.']],
+  [['El tren es más rápido que el autobús.', 'The train is faster than the bus.'], ['La botella está vacía.', 'The bottle is empty.'], ['¿Estás libre esta tarde?', 'Are you free this afternoon?'], ['Es un barrio muy tranquilo.', "It's a very quiet neighbourhood."]],
+  [['De repente empezó a llover.', 'Suddenly it started to rain.'], ['Voy a la playa a menudo.', 'I often go to the beach.'], ['Por supuesto que te ayudo.', "Of course I'll help you."], ['Llegamos a tiempo.', 'We arrived on time.']],
+  [['Nadie quiere la guerra.', 'Nobody wants war.'], ['Tengo muy buenos recuerdos de ese viaje.', 'I have very good memories of that trip.'], ['Van a construir un hospital nuevo.', "They're going to build a new hospital."], ['El niño empezó a llorar.', 'The child started to cry.']],
 ];
 
-const LEVELS = ['A1', 'A1', 'A1', 'A1', 'A2', 'A2'] as const;
+const LEVELS = ['A1', 'A1', 'A1', 'A1', 'A2', 'A2', 'A2', 'A2', 'A2', 'B1', 'B1'] as const;
 
 const GRAMMAR = `
 ## Why these words?

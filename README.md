@@ -6,7 +6,7 @@ A web app for learning Spanish that also installs on phones. It covers vocabular
 
 | | |
 |---|---|
-| **Course** | 43 units (A1 ×17, A2 ×13, B1 ×13), about 900 words, including 150 most-frequent words in "Top words" sets. Each unit has 3 steps: *learn the words* (flashcards with audio → recognition quiz), *practise* (listen & type, choose, write), and *grammar + sentences + verbs*. |
+| **Course** | 43 units (A1 ×17, A2 ×13, B1 ×13), 1,022 words, including 275 most-frequent words in 11 "Top words" sets. Each unit has 3 steps: *learn the words* (flashcards with audio → recognition quiz), *practise* (listen & type, choose, write), and *grammar + sentences + verbs*. |
 | **Grammar** | 20 step-by-step lessons (A1–B1) that teach the logic: stem + ending, the person code, boot verbs, yo-go verbs, irregular preterite and future stem families, ser/estar, por/para, subjunctive… Colour-coded verb tables (endings vs. changed stems), examples with audio, and practice at the end of each lesson. |
 | **Spaced repetition** | Every word you meet goes into an SM‑2 style review deck. Words come back just before you'd forget them. Review as flashcards (self-graded) or as a quiz. |
 | **Keeps words in front of you** | A *word ticker* on every page cycles through the words you're weakest on (tap to hear). There's also a *word of the day* and a hands-free **Listen mode** that plays word → pause → meaning → example on a loop. |
@@ -57,7 +57,7 @@ By default the app uses the device's built-in voice. For a natural, consistent v
    GOOGLE_TTS_KEY=your-key npm run audio   # ≈1 400 clips, ≈24k characters
    GOOGLE_TTS_KEY=your-key npm run audio -- --verbs   # + every verb form (≈76k characters)
    ```
-3. Commit `public/audio/`. The app plays a clip whenever one exists and falls back to the device voice otherwise (toggle in Settings).
+3. Commit `public/audio/`. For a Latin American voice run it again with `TTS_VOICE=es-US-Neural2-A` (clips go to `public/audio/es-US/`); the Accent setting switches between them. The app plays a clip whenever one exists and falls back to the device voice otherwise (toggle in Settings).
 
 Choose another voice with `TTS_VOICE`, e.g. `es-US-Neural2-A` (Latin American) or `es-ES-Neural2-F` (male). Neural2 voices are free up to 1 million characters per month, so the whole course is well within the free tier. Re-running only generates new clips.
 

@@ -12,7 +12,7 @@ import { bare, normalize } from '../lib/text';
 export const UNITS: Unit[] = [
   ...A1, ...A1B, ...A1C, ...CORE_UNITS.filter((u) => u.level === 'A1'),
   ...A2, ...A2B, ...A2C, ...CORE_UNITS.filter((u) => u.level === 'A2'),
-  ...B1, ...B1B, ...B1C,
+  ...B1, ...B1B, ...B1C, ...CORE_UNITS.filter((u) => u.level === 'B1'),
 ];
 export const UNIT_MAP: Record<string, Unit> = Object.fromEntries(UNITS.map((u) => [u.id, u]));
 export const WORDS: Word[] = UNITS.flatMap((u) => u.words);

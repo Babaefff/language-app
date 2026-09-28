@@ -1,6 +1,7 @@
 import { Fragment } from 'react';
 import type { Tense } from '../data/types';
 import { splitForms, TENSE_MAP } from '../lib/conjugate';
+import { VERB_MAP } from '../data/verbs';
 import { speak } from '../lib/speech';
 
 /**
@@ -22,7 +23,12 @@ export function VerbTable({ verbs, tense, caption }: { verbs: string[]; tense: T
           <thead>
             <tr>
               <th />
-              {verbs.map((v) => <th key={v} lang="es">{v}</th>)}
+              {verbs.map((v) => (
+                <th key={v}>
+                  <span lang="es">{v}</span>
+                  <span className="vt-meaning">{VERB_MAP[v]?.en}</span>
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
