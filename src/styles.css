@@ -397,3 +397,11 @@ body:has(.session) .feedback { bottom: 1rem; }
   .vt-long { display: none; }
   .vt-short { display: inline; }
 }
+
+.tile-wrap { position: relative; display: inline-block; }
+.tile-hint {
+  position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); z-index: 5;
+  background: var(--text); color: var(--bg); font-size: 0.8rem; font-weight: 600; white-space: nowrap;
+  padding: 0.25rem 0.55rem; border-radius: 8px; pointer-events: none; animation: fade-in 0.15s;
+}
+.reading p { white-space: pre-line; }

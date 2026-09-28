@@ -2,12 +2,13 @@ import { A1 } from './a1';
 import { A1B } from './a1b';
 import { A2B } from './a2b';
 import { B1B } from './b1b';
+import { A1C, A2C, B1C } from './extra';
 import { A2 } from './a2';
 import { B1 } from './b1';
 import type { Level, Sentence, Unit, Word } from './types';
 import { bare, normalize } from '../lib/text';
 
-export const UNITS: Unit[] = [...A1, ...A1B, ...A2, ...A2B, ...B1, ...B1B];
+export const UNITS: Unit[] = [...A1, ...A1B, ...A1C, ...A2, ...A2B, ...A2C, ...B1, ...B1B, ...B1C];
 export const UNIT_MAP: Record<string, Unit> = Object.fromEntries(UNITS.map((u) => [u.id, u]));
 export const WORDS: Word[] = UNITS.flatMap((u) => u.words);
 export const WORD_MAP: Record<string, Word> = Object.fromEntries(WORDS.map((w) => [w.id, w]));
@@ -83,4 +84,10 @@ export const UNIT_LESSONS: Record<string, string[]> = {
   'b1-09': ['g-perfect'],
   'b1-10': ['g-subj-use'],
   'b1-11': ['g-subj-use', 'g-imperative'],
+  'a1-16': ['g-gender'],
+  'a1-17': ['g-imperative'],
+  'a2-12': ['g-preterite-regular'],
+  'a2-13': ['g-imperative'],
+  'b1-12': ['g-gustar', 'g-ser-estar'],
+  'b1-13': ['g-perfect', 'g-subj-use'],
 };

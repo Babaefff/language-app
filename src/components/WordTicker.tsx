@@ -4,7 +4,7 @@ import { useProgress } from '../lib/store';
 import { speak } from '../lib/speech';
 
 /**
- * A slim strip that keeps cycling through words you are learning, weakest first,
+ * A slim strip that keeps showing random words you have met,
  * so they stay in front of you on every page.
  */
 export function WordTicker() {
@@ -12,8 +12,6 @@ export function WordTicker() {
   const pool = useMemo(() => {
     const learned = Object.entries(cards)
       .filter(([id]) => WORD_MAP[id])
-      .sort((a, b) => a[1].interval - b[1].interval)
-      .slice(0, 40)
       .map(([id]) => WORD_MAP[id]);
     return learned.length >= 3 ? learned : WORDS.filter((w) => w.unitId === 'a1-01');
   }, [cards]);
@@ -22,7 +20,7 @@ export function WordTicker() {
 
   useEffect(() => {
     const t = setInterval(() => {
-      setI((n) => n + 1);
+      setI(Math.floor(Math.random() * 100000));
       setReveal(false);
     }, 9000);
     return () => clearInterval(t);

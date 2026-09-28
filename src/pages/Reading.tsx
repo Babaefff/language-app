@@ -2,11 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Link } from '../components/Nav';
 import { READINGS } from '../data/readings';
-import { lookupWord } from '../data/course';
-import { VERB_MAP } from '../data/verbs';
-import { lookupForm, TENSE_MAP } from '../lib/conjugate';
-import { personLabel } from '../lib/exercises';
 import { tokenize } from '../lib/text';
+import { gloss, type Gloss } from '../lib/gloss';
 import { speak, stopSpeaking } from '../lib/speech';
 import { addXp, completeReading, gradeWord, useProgress } from '../lib/store';
 import { SpeakButton } from '../components/SpeakButton';
@@ -29,27 +26,6 @@ export function Readings() {
       </div>
     </div>
   );
-}
-
-interface Gloss {
-  word: string;
-  meaning: string;
-  detail?: string;
-  wordId?: string;
-}
-
-function gloss(token: string, glossary: Record<string, string>): Gloss {
-  const t = token.toLowerCase();
-  if (glossary[t]) return { word: token, meaning: glossary[t] };
-  const w = lookupWord(t);
-  if (w) return { word: token, meaning: w.en, detail: w.es !== t ? w.es : undefined, wordId: w.id };
-  const forms = lookupForm(t);
-  if (forms.length) {
-    const f = forms[0];
-    const tense = f.tense === 'participio' ? 'participle' : f.tense === 'gerundio' ? 'gerund' : `${TENSE_MAP[f.tense].es}, ${personLabel(f.tense, f.person)}`;
-    return { word: token, meaning: VERB_MAP[f.inf].en, detail: `${forms.map((x) => x.inf).filter((v, i, a) => a.indexOf(v) === i).join(' / ')} — ${tense}` };
-  }
-  return { word: token, meaning: '—', detail: 'Not in the course dictionary yet' };
 }
 
 /** Splits a paragraph into sentences so read-aloud can highlight as it goes. */

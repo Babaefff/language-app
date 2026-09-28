@@ -7,6 +7,7 @@ import { getProgress } from '../lib/store';
 import { VERB_MAP } from '../data/verbs';
 import { SpeakButton } from './SpeakButton';
 import { AccentKeys } from './AccentKeys';
+import { gloss } from '../lib/gloss';
 
 export interface Result {
   ok: boolean;
@@ -253,7 +254,7 @@ function BuildView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'bu
       </div>
       <div className="tiles" lang="es">
         {tiles.map(({ t, i }) => (
-          <button key={i} className={`tile ${picked.includes(i) ? 'used' : ''}`} disabled={locked || picked.includes(i)} onClick={() => { speak(t); setPicked([...picked, i]); }}>{t}</button>
+          <HintTile key={i} text={t} used={picked.includes(i)} disabled={locked || picked.includes(i)} onPick={() => { speak(t); setPicked([...picked, i]); }} />
         ))}
       </div>
       <div className="row end">
@@ -319,5 +320,44 @@ function ConjView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'con
       </div>
       <TextAnswer locked={locked} placeholder="Conjugated form…" onSubmit={(v) => onResult(feedbackFor(v, ex.answer))} />
     </>
+  );
+}
+
+/** A word tile that shows its meaning after hovering (or a long press on touch screens). */
+function HintTile({ text, used, disabled, onPick }: { text: string; used: boolean; disabled: boolean; onPick: () => void }) {
+  const [hint, setHint] = useState<string | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const longPressed = useRef(false);
+  const word = text.replace(/[¿?¡!.,;:"]/g, '');
+  const show = (delay: number) => {
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      longPressed.current = true;
+      const g = gloss(word);
+      setHint(g.meaning === '—' ? 'no translation yet' : g.meaning);
+    }, delay);
+  };
+  const hide = () => { clearTimeout(timer.current); setHint(null); };
+  useEffect(() => () => clearTimeout(timer.current), []);
+  return (
+    <span className="tile-wrap">
+      <button
+        className={`tile ${used ? 'used' : ''}`}
+        disabled={disabled}
+        onMouseEnter={() => show(600)}
+        onMouseLeave={hide}
+        onTouchStart={() => { longPressed.current = false; show(450); }}
+        onTouchEnd={() => setTimeout(hide, 1200)}
+        onClick={() => {
+          // A long press only reveals the meaning; it shouldn't also place the tile.
+          if (longPressed.current && hint) { longPressed.current = false; return; }
+          hide();
+          onPick();
+        }}
+      >
+        {text}
+      </button>
+      {hint && !used && <span className="tile-hint" role="tooltip">{hint}</span>}
+    </span>
   );
 }
