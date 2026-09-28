@@ -3,12 +3,17 @@ import { A1B } from './a1b';
 import { A2B } from './a2b';
 import { B1B } from './b1b';
 import { A1C, A2C, B1C } from './extra';
+import { CORE_UNITS } from './core';
 import { A2 } from './a2';
 import { B1 } from './b1';
 import type { Level, Sentence, Unit, Word } from './types';
 import { bare, normalize } from '../lib/text';
 
-export const UNITS: Unit[] = [...A1, ...A1B, ...A1C, ...A2, ...A2B, ...A2C, ...B1, ...B1B, ...B1C];
+export const UNITS: Unit[] = [
+  ...A1, ...A1B, ...A1C, ...CORE_UNITS.filter((u) => u.level === 'A1'),
+  ...A2, ...A2B, ...A2C, ...CORE_UNITS.filter((u) => u.level === 'A2'),
+  ...B1, ...B1B, ...B1C,
+];
 export const UNIT_MAP: Record<string, Unit> = Object.fromEntries(UNITS.map((u) => [u.id, u]));
 export const WORDS: Word[] = UNITS.flatMap((u) => u.words);
 export const WORD_MAP: Record<string, Word> = Object.fromEntries(WORDS.map((w) => [w.id, w]));

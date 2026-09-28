@@ -48,7 +48,9 @@ function pickVoice(): SpeechSynthesisVoice | undefined {
   if (chosen) return chosen;
   const byAccent = accent === 'any' ? voices : voices.filter((v) => v.lang.replace('_', '-').startsWith(accent));
   const pool = byAccent.length ? byAccent : voices;
-  return pool.find((v) => QUALITY.test(v.name)) ?? pool[0];
+  // Prefer voices installed on the device: Chrome's online "Google" voices can fail silently.
+  const local = pool.filter((v) => v.localService);
+  return local.find((v) => QUALITY.test(v.name)) ?? local[0] ?? pool.find((v) => QUALITY.test(v.name)) ?? pool[0];
 }
 
 /** Cleans display text so the voice doesn't read slashes or brackets aloud. */
@@ -68,8 +70,13 @@ export function speak(text: string, opts: { rate?: number; lang?: 'es' | 'en' } 
   });
 }
 
+/** Holding a reference stops Chrome from garbage-collecting the utterance mid-sentence. */
+let current: SpeechSynthesisUtterance | null = null;
+
 function speakNow(synth: SpeechSynthesis, text: string, opts: { rate?: number; lang?: 'es' | 'en' }, resolve: () => void) {
+  const wasBusy = synth.speaking || synth.pending;
   synth.cancel();
+  if (synth.paused) synth.resume();
   const clean = speakable(text);
   const u = new SpeechSynthesisUtterance(clean);
   const rate = opts.lang === 'en' ? 1 : (opts.rate ?? getProgress().settings.rate);
@@ -89,7 +96,10 @@ function speakNow(synth: SpeechSynthesis, text: string, opts: { rate?: number; l
   }
   u.onend = done;
   u.onerror = done;
-  synth.speak(u);
+  current = u;
+  // Chrome drops an utterance queued in the same tick as cancel(), so give it a moment.
+  if (wasBusy) setTimeout(() => current === u && synth.speak(u), 80);
+  else synth.speak(u);
 }
 
 export function stopSpeaking() {

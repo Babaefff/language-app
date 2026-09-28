@@ -6,7 +6,7 @@ A web app for learning Spanish that also installs on phones. It covers vocabular
 
 | | |
 |---|---|
-| **Course** | 43 units (A1 ×17, A2 ×13, B1 ×13), about 750 words. Each unit has 3 steps: *learn the words* (flashcards with audio → recognition quiz), *practise* (listen & type, choose, write), and *grammar + sentences + verbs*. |
+| **Course** | 43 units (A1 ×17, A2 ×13, B1 ×13), about 900 words, including 150 most-frequent words in "Top words" sets. Each unit has 3 steps: *learn the words* (flashcards with audio → recognition quiz), *practise* (listen & type, choose, write), and *grammar + sentences + verbs*. |
 | **Grammar** | 20 step-by-step lessons (A1–B1) that teach the logic: stem + ending, the person code, boot verbs, yo-go verbs, irregular preterite and future stem families, ser/estar, por/para, subjunctive… Colour-coded verb tables (endings vs. changed stems), examples with audio, and practice at the end of each lesson. |
 | **Spaced repetition** | Every word you meet goes into an SM‑2 style review deck. Words come back just before you'd forget them. Review as flashcards (self-graded) or as a quiz. |
 | **Keeps words in front of you** | A *word ticker* on every page cycles through the words you're weakest on (tap to hear). There's also a *word of the day* and a hands-free **Listen mode** that plays word → pause → meaning → example on a loop. |

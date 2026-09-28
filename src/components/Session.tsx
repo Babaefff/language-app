@@ -323,6 +323,9 @@ function ConjView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'con
   );
 }
 
+/** Only one tile hint is visible at a time. */
+let hideActiveHint: (() => void) | null = null;
+
 /** A word tile that shows its meaning after hovering (or a long press on touch screens). */
 function HintTile({ text, used, disabled, onPick }: { text: string; used: boolean; disabled: boolean; onPick: () => void }) {
   const [hint, setHint] = useState<string | null>(null);
@@ -332,9 +335,12 @@ function HintTile({ text, used, disabled, onPick }: { text: string; used: boolea
   const show = (delay: number) => {
     clearTimeout(timer.current);
     timer.current = setTimeout(() => {
-      longPressed.current = true;
       const g = gloss(word);
-      setHint(g.meaning === '—' ? 'no translation yet' : g.meaning);
+      if (g.meaning === '—') return; // unknown word: show nothing rather than a placeholder
+      longPressed.current = true;
+      if (hideActiveHint && hideActiveHint !== hide) hideActiveHint();
+      hideActiveHint = hide;
+      setHint(g.meaning);
     }, delay);
   };
   const hide = () => { clearTimeout(timer.current); setHint(null); };
