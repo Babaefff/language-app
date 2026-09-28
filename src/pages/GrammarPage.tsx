@@ -98,6 +98,20 @@ export function GrammarLessonPage() {
               return <div key={i} className="tip"><Grammar source={b.md} /></div>;
             case 'table':
               return <VerbTable key={i} verbs={b.verbs} tense={b.tense} caption={b.caption} />;
+            case 'mistakes':
+              return (
+                <div key={i} className="mistakes">
+                  <h3>Common mistakes</h3>
+                  <ul>
+                    {b.items.map(([wrong, right, why]) => (
+                      <li key={wrong}>
+                        <div><span className="wrong" lang="es">✗ {wrong}</span> <span className="right" lang="es">✓ {right}</span> <SpeakButton text={right} /></div>
+                        <div className="muted small">{why}</div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
             case 'examples':
               return (
                 <div key={i} className="examples">

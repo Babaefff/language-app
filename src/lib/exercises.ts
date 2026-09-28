@@ -96,7 +96,7 @@ export const STEPS = [
   { title: 'Grammar, sentences & verbs', description: 'Read the grammar note, build sentences and conjugate.' },
 ] as const;
 
-export function stepExercises(unit: Unit, step: number): Exercise[] {
+export function stepExercises(unit: Unit, step: number, review: Word[] = []): Exercise[] {
   const words = shuffle(unit.words);
   if (step === 0) {
     const [first, second] = chunks(shuffle(unit.words), 4);
@@ -105,7 +105,10 @@ export function stepExercises(unit: Unit, step: number): Exercise[] {
     return [...recog.slice(0, mid), ...(first ? [match(first)] : []), ...recog.slice(mid), ...(second ? [match(second)] : [])];
   }
   if (step === 1) {
-    return words.map((w, i) => (i % 3 === 0 ? typeEnEs(w) : i % 3 === 1 ? listen(w) : choiceEnEs(w)));
+    const practice = words.map((w, i) => (i % 3 === 0 ? typeEnEs(w) : i % 3 === 1 ? listen(w) : choiceEnEs(w)));
+    // Interleaving: mix in a few older words that are due, so earlier units stay fresh.
+    const old = shuffle(review).slice(0, 4).map((w) => (Math.random() < 0.5 ? typeEnEs(w) : listen(w)));
+    return shuffle([...practice, ...old]);
   }
   const builds = unit.sentences.map((s) => build(s, unit.words));
   const conj: Exercise[] = [];

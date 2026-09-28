@@ -4,7 +4,8 @@ import { Link } from '../components/Nav';
 import { UNIT_LESSONS, UNIT_MAP, UNITS } from '../data/course';
 import { GRAMMAR_MAP } from '../data/grammar';
 import { STEPS, stepExercises, type Exercise } from '../lib/exercises';
-import { addXp, applyWordResults, completeStep, useProgress } from '../lib/store';
+import { addXp, applyWordResults, completeStep, getProgress, useProgress } from '../lib/store';
+import { WORD_MAP } from '../data/course';
 import { strength } from '../lib/srs';
 import { Session, type SessionSummary } from '../components/Session';
 import { LearnCards } from '../components/LearnCards';
@@ -31,7 +32,7 @@ export function UnitPage() {
   const start = (step: number) => {
     if (step === 0) return setMode({ name: 'learn' });
     if (step === 2) return setMode({ name: 'grammar' });
-    setMode({ name: 'quiz', step, exercises: stepExercises(unit, step) });
+    setMode({ name: 'quiz', step, exercises: stepExercises(unit, step, dueFromOtherUnits(unit.id)) });
   };
 
   const finish = (step: number, summary: SessionSummary) => {
@@ -167,4 +168,14 @@ function RelatedLessons({ unitId }: { unitId: string }) {
       </div>
     </section>
   );
+}
+
+/** Due words from other units, weakest first, for interleaved practice. */
+function dueFromOtherUnits(unitId: string) {
+  const now = Date.now();
+  return Object.entries(getProgress().cards)
+    .filter(([id, c]) => c.due <= now && WORD_MAP[id] && WORD_MAP[id].unitId !== unitId)
+    .sort((a, b) => a[1].due - b[1].due)
+    .slice(0, 8)
+    .map(([id]) => WORD_MAP[id]);
 }

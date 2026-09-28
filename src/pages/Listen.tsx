@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { UNITS, WORD_MAP, WORDS } from '../data/course';
 import type { Word } from '../data/types';
 import { getProgress } from '../lib/store';
+import { recallChance } from '../lib/srs';
 import { shuffle } from '../lib/text';
 import { speak, stopSpeaking } from '../lib/speech';
 
@@ -13,7 +14,7 @@ function wordsFor(source: Source): Word[] {
   if (source === 'mine') {
     const mine = Object.entries(getProgress().cards)
       .filter(([id]) => WORD_MAP[id])
-      .sort((a, b) => a[1].interval - b[1].interval)
+      .sort((a, b) => recallChance(a[1]) - recallChance(b[1]))
       .slice(0, 50)
       .map(([id]) => WORD_MAP[id]);
     return mine.length ? shuffle(mine) : WORDS.filter((w) => w.unitId === 'a1-01');

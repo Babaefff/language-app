@@ -4,7 +4,7 @@ import { WORD_MAP } from '../data/course';
 import type { Word } from '../data/types';
 import { reviewExercise, type Exercise } from '../lib/exercises';
 import { addXp, applyWordResults, getProgress, gradeWord, useProgress } from '../lib/store';
-import { describeInterval, review, type Grade } from '../lib/srs';
+import { describeInterval, isLeech, recallChance, review, type Grade } from '../lib/srs';
 import { speak } from '../lib/speech';
 import { Session, type SessionSummary } from '../components/Session';
 import { Summary } from '../components/Summary';
@@ -29,7 +29,7 @@ function dueWords(): Word[] {
 function weakestWords(n: number): Word[] {
   return Object.entries(getProgress().cards)
     .filter(([id]) => WORD_MAP[id])
-    .sort((a, b) => a[1].interval - b[1].interval || b[1].lapses - a[1].lapses)
+    .sort((a, b) => recallChance(a[1]) - recallChance(b[1]))
     .slice(0, n)
     .map(([id]) => WORD_MAP[id]);
 }
@@ -100,8 +100,30 @@ export function Review() {
               <button className="btn primary" onClick={() => quiz(weakestWords(15), false)}>Practise weakest words</button>
             </div>
           )}
+          <TrickyWords onPractise={(words) => quiz(words, false)} />
         </>
       )}
+    </div>
+  );
+}
+
+/** Words forgotten 3+ times ("leeches"): shown with a memory tip and their own drill. */
+function TrickyWords({ onPractise }: { onPractise: (w: Word[]) => void }) {
+  const { cards } = useProgress();
+  const leeches = Object.entries(cards)
+    .filter(([id, c]) => WORD_MAP[id] && isLeech(c))
+    .sort((a, b) => b[1].lapses - a[1].lapses)
+    .map(([id]) => WORD_MAP[id]);
+  if (!leeches.length) return null;
+  return (
+    <div className="card">
+      <h3>🧩 Tricky words ({leeches.length})</h3>
+      <p className="muted small">
+        You've forgotten these several times. Try linking each one to an image or a similar-sounding English word
+        (e.g. <em>la cara</em> — "a car with a face"), then drill them on their own.
+      </p>
+      <p lang="es">{leeches.slice(0, 12).map((w) => w.es).join(' · ')}</p>
+      <button className="btn" onClick={() => onPractise(leeches.slice(0, 15))}>Practise tricky words</button>
     </div>
   );
 }

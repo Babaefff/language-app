@@ -69,7 +69,9 @@ export type LessonBlock =
   /** Spanish/English example pairs with audio. */
   | { t: 'examples'; title?: string; items: [string, string][] }
   /** A highlighted rule of thumb. */
-  | { t: 'tip'; md: string };
+  | { t: 'tip'; md: string }
+  /** Typical learner errors: [wrong, right, why]. */
+  | { t: 'mistakes'; items: [string, string, string][] };
 
 export interface ChoiceQuestion {
   /** Sentence with a gap shown as ___ . */

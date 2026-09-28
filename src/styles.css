@@ -410,3 +410,7 @@ body:has(.session) .feedback { bottom: 1rem; }
 @keyframes hint-in { from { opacity: 0; transform: translate(-50%, 3px); } to { opacity: 1; transform: translate(-50%, 0); } }
 /* English meaning under each verb in teaching tables. */
 .vt-meaning { display: block; font-size: 0.78rem; font-weight: 400; color: var(--muted); white-space: normal; }
+
+.mistakes ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.mistakes .wrong { color: var(--bad); text-decoration: line-through; margin-right: 0.5rem; }
+.mistakes .right { color: var(--good); font-weight: 700; }

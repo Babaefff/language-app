@@ -28,6 +28,7 @@ To say who is doing the action, you add an **ending** to the stem. The ending ca
         ['Vivimos en Madrid.', 'We live in Madrid.'],
         ['Ellos trabajan mucho.', 'They work a lot.'],
       ] },
+      { t: 'mistakes', items: [["Yo hablar español.", "Yo hablo español.", "Always conjugate: the infinitive (hablar) is only the dictionary form."], ["Nosotros vivemos aquí.", "Nosotros vivimos aquí.", "-ir verbs use -imos, not -emos."]] },
     ],
     practice: {
       conj: { verbs: ['hablar', 'comer', 'vivir', 'trabajar', 'beber', 'escribir', 'estudiar', 'aprender'], tenses: ['presente'], count: 10 },
@@ -95,6 +96,7 @@ The change happens only where the stress falls on the stem: **yo, tú, él, ello
 
 Dictionaries often mark these verbs like this: *pensar (ie)*, *dormir (ue)*, *pedir (i)*.` },
       { t: 'tip', md: '**Nosotros is safe:** *pensamos, podemos, pedimos, jugamos* — never *piensamos*.' },
+      { t: 'mistakes', items: [["Nosotros puedemos.", "Nosotros podemos.", "nosotros and vosotros never change the stem."], ["Yo jugo al fútbol.", "Yo juego al fútbol.", "jugar changes u → ue in the boot forms."]] },
     ],
     practice: {
       conj: { verbs: ['pensar', 'querer', 'poder', 'dormir', 'volver', 'pedir', 'jugar', 'empezar', 'entender', 'encontrar'], tenses: ['presente'], count: 10 },
@@ -137,6 +139,7 @@ The present **subjunctive** is built on the *yo* form, so **tengo** gives **teng
         ['No conozco a tu hermano.', "I don't know your brother."],
         ['¿Pongo la mesa?', 'Shall I set the table?'],
       ] },
+      { t: 'mistakes', items: [["Yo teno un perro.", "Yo tengo un perro.", "tener, poner, salir, venir… add -go in yo."], ["Yo sabo la respuesta.", "Yo sé la respuesta.", "saber is irregular: sé."]] },
     ],
     practice: {
       conj: { verbs: ['tener', 'hacer', 'poner', 'salir', 'decir', 'venir', 'traer', 'conocer', 'conducir', 'saber', 'dar', 'ver'], tenses: ['presente'], count: 12 },
@@ -174,6 +177,7 @@ Use **ser** for things that define or identify:
         ['Es listo.', 'He is clever.'],
         ['Está listo.', 'He is ready.'],
       ] },
+      { t: 'mistakes', items: [["Soy cansado.", "Estoy cansado.", "Moods and temporary states use estar."], ["Madrid es en España.", "Madrid está en España.", "Location uses estar (except events: la fiesta es en…)."], ["Estoy profesor.", "Soy profesor.", "Jobs use ser."]] },
     ],
     practice: {
       choice: [
@@ -216,6 +220,7 @@ Use **ser** for things that define or identify:
 - Vowel → add **-s**: *el libro → los libros*
 - Consonant → add **-es**: *la ciudad → las ciudades*, *el país → los países*
 - **-z** → **-ces**: *el lápiz → los lápices*` },
+      { t: 'mistakes', items: [["La problema", "El problema", "Many -ma words from Greek are masculine."], ["El mano", "La mano", "mano is feminine despite the -o."]] },
     ],
     practice: {
       choice: [
@@ -264,6 +269,7 @@ Add *a + person* for emphasis or clarity: ***A Marta** le gusta el té.*` },
         ['A mis padres les encanta viajar.', 'My parents love travelling.'],
         ['Me duele la cabeza.', 'My head hurts.'],
       ] },
+      { t: 'mistakes', items: [["Yo gusto el café.", "Me gusta el café.", "The thing liked is the subject: me gusta."], ["Me gusta los perros.", "Me gustan los perros.", "Plural things → gustan."]] },
     ],
     practice: {
       choice: [
@@ -312,6 +318,42 @@ Conjugate the verb normally and put the matching pronoun **before** it:` },
     },
   },
 
+  {
+    id: 'g-cognates',
+    level: 'A1',
+    title: 'Words you already know',
+    titleEs: 'Palabras transparentes',
+    summary: 'English endings that turn into Spanish: -tion → -ción, -ty → -dad, -ly → -mente…',
+    blocks: [
+      { t: 'text', md: `
+## Thousands of free words
+English and Spanish share a huge number of words from Latin. Many follow **regular patterns**, so if you know the English word you can often build the Spanish one:
+
+| English | Spanish | examples |
+| -tion | **-ción** (fem.) | nation → nación, information → información |
+| -ty | **-dad** (fem.) | city → ciudad, university → universidad |
+| -ly | **-mente** | really → realmente, exactly → exactamente |
+| -ous | **-oso** | famous → famoso, delicious → delicioso |
+| -ist | **-ista** | artist → artista, dentist → dentista |
+| -ble | **-ble** | possible → posible, terrible → terrible |
+| -ic | **-ico** | music → música, electric → eléctrico |
+| -ence / -ance | **-encia / -ancia** | science → ciencia, distance → distancia |` },
+      { t: 'tip', md: 'Words ending in **-ción** and **-dad** are always **feminine**: *la nación, la ciudad*.' },
+      { t: 'mistakes', items: [["Estoy embarazada. (to mean 'embarrassed')", 'Tengo vergüenza.', '"False friend": embarazada means pregnant!'], ['Actualmente (to mean "actually")', 'En realidad', 'actualmente means "currently".'], ['Librería (to mean "library")', 'Biblioteca', 'una librería is a bookshop.']] },
+      { t: 'examples', items: [['La información es importante.', 'The information is important.'], ['Es realmente delicioso.', "It's really delicious."], ['Es posible.', "It's possible."]] },
+    ],
+    practice: {
+      choice: [
+        { q: '"nation" in Spanish: ___', options: ['nación', 'natión', 'nacio'], answer: 0 },
+        { q: '"university" in Spanish: ___', options: ['universidad', 'universitad', 'universitía'], answer: 0 },
+        { q: '"exactly" in Spanish: ___', options: ['exactamente', 'exactly', 'exactomente'], answer: 0 },
+        { q: '"famous" in Spanish: ___', options: ['famoso', 'famous', 'fama'], answer: 0 },
+        { q: 'Una librería is a…', options: ['bookshop', 'library', 'bookcase'], answer: 0 },
+        { q: '___ ciudad', options: ['la', 'el'], answer: 0 },
+      ],
+    },
+  },
+
   // ─── A2 ────────────────────────────────────────────────────────────────────
   {
     id: 'g-preterite-regular',
@@ -339,6 +381,7 @@ To keep the same sound before **é**:
 | -zar → **-cé** | empezar → **empecé** |
 
 -er/-ir verbs with a vowel before the ending use **y**: *leer → leyó, leyeron*; *creer → creyó*.` },
+      { t: 'mistakes', items: [["Ayer yo hablo con Ana.", "Ayer hablé con Ana.", "Finished past action → preterite; mind the accent."], ["Ayer yo buscé las llaves.", "Ayer yo busqué las llaves.", "-car verbs spell -qué in yo."]] },
     ],
     practice: {
       conj: { verbs: ['hablar', 'comer', 'vivir', 'trabajar', 'escribir', 'buscar', 'llegar', 'empezar', 'leer', 'viajar', 'visitar', 'aprender'], tenses: ['preterito'], count: 12 },
@@ -375,6 +418,7 @@ When the stem ends in **j**, *ellos* is **-eron**, not *-ieron*:
 
 **dar** and **ver** use -er/-ir endings without accents: *di, dio · vi, vio*.` },
       { t: 'tip', md: '**Hizo** is spelled with a z to keep the sound — *hico* would sound like "iko".' },
+      { t: 'mistakes', items: [["Yo tení un problema.", "Yo tuve un problema.", "tener has the strong stem tuv-."], ["Ellos dijieron", "Ellos dijeron", "j-stems drop the i: -eron."]] },
     ],
     practice: {
       conj: { verbs: ['tener', 'estar', 'poder', 'poner', 'saber', 'querer', 'venir', 'hacer', 'decir', 'traer', 'conducir', 'ir', 'ser', 'dar', 'ver'], tenses: ['preterito'], count: 14 },
@@ -434,6 +478,7 @@ It has just two sets of endings and **no stem changes**:` },
 Imperfect for the ongoing action, preterite for the interruption:
 *Mientras **cenábamos**, **llegó** mi hermano.*` },
       { t: 'tip', md: 'Ask yourself: **was it going on** (imperfect) or **did it happen** (preterite)?' },
+      { t: 'mistakes', items: [["Ayer iba al cine.", "Ayer fui al cine.", "A single finished event → preterite."], ["De niño fui a la playa cada verano.", "De niño iba a la playa cada verano.", "Repeated habits → imperfect."]] },
     ],
     practice: {
       choice: [
@@ -502,6 +547,7 @@ In most of Latin America the preterite is used much more: *¿Ya comiste?*` },
 - means: *Hablamos **por** teléfono.*
 - time of day: ***por** la mañana, **por** la tarde*` },
       { t: 'tip', md: 'Ask: is it the **goal** (para) or the **reason / way** (por)?' },
+      { t: 'mistakes', items: [["Gracias para todo.", "Gracias por todo.", "Thanks always takes por."], ["Estudio por aprender.", "Estudio para aprender.", "Purpose (in order to) → para."]] },
     ],
     practice: {
       choice: [
@@ -646,6 +692,7 @@ It usually appears after **que**, when the two parts of the sentence have **diff
 - ***cuando*** + future idea: *Cuando **llegues**, llámame.*
 - ***para que***: *Te lo explico para que lo **entiendas**.*` },
       { t: 'tip', md: '**Creo que** + indicative (you believe it) · **No creo que** + subjunctive (you doubt it).' },
+      { t: 'mistakes', items: [["Quiero que vienes.", "Quiero que vengas.", "Wish + different subject → subjunctive."], ["Creo que sea verdad.", "Creo que es verdad.", "Creer que (belief) takes the indicative."], ["Cuando llegaré, te llamo.", "Cuando llegue, te llamo.", "cuando + future idea → subjunctive."]] },
     ],
     practice: {
       choice: [
@@ -688,6 +735,7 @@ It usually appears after **que**, when the two parts of the sentence have **diff
 ## Pronouns
 - attached to affirmative commands (add an accent to keep the stress): *Dí**melo**. Cóme**lo**. Levánta**te**.*
 - before negative commands: *No **me lo** digas. No **te** levantes.*` },
+      { t: 'mistakes', items: [["¡No habla!", "¡No hables!", "Negative commands use the subjunctive."], ["¡Dice la verdad!", "¡Di la verdad!", "decir has the short tú command di."]] },
     ],
     practice: {
       conj: { verbs: ['hablar', 'comer', 'escribir', 'decir', 'hacer', 'ir', 'poner', 'salir', 'tener', 'venir', 'cortar', 'añadir'], tenses: ['imperativo'], count: 12 },
