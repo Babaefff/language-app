@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { SENTENCES, UNITS, WORDS } from './course';
+import { SENTENCES, UNIT_LESSONS, UNITS, WORDS } from './course';
+import { GRAMMAR, GRAMMAR_MAP } from './grammar';
 import { READINGS } from './readings';
 import { VERB_MAP, VERBS } from './verbs';
 import { conjugate, TENSES } from '../lib/conjugate';
-import { stepExercises } from '../lib/exercises';
+import { grammarExercises, stepExercises } from '../lib/exercises';
 
 describe('course content', () => {
   it('has unique word ids', () => {
@@ -36,6 +37,19 @@ describe('course content', () => {
       expect(r.translation.length, r.id).toBe(r.paragraphs.length);
       for (const q of r.questions) expect(q.answer).toBeLessThan(q.options.length);
     }
+  });
+
+  it('grammar lessons reference real verbs and valid answers', () => {
+    const ids = new Set<string>();
+    for (const g of GRAMMAR) {
+      expect(ids.has(g.id), g.id).toBe(false);
+      ids.add(g.id);
+      for (const b of g.blocks) if (b.t === 'table') for (const v of b.verbs) expect(VERB_MAP[v], `${g.id}: ${v}`).toBeDefined();
+      for (const v of g.practice.conj?.verbs ?? []) expect(VERB_MAP[v], `${g.id}: ${v}`).toBeDefined();
+      for (const q of g.practice.choice ?? []) expect(q.answer, `${g.id}: ${q.q}`).toBeLessThan(q.options.length);
+      expect(grammarExercises(g).length, g.id).toBeGreaterThanOrEqual(5);
+    }
+    for (const [unit, lessons] of Object.entries(UNIT_LESSONS)) for (const l of lessons) expect(GRAMMAR_MAP[l], `${unit}: ${l}`).toBeDefined();
   });
 
   it('sentences end with punctuation', () => {

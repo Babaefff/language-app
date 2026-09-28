@@ -1,11 +1,11 @@
-import type { Sentence, Tense, Unit, Word } from '../data/types';
+import type { ChoiceQuestion, GrammarLesson, Sentence, Tense, Unit, Word } from '../data/types';
 import { WORDS } from '../data/course';
 import { VERB_MAP } from '../data/verbs';
 import { conjugate, IMP_PERSONS, PERSONS, TENSE_MAP } from './conjugate';
 import { sample, shuffle } from './text';
 
 export type Exercise =
-  | { kind: 'choice'; key: string; prompt: string; label: string; audio?: string; options: string[]; answer: string; wordId?: string; optionsSpanish: boolean }
+  | { kind: 'choice'; key: string; prompt: string; label: string; audio?: string; options: string[]; answer: string; wordId?: string; optionsSpanish: boolean; hint?: string; promptSpanish?: boolean }
   | { kind: 'type'; key: string; prompt: string; label: string; answer: string; wordId?: string }
   | { kind: 'listen'; key: string; answer: string; en: string; wordId: string }
   | { kind: 'build'; key: string; en: string; es: string; tiles: string[] }
@@ -125,4 +125,25 @@ export function reviewExercise(word: Word, reps: number): Exercise {
   if (reps <= 1) return Math.random() < 0.5 ? choiceEsEn(word) : choiceEnEs(word);
   const r = Math.random();
   return r < 0.4 ? typeEnEs(word) : r < 0.75 ? listen(word) : choiceEnEs(word);
+}
+
+/** A fill-the-gap grammar question, e.g. "Ana ___ cansada." → es / está. */
+export function gapChoice(q: ChoiceQuestion): Exercise {
+  return {
+    kind: 'choice', key: key(), label: 'Choose the right word', prompt: q.q, hint: q.en,
+    // Gap-fill questions are Spanish; "what does X mean?" questions have English options.
+    options: shuffle(q.options), answer: q.options[q.answer], optionsSpanish: q.q.includes('___'), promptSpanish: q.q.includes('___'),
+  };
+}
+
+export function grammarExercises(lesson: GrammarLesson): Exercise[] {
+  const out: Exercise[] = (lesson.practice.choice ?? []).map(gapChoice);
+  const c = lesson.practice.conj;
+  if (c) {
+    for (let i = 0, guard = 0; out.length < (lesson.practice.choice?.length ?? 0) + c.count && guard < c.count * 10; guard++, i++) {
+      const ex = conjItem(c.verbs[i % c.verbs.length], c.tenses[Math.floor(Math.random() * c.tenses.length)]);
+      if (ex) out.push(ex);
+    }
+  }
+  return shuffle(out);
 }

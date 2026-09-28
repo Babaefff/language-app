@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Link } from '../components/Nav';
-import { UNIT_MAP, UNITS } from '../data/course';
+import { UNIT_LESSONS, UNIT_MAP, UNITS } from '../data/course';
+import { GRAMMAR_MAP } from '../data/grammar';
 import { STEPS, stepExercises, type Exercise } from '../lib/exercises';
 import { addXp, applyWordResults, completeStep, useProgress } from '../lib/store';
 import { strength } from '../lib/srs';
@@ -75,6 +76,7 @@ export function UnitPage() {
           <span className="tag">Grammar</span>
           <Grammar source={unit.grammar} />
         </div>
+        <RelatedLessons unitId={unit.id} />
         <div className="row end">
           <button className="btn primary" onClick={() => setMode({ name: 'quiz', step: 2, exercises: stepExercises(unit, 2) })}>Start exercises</button>
         </div>
@@ -128,6 +130,7 @@ export function UnitPage() {
         <summary><strong>Grammar notes</strong></summary>
         <Grammar source={unit.grammar} />
       </details>
+      <RelatedLessons unitId={unit.id} />
 
       <section className="card">
         <h3>Example sentences</h3>
@@ -141,5 +144,27 @@ export function UnitPage() {
         </ul>
       </section>
     </div>
+  );
+}
+
+function RelatedLessons({ unitId }: { unitId: string }) {
+  const lessons = (UNIT_LESSONS[unitId] ?? []).map((id) => GRAMMAR_MAP[id]).filter(Boolean);
+  if (!lessons.length) return null;
+  return (
+    <section className="card">
+      <h3>📐 Understand the grammar</h3>
+      <p className="muted small">Step-by-step lessons that explain the logic behind this unit.</p>
+      <div className="steps">
+        {lessons.map((g) => (
+          <Link key={g.id} to={`/grammar/${g.id}`} className="card step">
+            <div>
+              <strong>{g.title}</strong>
+              <span className="muted small">{g.summary}</span>
+            </div>
+            <span>→</span>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }

@@ -68,10 +68,11 @@ export function Home() {
       </section>
 
       <section className="grid-4">
+        <Link to="/grammar" className="card tile-link"><span>📐</span>Grammar</Link>
         <Link to="/practice/verbs" className="card tile-link"><span>🔁</span>Conjugation</Link>
         <Link to="/practice/sentences" className="card tile-link"><span>🧩</span>Sentences</Link>
         <Link to="/practice/listen" className="card tile-link"><span>🎧</span>Listen mode</Link>
-        <Link to="/reading" className="card tile-link"><span>📖</span>Reading</Link>
+
       </section>
 
       <section className="card">

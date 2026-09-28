@@ -128,7 +128,8 @@ function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'c
   const choose = (o: string) => {
     if (locked) return;
     setChosen(o);
-    if (ex.optionsSpanish) speak(o);
+    if (ex.promptSpanish) speak(ex.prompt.replace(/_{2,}/, ex.answer));
+    else if (ex.optionsSpanish) speak(o);
     onResult({ ok: o === ex.answer, answer: ex.answer });
   };
   useEffect(() => {
@@ -143,9 +144,10 @@ function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'c
     <>
       <p className="ex-label">{ex.label}</p>
       <div className="ex-prompt">
-        <span lang={ex.audio ? 'es' : 'en'}>{ex.prompt}</span>
+        <span lang={ex.audio || ex.promptSpanish ? 'es' : 'en'}>{ex.prompt}</span>
         {ex.audio && <SpeakButton text={ex.audio} />}
       </div>
+      {ex.hint && <p className="muted">{ex.hint}</p>}
       <div className="options">
         {ex.options.map((o, i) => (
           <button

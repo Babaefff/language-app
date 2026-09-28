@@ -208,3 +208,52 @@ export function lookupForm(form: string): FormInfo[] {
   }
   return formIndex.get(form.toLowerCase()) ?? [];
 }
+
+export interface FormParts {
+  /** Reflexive pronoun or auxiliary (me, he, estoy…), if any. */
+  pre: string;
+  stem: string;
+  ending: string;
+  /** The stem differs from the regular one (stem change or irregular verb). */
+  changed: boolean;
+}
+
+/**
+ * Splits each form into stem + ending for teaching tables: habl|o, piens|o, tuv|e.
+ * Forms that don't end in the expected ending (soy, voy, fui) come back whole with `changed`.
+ */
+export function splitForms(inf: string, tense: Tense): (FormParts | null)[] {
+  const def = VERB_MAP[inf];
+  if (!def) throw new Error(`unknown verb: ${inf}`);
+  const p = parse(def);
+  const forms = conjugate(inf, tense);
+  return forms.map((full, i) => {
+    if (!full) return null;
+    const words = full.split(' ');
+    const form = words.pop()!;
+    const pre = words.join(' ');
+    if (tense === 'perfecto' || tense === 'progresivo') {
+      const ending = form.match(/(ado|ido|ído|ando|iendo|yendo)$/)?.[0] ?? '';
+      const stem = form.slice(0, form.length - ending.length);
+      return { pre, stem, ending, changed: !ending || (stem !== p.stem && !p.def.part) };
+    }
+    let regularStem = p.stem;
+    let expected: string;
+    if (tense === 'futuro' || tense === 'condicional') {
+      regularStem = p.base;
+      expected = (tense === 'futuro' ? FUTURE : CONDITIONAL)[i];
+    } else if (tense === 'imperativo') {
+      expected = i === 4 ? 'd' : i === 1 ? ENDINGS.presente[p.type][2] : ENDINGS.subjuntivo[p.type][i === 2 ? 2 : i === 3 ? 3 : 5];
+      if (i === 4) regularStem = p.base.slice(0, -1);
+    } else if (tense === 'preterito' && p.def.pret && !p.def.over?.preterito) {
+      expected = i === 5 && p.def.pret.endsWith('j') ? 'eron' : STRONG_PRET[i];
+    } else if (tense === 'preterito' && p.type !== 'ar' && endsInVowel(p.stem)) {
+      expected = VOWEL_PRET[i];
+    } else {
+      expected = ENDINGS[tense as 'presente' | 'preterito' | 'imperfecto' | 'subjuntivo'][p.type][i];
+    }
+    if (!form.endsWith(expected) || form.length === expected.length) return { pre, stem: form, ending: '', changed: true };
+    const stem = form.slice(0, -expected.length);
+    return { pre, stem, ending: expected, changed: stem !== regularStem };
+  });
+}

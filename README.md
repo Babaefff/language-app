@@ -6,7 +6,8 @@ A web app for learning Spanish that also installs on phones. It covers vocabular
 
 | | |
 |---|---|
-| **Course** | 23 units (A1 ×10, A2 ×6, B1 ×7), about 360 words. Each unit has 3 steps: *learn the words* (flashcards with audio → recognition quiz), *practise* (listen & type, choose, write), and *grammar + sentences + verbs*. |
+| **Course** | 37 units (A1 ×15, A2 ×11, B1 ×11), 632 words, 184 practice sentences. Each unit has 3 steps: *learn the words* (flashcards with audio → recognition quiz), *practise* (listen & type, choose, write), and *grammar + sentences + verbs*. |
+| **Grammar** | 20 step-by-step lessons (A1–B1) that teach the logic: stem + ending, the person code, boot verbs, yo-go verbs, irregular preterite and future stem families, ser/estar, por/para, subjunctive… Colour-coded verb tables (endings vs. changed stems), examples with audio, and practice at the end of each lesson. |
 | **Spaced repetition** | Every word you meet goes into an SM‑2 style review deck. Words come back just before you'd forget them. Review as flashcards (self-graded) or as a quiz. |
 | **Keeps words in front of you** | A *word ticker* on every page cycles through the words you're weakest on (tap to hear). There's also a *word of the day* and a hands-free **Listen mode** that plays word → pause → meaning → example on a loop. |
 | **Conjugation** | A rule-based engine (`src/lib/conjugate.ts`) covering 9 tenses: presente, continuo, indefinido, imperfecto, perfecto, futuro, condicional, subjuntivo, imperativo. It handles stem changes, spelling changes and irregulars. There's a drill mode plus full verb tables with audio. |
@@ -50,6 +51,7 @@ iOS works the same way (`@capacitor/ios`), but it needs a Mac with Xcode. The ap
 - **Words / units:** `src/data/a1.ts`, `a2.ts`, `b1.ts`. Word rows are `[spanish, english, example?, exampleEnglish?]`. Grammar notes use a tiny markup: `## heading`, `- bullet`, `| table |`, `**bold**`, `*italic*`.
 - **Verbs:** `src/data/verbs.ts`. Only irregular parts need declaring (`yo: 'tengo'`, `stem: 'ie'`, `pret: 'tuv'`, `fut: 'tendr'`, …).
 - **Readings:** `src/data/readings.ts`.
+- **Grammar lessons:** `src/data/grammar.ts`. Blocks are text, colour-coded verb tables (`{ t: 'table', verbs, tense }`), examples and tips; practice is conjugation items and/or gap-fill questions. Link lessons to units in `UNIT_LESSONS` (`src/data/course.ts`).
 - **New levels (B2…):** add the level to `LEVELS` in `src/data/types.ts` and add a data file.
 
 `npm test` checks the content: duplicate words, unknown verbs, malformed readings.

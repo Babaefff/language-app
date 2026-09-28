@@ -17,6 +17,8 @@ export interface Progress {
   /** Best score (0–100) per unit step, keyed `${unitId}:${step}`. */
   steps: Record<string, number>;
   readings: Record<string, { readAt: number; score: number }>;
+  /** Best practice score (0–100) per grammar lesson. */
+  grammar: Record<string, number>;
   xp: Record<string, number>;
   conj: { right: number; wrong: number };
   settings: Settings;
@@ -30,6 +32,7 @@ const DEFAULT: Progress = {
   units: {},
   steps: {},
   readings: {},
+  grammar: {},
   xp: {},
   conj: { right: 0, wrong: 0 },
   settings: { rate: 0.9, voiceURI: null, accent: 'es-ES', autoplay: true, ticker: true, dailyGoal: 50 },
@@ -51,6 +54,7 @@ function load(): Progress {
       units: pick('units'),
       steps: pick('steps'),
       readings: pick('readings'),
+      grammar: pick('grammar'),
       xp: pick('xp'),
       conj: { ...DEFAULT.conj, ...pick('conj') },
       settings: { ...DEFAULT.settings, ...pick('settings') },
@@ -112,6 +116,10 @@ export function completeStep(unitId: string, step: number, score: number, stepCo
 
 export function completeReading(id: string, score: number) {
   set({ ...state, readings: { ...state.readings, [id]: { readAt: Date.now(), score } } });
+}
+
+export function completeGrammar(id: string, score: number) {
+  set({ ...state, grammar: { ...state.grammar, [id]: Math.max(score, state.grammar[id] ?? 0) } });
 }
 
 export function recordConj(right: number, wrong: number) {

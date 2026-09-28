@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { conjugate, gerund, lookupForm, participle } from './conjugate';
+import { conjugate, gerund, lookupForm, participle, splitForms } from './conjugate';
 import { VERB_MAP } from '../data/verbs';
 
 const c = (inf: string, t: Parameters<typeof conjugate>[1]) => conjugate(inf, t).join(',');
@@ -88,5 +88,30 @@ describe('conjugate', () => {
     const fui = lookupForm('fui').map((f) => f.inf).sort();
     expect(fui).toEqual(['ir', 'ser']);
     expect(lookupForm('tengo')[0]).toMatchObject({ inf: 'tener', tense: 'presente', person: 0 });
+  });
+});
+
+describe('splitForms', () => {
+  const show = (inf: string, t: Parameters<typeof splitForms>[1]) =>
+    splitForms(inf, t).map((f) => (f ? `${f.changed ? '*' : ''}${f.stem}|${f.ending}` : '-')).join(',');
+  it('marks stems and endings', () => {
+    expect(show('hablar', 'presente')).toBe('habl|o,habl|as,habl|a,habl|amos,habl|áis,habl|an');
+    expect(show('pensar', 'presente')).toBe('*piens|o,*piens|as,*piens|a,pens|amos,pens|áis,*piens|an');
+    expect(show('tener', 'preterito')).toBe('*tuv|e,*tuv|iste,*tuv|o,*tuv|imos,*tuv|isteis,*tuv|ieron');
+    expect(show('tener', 'futuro')).toBe('*tendr|é,*tendr|ás,*tendr|á,*tendr|emos,*tendr|éis,*tendr|án');
+    expect(show('ser', 'presente').startsWith('*soy|,')).toBe(true);
+    expect(show('levantarse', 'presente').startsWith('levant|o')).toBe(true);
+  });
+});
+
+describe('new verbs', () => {
+  it('conjugates correctly', () => {
+    expect(conjugate('cerrar', 'presente').join(',')).toBe('cierro,cierras,cierra,cerramos,cerráis,cierran');
+    expect(conjugate('perder', 'presente').join(',')).toBe('pierdo,pierdes,pierde,perdemos,perdéis,pierden');
+    expect(conjugate('servir', 'preterito').join(',')).toBe('serví,serviste,sirvió,servimos,servisteis,sirvieron');
+    expect(conjugate('traducir', 'preterito').join(',')).toBe('traduje,tradujiste,tradujo,tradujimos,tradujisteis,tradujeron');
+    expect(conjugate('invertir', 'subjuntivo').join(',')).toBe('invierta,inviertas,invierta,invirtamos,invirtáis,inviertan');
+    expect(conjugate('publicar', 'preterito')[0]).toBe('publiqué');
+    expect(conjugate('descargar', 'subjuntivo')[0]).toBe('descargue');
   });
 });

@@ -13,12 +13,14 @@ import { Listen } from './pages/Listen';
 import { Words } from './pages/Words';
 import { Readings, ReadingPage } from './pages/Reading';
 import { Settings } from './pages/Settings';
+import { GrammarLessonPage, GrammarList } from './pages/GrammarPage';
 import { WordTicker } from './components/WordTicker';
 import { streak, useProgress } from './lib/store';
 
 const NAV = [
   { to: '/', icon: '🏠', label: 'Home' },
   { to: '/course', icon: '🗺️', label: 'Course' },
+  { to: '/grammar', icon: '📐', label: 'Grammar' },
   { to: '/review', icon: '🧠', label: 'Review' },
   { to: '/practice', icon: '🎯', label: 'Practice' },
   { to: '/reading', icon: '📖', label: 'Reading' },
@@ -73,6 +75,8 @@ function Shell() {
           <Route path="/reading" element={<Readings />} />
           <Route path="/reading/:id" element={<ReadingPage />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/grammar" element={<GrammarList />} />
+          <Route path="/grammar/:id" element={<GrammarLessonPage />} />
           <Route path="*" element={<Home />} />
         </Routes>
         </ErrorBoundary>
