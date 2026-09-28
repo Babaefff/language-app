@@ -370,3 +370,4 @@ body:has(.session) .ticker,
 body:has(.session) .bottomnav { display: none; }
 body:has(.session) { padding-bottom: 16px; }
 body:has(.session) .feedback { bottom: 1rem; }
+.error-text { white-space: pre-wrap; word-break: break-word; background: var(--surface-2); padding: 0.75rem; border-radius: 10px; font-size: 0.85rem; }

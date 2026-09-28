@@ -44,10 +44,11 @@ export function Listen() {
     const id = ++run.current;
     const alive = () => run.current === id;
     let lock: { release: () => Promise<void> } | null = null;
-    (navigator as Navigator & { wakeLock?: { request: (t: 'screen') => Promise<{ release: () => Promise<void> }> } }).wakeLock
+    try { (navigator as Navigator & { wakeLock?: { request: (t: 'screen') => Promise<{ release: () => Promise<void> }> } }).wakeLock
       ?.request('screen')
       .then((l) => { lock = l; })
-      .catch(() => {});
+      .catch(() => {}); } catch { // wake lock unavailable
+    }
     (async () => {
       let n = i;
       while (alive()) {

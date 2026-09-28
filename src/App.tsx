@@ -1,4 +1,5 @@
-import { HashRouter, MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { HashRouter, MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Link, NavLink, PREVIEW } from './components/Nav';
 import { useEffect } from 'react';
 import { Home } from './pages/Home';
@@ -31,6 +32,8 @@ function ScrollTop() {
 
 function Shell() {
   const p = useProgress();
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
   const now = Date.now();
   const due = Object.values(p.cards).filter((c) => c.due <= now).length;
   const days = streak(p.xp);
@@ -54,6 +57,7 @@ function Shell() {
       </header>
       <WordTicker />
       <main>
+        <ErrorBoundary key={pathname} onReset={() => navigate('/')}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/course" element={<Course />} />
@@ -69,6 +73,7 @@ function Shell() {
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Home />} />
         </Routes>
+        </ErrorBoundary>
       </main>
       <nav className="bottomnav">
         {NAV.map((n) => (
