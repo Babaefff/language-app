@@ -8,6 +8,10 @@ export class ErrorBoundary extends Component<{ children: ReactNode; onReset: () 
     return { error };
   }
 
+  componentDidCatch(error: Error) {
+    console.error('Hablo crashed:', error);
+  }
+
   render() {
     const { error } = this.state;
     if (!error) return this.props.children;
@@ -16,7 +20,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode; onReset: () 
         <div className="card">
           <h2>Something went wrong on this screen</h2>
           <p className="muted small">Your progress is safe. Please send this message to the developer:</p>
-          <pre className="error-text">{error.message}</pre>
+          <pre className="error-text">{`${error.message}\n\n${error.stack ?? ''}\n\n${navigator.userAgent}`}</pre>
           <button className="btn primary" onClick={() => { this.setState({ error: null }); this.props.onReset(); }}>Back to home</button>
         </div>
       </div>

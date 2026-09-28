@@ -94,7 +94,9 @@ const Router = PREVIEW ? MemoryRouter : HashRouter;
 export default function App() {
   return (
     <Router>
-      <Shell />
+      <ErrorBoundary onReset={() => { window.location.hash = '#/'; }}>
+        <Shell />
+      </ErrorBoundary>
     </Router>
   );
 }

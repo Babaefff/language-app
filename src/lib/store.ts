@@ -35,12 +35,26 @@ const DEFAULT: Progress = {
   settings: { rate: 0.9, voiceURI: null, accent: 'es-ES', autoplay: true, ticker: true, dailyGoal: 50 },
 };
 
+const isObj = (v: unknown): v is Record<string, never> => typeof v === 'object' && v !== null && !Array.isArray(v);
+
+/** Loads saved progress, falling back field by field to defaults if anything is malformed. */
 function load(): Progress {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return DEFAULT;
-    const parsed = JSON.parse(raw) as Partial<Progress>;
-    return { ...DEFAULT, ...parsed, settings: { ...DEFAULT.settings, ...parsed.settings } };
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    if (!isObj(parsed)) return DEFAULT;
+    const pick = <K extends keyof Progress>(k: K): Progress[K] => (isObj(parsed[k]) ? (parsed[k] as Progress[K]) : DEFAULT[k]);
+    return {
+      version: 1,
+      cards: pick('cards'),
+      units: pick('units'),
+      steps: pick('steps'),
+      readings: pick('readings'),
+      xp: pick('xp'),
+      conj: { ...DEFAULT.conj, ...pick('conj') },
+      settings: { ...DEFAULT.settings, ...pick('settings') },
+    };
   } catch {
     return DEFAULT;
   }
