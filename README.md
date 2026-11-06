@@ -59,7 +59,7 @@ iOS works the same way (`@capacitor/ios`), but it needs a Mac with Xcode. The ap
 Pick the language in the header (🇪🇸 Spanish / 🇩🇪 German). Each language keeps its own progress.
 
 - **Spanish:** A1 → B1 (`src/data/*.ts`)
-- **German:** A1, with 276 words, 9 grammar lessons and 4 readings (`src/data/de/`). Its own verb engine is in `src/lib/conjugate-de.ts`; it covers present, Perfekt, Präteritum, Futur, Konjunktiv II and imperative, including vowel changes and separable verbs.
+- **German:** A1–A2, with 493 words, 17 grammar lessons and 8 readings (`src/data/de/`). Its own verb engine is in `src/lib/conjugate-de.ts`; it covers present, Perfekt, Präteritum, Futur, Konjunktiv II and imperative, including vowel changes and separable verbs.
 
 Scripts choose the language with `HABLO_LANG=de`.
 

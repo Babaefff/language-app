@@ -1,6 +1,7 @@
 import type { GrammarLesson } from '../types';
+import { GRAMMAR_DE_A2 } from './grammar-a2';
 
-export const GRAMMAR_DE: GrammarLesson[] = [
+const GRAMMAR_DE_A1: GrammarLesson[] = [
   {
     id: 'de-g-verbs', level: 'A1', title: 'How German verbs work', titleEs: 'Stamm + Endung',
     summary: 'Every verb is a stem plus an ending: spiel-e, spiel-st, spiel-t…',
@@ -254,3 +255,5 @@ Most verbs use **haben**. Use **sein** for **movement from A to B** or a **chang
     },
   },
 ];
+
+export const GRAMMAR_DE: GrammarLesson[] = [...GRAMMAR_DE_A1, ...GRAMMAR_DE_A2];

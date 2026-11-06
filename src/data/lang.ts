@@ -34,7 +34,7 @@ export const LANGS: Record<LangId, LangInfo> = {
     keys: ['ä', 'ö', 'ü', 'ß', 'Ä', 'Ö', 'Ü'],
     levels: {
       A1: 'Greetings, numbers, family, home, food, daily routine, der/die/das and the present tense.',
-      A2: 'Coming soon: past tense, cases and more everyday topics.',
+      A2: 'Shopping, health, travel, work, the past, the dative case and adjective endings.',
       B1: 'Coming soon.',
     },
   },
