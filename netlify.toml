@@ -10,6 +10,3 @@
   NODE_VERSION = "22"
   # Netlify's free plan stops builds after 15 minutes: spend at most 5 per language on audio.
   TTS_TIME_LIMIT = "5"
-
-# Keep clips generated during builds, so missing audio fills up over a few deploys
-# instead of being re-generated every time.
