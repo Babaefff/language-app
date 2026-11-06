@@ -1,5 +1,5 @@
 // Minimal offline support: network-first for pages, cache-first for hashed assets.
-const CACHE = 'hablo-v1';
+const CACHE = 'hablo-v2';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', './index.html', './manifest.webmanifest', './icon.svg'])));
@@ -14,6 +14,19 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
+  // Audio lists change whenever clips are added: always ask the network first.
+  if (new URL(req.url).pathname.endsWith('/manifest.json')) {
+    e.respondWith(
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          if (res.ok) caches.open(CACHE).then((c) => c.put(req, copy));
+          return res;
+        })
+        .catch(() => caches.match(req)),
+    );
+    return;
+  }
   if (req.mode === 'navigate') {
     e.respondWith(
       fetch(req)
