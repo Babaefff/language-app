@@ -1,0 +1,123 @@
+import type { Reading } from './types';
+
+// Traditional songs and public-domain poems set to music.
+export const SONGS_ES: Reading[] = [
+  {
+    id: 's-pollitos', song: true, level: 'A1', title: 'Los pollitos dicen',
+    source: 'Traditional children’s song (public domain)',
+    paragraphs: [
+      'Los pollitos dicen\npío, pío, pío,\ncuando tienen hambre,\ncuando tienen frío.',
+      'La gallina busca\nel maíz y el trigo,\nles da la comida\ny les presta abrigo.',
+      'Bajo sus dos alas,\nacurrucaditos,\nduermen los pollitos\nhasta el otro día.',
+    ],
+    translation: [
+      'The little chicks say cheep, cheep, cheep when they are hungry, when they are cold.',
+      'The hen looks for corn and wheat, she gives them food and keeps them warm.',
+      'Under her two wings, snuggled up, the little chicks sleep until the next day.',
+    ],
+    glossary: { pollitos: 'little chicks', pío: 'cheep', gallina: 'hen', maíz: 'corn / maize', trigo: 'wheat', presta: 'lends / gives (prestar)', abrigo: 'shelter, warmth (also: coat)', alas: 'wings', acurrucaditos: 'snuggled up', otro: 'el otro día: here, the next day' },
+    questions: [
+      { q: '¿Cuándo dicen «pío» los pollitos?', options: ['Cuando juegan', 'Cuando tienen hambre o frío', 'Cuando duermen'], answer: 1 },
+      { q: '¿Qué busca la gallina?', options: ['El maíz y el trigo', 'Agua', 'Flores'], answer: 0 },
+      { q: '¿Dónde duermen los pollitos?', options: ['En un árbol', 'En una caja', 'Bajo las alas de la gallina'], answer: 2 },
+    ],
+  },
+  {
+    id: 's-arroz', song: true, level: 'A1', title: 'Arroz con leche',
+    source: 'Traditional children’s song (public domain)',
+    paragraphs: [
+      'Arroz con leche,\nme quiero casar\ncon una señorita\nde San Nicolás,',
+      'que sepa coser,\nque sepa bordar,\nque sepa abrir la puerta\npara ir a jugar.',
+      'Con esta sí,\ncon esta no,\ncon esta señorita\nme caso yo.',
+    ],
+    translation: [
+      'Rice pudding, I want to marry a young lady from San Nicolás,',
+      'who knows how to sew, who knows how to embroider, who knows how to open the door to go out and play.',
+      'With this one yes, with this one no, this is the young lady I will marry.',
+    ],
+    glossary: { arroz: 'rice (arroz con leche: rice pudding)', casar: 'to marry (casarse)', señorita: 'young lady', sepa: 'knows how to (subjunctive of saber)', coser: 'to sew', bordar: 'to embroider', caso: 'me caso: I get married' },
+    questions: [
+      { q: '¿Qué quiere hacer el cantante?', options: ['Viajar', 'Cocinar', 'Casarse'], answer: 2 },
+      { q: '¿De dónde es la señorita?', options: ['De San Nicolás', 'De Madrid', 'De México'], answer: 0 },
+      { q: '¿Para qué abre la puerta?', options: ['Para comer', 'Para ir a jugar', 'Para dormir'], answer: 1 },
+    ],
+  },
+  {
+    id: 's-cielito', song: true, level: 'A2', title: 'Cielito lindo',
+    source: 'Quirino Mendoza y Cortés (1882), Mexico — public domain',
+    paragraphs: [
+      'De la Sierra Morena,\ncielito lindo, vienen bajando\nun par de ojitos negros,\ncielito lindo, de contrabando.',
+      '¡Ay, ay, ay, ay!\nCanta y no llores,\nporque cantando se alegran,\ncielito lindo, los corazones.',
+      'Ese lunar que tienes,\ncielito lindo, junto a la boca,\nno se lo des a nadie,\ncielito lindo, que a mí me toca.',
+    ],
+    translation: [
+      'From the Sierra Morena, my sweetheart, a pair of dark eyes come down, smuggled in.',
+      'Ay, ay, ay, ay! Sing and don’t cry, because singing, my sweetheart, makes hearts happy.',
+      'That beauty mark you have, my sweetheart, next to your mouth — don’t give it to anyone, my sweetheart, because it belongs to me.',
+    ],
+    glossary: { cielito: 'little sky — here: sweetheart', lindo: 'lovely / pretty', sierra: 'mountain range', morena: 'Sierra Morena: mountains in Spain', bajando: 'coming down (bajar)', par: 'pair', ojitos: 'little eyes', contrabando: 'de contrabando: smuggled', llores: 'no llores: don’t cry (llorar)', cantando: 'singing', alegran: 'become happy (alegrarse)', corazones: 'hearts', lunar: 'beauty mark / mole', junto: 'junto a: next to', des: 'no se lo des: don’t give it (dar)', toca: 'is mine / my turn (tocar)' },
+    questions: [
+      { q: '¿Qué vienen bajando de la Sierra Morena?', options: ['Unos caballos', 'Un par de ojitos negros', 'Unos amigos'], answer: 1 },
+      { q: '¿Qué dice la canción que hagamos?', options: ['Cantar y no llorar', 'Llorar', 'Dormir'], answer: 0 },
+      { q: '¿Dónde está el lunar?', options: ['En la mano', 'En la frente', 'Junto a la boca'], answer: 2 },
+    ],
+  },
+  {
+    id: 's-colores', song: true, level: 'A2', title: 'De colores',
+    source: 'Traditional folk song (public domain)',
+    paragraphs: [
+      'De colores,\nde colores se visten los campos en la primavera.\nDe colores,\nde colores son los pajaritos que vienen de afuera.',
+      'De colores,\nde colores es el arco iris que vemos lucir,\ny por eso los grandes amores\nde muchos colores me gustan a mí.',
+      'Canta el gallo,\ncanta el gallo con el quiri, quiri, quiri, quiri, quiri.\nLa gallina,\nla gallina con el cara, cara, cara, cara, cara.\nLos polluelos,\nlos polluelos con el pío, pío, pío, pío, pí.',
+    ],
+    translation: [
+      'In colours, the fields dress in colours in spring. In colours, the little birds that come from far away are colourful.',
+      'In colours, the rainbow we see shining is colourful, and that’s why I love great loves of many colours.',
+      'The rooster sings, the rooster sings with a quiri, quiri… The hen with a cara, cara… The chicks with a pío, pío…',
+    ],
+    glossary: { colores: 'colours', visten: 'dress (vestirse: to get dressed)', campos: 'fields', primavera: 'spring', pajaritos: 'little birds', afuera: 'outside / far away', arco: 'arco iris: rainbow', iris: 'arco iris: rainbow', lucir: 'to shine', amores: 'loves', gallo: 'rooster', gallina: 'hen', polluelos: 'chicks', quiri: '(rooster sound)', cara: '(hen sound)', pío: 'cheep' },
+    questions: [
+      { q: '¿Cuándo se visten de colores los campos?', options: ['En invierno', 'En la primavera', 'En otoño'], answer: 1 },
+      { q: '¿Qué vemos lucir de colores?', options: ['El arco iris', 'El sol', 'La luna'], answer: 0 },
+      { q: '¿Qué animal canta «quiri, quiri»?', options: ['La gallina', 'Los polluelos', 'El gallo'], answer: 2 },
+    ],
+  },
+  {
+    id: 's-mananitas', song: true, level: 'A2', title: 'Las mañanitas',
+    source: 'Traditional Mexican birthday song (public domain)',
+    paragraphs: [
+      'Estas son las mañanitas\nque cantaba el rey David;\nhoy por ser día de tu santo\nte las cantamos a ti.',
+      'Despierta, mi bien, despierta,\nmira que ya amaneció;\nya los pajaritos cantan,\nla luna ya se metió.',
+    ],
+    translation: [
+      'These are the morning songs that King David used to sing; today, because it’s your saint’s day, we sing them to you.',
+      'Wake up, my dear, wake up, look, the day has dawned; the little birds are already singing, the moon has already set.',
+    ],
+    glossary: { mañanitas: 'morning songs (a birthday serenade)', cantaba: 'used to sing (imperfect)', rey: 'king', santo: 'día de tu santo: your saint’s day / birthday', despierta: 'wake up! (despertar)', bien: 'mi bien: my dear', amaneció: 'day has dawned (amanecer)', metió: 'se metió: has set / gone in (meterse)' },
+    questions: [
+      { q: '¿Quién cantaba las mañanitas?', options: ['El rey David', 'Un pajarito', 'La luna'], answer: 0 },
+      { q: '¿Cuándo se canta esta canción?', options: ['En Navidad', 'Por la noche', 'En el cumpleaños o el día del santo'], answer: 2 },
+      { q: '¿Qué hacen los pajaritos?', options: ['Duermen', 'Cantan', 'Comen'], answer: 1 },
+    ],
+  },
+  {
+    id: 's-guantanamera', song: true, level: 'B1', title: 'Versos sencillos (Guantanamera)',
+    source: 'José Martí, Versos sencillos (1891) — public domain; sung to the tune of “Guantanamera”',
+    paragraphs: [
+      'Yo soy un hombre sincero\nde donde crece la palma,\ny antes de morirme quiero\nechar mis versos del alma.',
+      'Mi verso es de un verde claro\ny de un carmín encendido;\nmi verso es un ciervo herido\nque busca en el monte amparo.',
+      'Con los pobres de la tierra\nquiero yo mi suerte echar;\nel arroyo de la sierra\nme complace más que el mar.',
+    ],
+    translation: [
+      'I am a sincere man from where the palm tree grows, and before I die I want to pour out the verses of my soul.',
+      'My verse is a light green and a fiery crimson; my verse is a wounded deer that looks for shelter in the hills.',
+      'I want to share my fate with the poor of the earth; the mountain stream pleases me more than the sea.',
+    ],
+    glossary: { sincero: 'sincere / honest', crece: 'grows (crecer)', palma: 'palm tree', morirme: 'antes de morirme: before I die', echar: 'to throw / pour out; echar la suerte: to share one’s fate', versos: 'verses', alma: 'soul', claro: 'light (colour)', carmín: 'crimson', encendido: 'bright / burning', ciervo: 'deer', herido: 'wounded', monte: 'hills / woodland', amparo: 'shelter / protection', pobres: 'the poor', suerte: 'fate / luck', arroyo: 'stream', sierra: 'mountains', complace: 'pleases (complacer)' },
+    questions: [
+      { q: '¿De dónde es el poeta?', options: ['Del mar', 'De donde crece la palma', 'De la ciudad'], answer: 1 },
+      { q: '¿Con qué compara su verso?', options: ['Con un ciervo herido', 'Con un pájaro', 'Con una flor'], answer: 0 },
+      { q: '¿Qué le gusta más que el mar?', options: ['La ciudad', 'El desierto', 'El arroyo de la sierra'], answer: 2 },
+    ],
+  },
+];

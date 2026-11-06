@@ -417,3 +417,12 @@ body:has(.session) .feedback { bottom: 1rem; }
 
 .lang-switch { padding: 0.3rem 0.5rem; border-radius: 999px; font-weight: 700; font-size: 0.9rem; }
 .vt-post { color: var(--b1); font-weight: 700; }
+
+.reading.song .song-line { display: block; }
+.reading.song .para { margin-bottom: 1.1rem; }
+.section-title { margin-top: 2rem; }
+.gap-line { font-size: 1.2rem; line-height: 1.7; }
+.gap { display: inline-block; min-width: 4.5ch; padding: 0 0.3rem; border-bottom: 2px solid var(--accent); font-weight: 700; }
+.gap.right { color: var(--good, #2e9e5b); }
+.gap.wrong { color: var(--bad, #d33); }
+.gap-game .options { margin: 0.75rem 0; }

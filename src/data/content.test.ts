@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { SENTENCES, UNIT_LESSONS, UNITS, WORDS } from './course';
 import { GRAMMAR, GRAMMAR_MAP } from './grammar';
-import { READINGS } from './readings';
+import { READINGS, SONGS } from './readings';
 import { VERB_MAP, VERBS } from './verbs';
 import { conjugate, TENSES } from '../lib/conjugate';
 import { grammarExercises, stepExercises } from '../lib/exercises';
@@ -33,7 +33,7 @@ describe('course content', () => {
   });
 
   it('readings are well-formed', () => {
-    for (const r of READINGS) {
+    for (const r of [...READINGS, ...SONGS]) {
       expect(r.translation.length, r.id).toBe(r.paragraphs.length);
       for (const q of r.questions) expect(q.answer).toBeLessThan(q.options.length);
     }

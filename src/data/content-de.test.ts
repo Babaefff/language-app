@@ -52,7 +52,8 @@ describe('German course', () => {
       expect(m.ex.grammarExercises(g).length, g.id).toBeGreaterThanOrEqual(4);
     }
     for (const [u, ls] of Object.entries(m.course.UNIT_LESSONS)) for (const l of ls) expect(m.grammar.GRAMMAR_MAP[l], `${u}: ${l}`).toBeDefined();
-    for (const r of m.readings.READINGS) expect(r.translation.length).toBe(r.paragraphs.length);
+    for (const r of [...m.readings.READINGS, ...m.readings.SONGS]) expect(r.translation.length, r.id).toBe(r.paragraphs.length);
+    expect(m.readings.SONGS.length).toBeGreaterThanOrEqual(5);
   });
 
   it('conjugates every verb and accepts ss for ß', () => {

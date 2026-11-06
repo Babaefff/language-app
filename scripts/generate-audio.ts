@@ -10,11 +10,11 @@
  */
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { WORDS, SENTENCES } from '../src/data/course';
-import { READINGS } from '../src/data/readings';
+import { READINGS, SONGS } from '../src/data/readings';
 import { GRAMMAR } from '../src/data/grammar';
 import { VERBS } from '../src/data/verbs';
 import { conjugate, gerund, participle, TENSES } from '../src/lib/conjugate';
-import { audioFile, audioKey, speakable, splitSentences } from '../src/lib/audioKey';
+import { audioFile, audioKey, speakable, chunks } from '../src/lib/audioKey';
 
 const args = process.argv.slice(2);
 const dry = args.includes('--dry');
@@ -47,7 +47,7 @@ const add = (t?: string) => {
 
 for (const w of WORDS) { add(w.es); add(w.ex); }
 for (const s of SENTENCES) add(s.es);
-for (const r of READINGS) for (const p of r.paragraphs) splitSentences(p).forEach(add);
+for (const r of [...READINGS, ...SONGS]) for (const p of r.paragraphs) chunks(p, r.song).forEach(add);
 for (const g of GRAMMAR) {
   for (const b of g.blocks) if (b.t === 'examples') b.items.forEach(([es]) => add(es));
   for (const b of g.blocks) if (b.t === 'mistakes') b.items.forEach(([, right]) => add(right));

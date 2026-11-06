@@ -54,6 +54,8 @@ export interface Reading {
   level: Level | 'B1+';
   title: string;
   source?: string;
+  /** Songs: each paragraph is a verse, one line per "\n"; read and played line by line. */
+  song?: boolean;
   paragraphs: string[];
   translation: string[];
   /** Lower-case word form → English, checked before the course dictionary. */

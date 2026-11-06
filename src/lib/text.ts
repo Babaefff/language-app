@@ -63,5 +63,5 @@ export function sample<T>(items: readonly T[], n: number): T[] {
 
 /** Splits running text into word and non-word pieces, keeping punctuation for display. */
 export function tokenize(text: string): { text: string; word: boolean }[] {
-  return text.split(/([A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)/).filter(Boolean).map((t) => ({ text: t, word: /[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/.test(t) }));
+  return text.split(/(\p{L}+)/u).filter(Boolean).map((t) => ({ text: t, word: /\p{L}/u.test(t) }));
 }

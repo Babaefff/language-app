@@ -15,6 +15,11 @@ export function splitSentences(p: string): string[] {
   return p.match(/[^.!?]+[.!?]+["”»]?\s*|[^.!?]+$/g) ?? [p];
 }
 
+/** The spoken chunks of a reading paragraph: sentences, or lines for songs. */
+export function chunks(p: string, song?: boolean): string[] {
+  return song ? p.split('\n').filter((l) => l.trim()) : splitSentences(p);
+}
+
 /** Short deterministic file name for a key (FNV-1a, hex). */
 export function audioFile(key: string): string {
   let h1 = 0x811c9dc5;
