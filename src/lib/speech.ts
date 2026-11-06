@@ -42,14 +42,18 @@ export function onVoicesChanged(l: () => void) {
   return () => voiceListeners.delete(l);
 }
 
-const QUALITY = /google|natural|neural|premium|enhanced|mónica|monica|paulina|jorge|siri/i;
+const QUALITY = /google|natural|neural|premium|enhanced|siri|mónica|monica|paulina|jorge|anna|helena|petra|markus|yannick|katja|conrad/i;
+/** macOS joke voices: they sound robotic or silly and should never be picked automatically. */
+const NOVELTY = /rocko|shelley|grandma|grandpa|eddy|flo\b|reed|sandy|albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox|fred|junior|kathy|ralph/i;
 
 function pickVoice(): SpeechSynthesisVoice | undefined {
   const { voiceURI, accent } = getProgress().settings;
   const chosen = voices.find((v) => v.voiceURI === voiceURI);
-  if (chosen) return chosen;
+  if (chosen && !NOVELTY.test(chosen.name)) return chosen;
   const byAccent = accent === 'any' || LANG !== 'es' ? voices : voices.filter((v) => v.lang.replace('_', '-').startsWith(accent));
-  const pool = byAccent.length ? byAccent : voices;
+  const all = byAccent.length ? byAccent : voices;
+  const real = all.filter((v) => !NOVELTY.test(v.name));
+  const pool = real.length ? real : all;
   // Prefer voices installed on the device: Chrome's online "Google" voices can fail silently.
   const local = pool.filter((v) => v.localService);
   return local.find((v) => QUALITY.test(v.name)) ?? local[0] ?? pool.find((v) => QUALITY.test(v.name)) ?? pool[0];

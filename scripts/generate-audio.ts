@@ -35,6 +35,14 @@ const key = process.env.GOOGLE_TTS_KEY;
 import { LANG } from '../src/data/lang';
 const voice = process.env.TTS_VOICE ?? (LANG === 'de' ? 'de-DE-Neural2-A' : 'es-ES-Neural2-A');
 const lang = process.env.TTS_LANG ?? voice.slice(0, 5);
+/** Second speaker for dialogues ("– Hallo! – Hi!"), so conversations sound like two people. */
+const voice2 = process.env.TTS_VOICE_2 ?? (LANG === 'de' ? 'de-DE-Neural2-B' : 'es-ES-Neural2-B');
+/** --redo: make every clip again (after changing voice). --redo-dialogues: only the conversations. */
+const redoAll = args.includes('--redo');
+const redoDialogues = args.includes('--redo-dialogues');
+/** --sample "text": write one test clip (sample.mp3) to compare voices before regenerating. */
+const sampleAt = args.indexOf('--sample');
+const isDialogue = (t: string) => /(^|\s)–\s/.test(t);
 // Spain clips live in public/audio/, other accents in public/audio/<lang>/ (e.g. es-US);
 // the app picks the folder matching the accent chosen in Settings.
 const OUT = new URL(lang === 'es-ES' ? '../public/audio/' : `../public/audio/${lang}/`, import.meta.url).pathname;
@@ -80,7 +88,7 @@ if (!key) {
 }
 
 mkdirSync(OUT, { recursive: true });
-const todo = [...texts].filter(([k]) => !existsSync(OUT + audioFile(k)));
+const todo = [...texts].filter(([k, t]) => redoAll || (redoDialogues && isDialogue(t)) || !existsSync(OUT + audioFile(k)));
 console.log(`${todo.length} to generate, ${texts.size - todo.length} already exist.`);
 
 const ENDPOINT = process.env.TTS_ENDPOINT ?? 'https://texttospeech.googleapis.com/v1/text:synthesize';
@@ -94,25 +102,32 @@ class HttpError extends Error {
   }
 }
 
-async function synth(text: string): Promise<Buffer> {
+async function synth(text: string, name = voice): Promise<Buffer> {
+  // Chirp 3 HD voices choose their own natural pace; the others are slowed slightly for learners.
+  const audioConfig = name.includes('Chirp') ? { audioEncoding: 'MP3' } : { audioEncoding: 'MP3', speakingRate: 0.95 };
   const res = await fetch(`${ENDPOINT}?key=${key}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      input: { text },
-      voice: { languageCode: lang, name: voice },
-      audioConfig: { audioEncoding: 'MP3', speakingRate: 0.95 },
-    }),
+    body: JSON.stringify({ input: { text }, voice: { languageCode: lang, name }, audioConfig }),
   });
   if (!res.ok) throw new HttpError(res.status, await res.text());
   return Buffer.from(((await res.json()) as { audioContent: string }).audioContent, 'base64');
 }
 
+/** Dialogues: each turn ("– …") is spoken by the other voice; MP3 parts simply join together. */
+async function synthAny(text: string): Promise<Buffer> {
+  if (!isDialogue(text)) return synthWithRetry(text);
+  const turns = text.split(/(?:^|\s)–\s+/).map((t) => t.trim()).filter(Boolean);
+  const parts: Buffer[] = [];
+  for (let i = 0; i < turns.length; i++) parts.push(await synthWithRetry(turns[i], i % 2 ? voice2 : voice));
+  return Buffer.concat(parts);
+}
+
 /** Retries rate limits (429) and server errors with growing pauses: 5 s, 10 s, 20 s… up to 2 min. */
-async function synthWithRetry(text: string): Promise<Buffer> {
+async function synthWithRetry(text: string, name = voice): Promise<Buffer> {
   for (let attempt = 0; ; attempt++) {
     try {
-      return await synth(text);
+      return await synth(text, name);
     } catch (e) {
       const status = e instanceof HttpError ? e.status : 0;
       const retryable = status === 429 || status >= 500 || status === 0;
@@ -137,6 +152,12 @@ process.on('SIGINT', () => {
   process.exit(130);
 });
 
+if (sampleAt >= 0) {
+  const text = args[sampleAt + 1] ?? (LANG === 'de' ? '– Hallo, wie geht es dir? – Danke, gut! Und dir?' : '– Hola, ¿qué tal? – ¡Muy bien, gracias! ¿Y tú?');
+  writeFileSync('sample.mp3', await synthAny(text));
+  console.log(`Wrote sample.mp3 (${voice}${isDialogue(text) ? ` + ${voice2}` : ''}). Open it to listen.`);
+  process.exit(0);
+}
 let done = 0;
 let failed = 0;
 let nextSlot = Date.now();
@@ -152,7 +173,7 @@ async function worker() {
     await sleep(slot - Date.now());
     const [k, text] = item;
     try {
-      writeFileSync(OUT + audioFile(k), await synthWithRetry(text));
+      writeFileSync(OUT + audioFile(k), await synthAny(text));
     } catch (e) {
       failed++;
       console.error(`✗ ${text}: ${(e as Error).message}`);

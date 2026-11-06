@@ -45,7 +45,7 @@ export function Settings() {
           Device voice (used when a word has no recorded clip)
           <select value={settings.voiceURI ?? ''} onChange={(e) => updateSettings({ voiceURI: e.target.value || null })}>
             <option value="">Automatic (best available)</option>
-            {voices.map((v) => <option key={v.voiceURI} value={v.voiceURI}>{v.name} ({v.lang})</option>)}
+            {voices.filter((v) => !/rocko|shelley|grandma|grandpa|eddy|flo\b|reed|sandy|zarvox|bubbles|bells|boing|jester|trinoids|wobble|whisper|superstar|organ|cellos|bahh|albert|fred|junior|kathy|ralph/i.test(v.name)).map((v) => <option key={v.voiceURI} value={v.voiceURI}>{v.name} ({v.lang})</option>)}
           </select>
         </label>
         )}
