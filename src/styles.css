@@ -443,3 +443,4 @@ body:has(.session) .feedback { bottom: 1rem; }
 .checklist li { margin: 0.2rem 0; }
 .fix { margin-top: 0.25rem; font-weight: 600; }
 .fix-word { color: var(--bad); text-decoration: underline wavy; text-underline-offset: 3px; }
+.account-email { flex: 1 1 14rem; min-width: 0; padding: 0.6rem 0.75rem; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: inherit; font: inherit; }

@@ -92,3 +92,17 @@ Choose another voice with `TTS_VOICE`, e.g. `es-US-Neural2-A` (Latin American) o
 - Accounts + cloud sync (e.g. Supabase) so progress follows you between phone and laptop
 - Speaking practice with speech recognition
 - More languages: the data model is language-agnostic
+
+## Accounts (optional, Supabase)
+
+Without these settings the app saves progress only in the browser. To let learners sign in and sync progress across devices:
+
+1. Create a free project at supabase.com.
+2. **SQL Editor → New query**: paste `supabase/schema.sql` and run it (creates the `progress` table with row-level security).
+3. **Authentication → URL Configuration**: set *Site URL* to the deployed address (e.g. `https://habloso.netlify.app`) and add it, plus `http://localhost:5173`, to *Redirect URLs*.
+4. **Project Settings → API**: copy the *Project URL* and the *anon public* key into Netlify (**Project configuration → Environment variables**) as `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`, and into `.env.local` for local development. Never use the `service_role` key in the app.
+5. Redeploy. A **☁️ Account** card appears in Settings (email sign-in link). For Google sign-in, enable the Google provider in Supabase and set `VITE_SUPABASE_GOOGLE=1`.
+
+## Audio voices
+
+`npm run audio -- --sample` writes `sample.mp3` so you can compare voices first, e.g. `TTS_VOICE=de-DE-Chirp3-HD-Aoede HABLO_LANG=de npm run audio -- --sample`. Dialogues ("– … – …") use a second voice (`TTS_VOICE_2`). After choosing a new voice, `--redo` regenerates every clip; `--redo-dialogues` only the conversations.

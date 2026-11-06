@@ -58,8 +58,15 @@ const isObj = (v: unknown): v is Record<string, never> => typeof v === 'object' 
 function load(): Progress {
   try {
     const raw = localStorage.getItem(KEY);
-    if (!raw) return DEFAULT;
-    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    return raw ? parseProgress(JSON.parse(raw)) : DEFAULT;
+  } catch {
+    return DEFAULT;
+  }
+}
+
+/** Turns stored data (from this browser or the cloud) into valid progress, field by field. */
+export function parseProgress(parsed: unknown): Progress {
+  try {
     if (!isObj(parsed)) return DEFAULT;
     const pick = <K extends keyof Progress>(k: K): Progress[K] => (isObj(parsed[k]) ? (parsed[k] as Progress[K]) : DEFAULT[k]);
     return {
@@ -163,6 +170,61 @@ export function importProgress(json: string) {
   const parsed = JSON.parse(json) as Progress;
   if (parsed.version !== 1 || typeof parsed.cards !== 'object') throw new Error('Not a Hablo backup file');
   set({ ...DEFAULT, ...parsed, settings: { ...DEFAULT.settings, ...parsed.settings } });
+}
+
+/** Listens to every progress change (used by cloud sync). */
+export function onProgressChange(l: () => void) {
+  listeners.add(l);
+  return () => listeners.delete(l);
+}
+
+/** Replaces progress (keeping this device's settings), e.g. after loading it from the cloud. */
+export function replaceProgress(p: Progress) {
+  set({ ...p, settings: state.settings });
+}
+
+const maxRec = (a: Record<string, number>, b: Record<string, number>) => {
+  const out = { ...a };
+  for (const [k, v] of Object.entries(b)) out[k] = Math.max(v, out[k] ?? 0);
+  return out;
+};
+
+/** Combines two copies of progress (this device and the cloud) without losing anything. */
+export function mergeProgress(a: Progress, b: Progress): Progress {
+  const cards = { ...a.cards };
+  for (const [id, c] of Object.entries(b.cards)) {
+    const mine = cards[id];
+    // The copy that was practised more is the more up-to-date one.
+    if (!mine || c.seen > mine.seen || (c.seen === mine.seen && c.due > mine.due)) cards[id] = c;
+  }
+  const units = { ...a.units };
+  for (const [id, u] of Object.entries(b.units)) {
+    const mine = units[id];
+    units[id] = mine ? { completedAt: Math.min(mine.completedAt, u.completedAt), best: Math.max(mine.best, u.best) } : u;
+  }
+  const readings = { ...a.readings };
+  for (const [id, r] of Object.entries(b.readings)) {
+    const mine = readings[id];
+    readings[id] = mine ? { readAt: Math.max(mine.readAt, r.readAt), score: Math.max(mine.score, r.score) } : r;
+  }
+  const exams = { ...a.exams };
+  for (const [id, e] of Object.entries(b.exams ?? {})) {
+    const mine = exams[id];
+    exams[id] = !mine ? e : { ...(e.at > mine.at ? e : mine), best: Math.max(e.best, mine.best) };
+  }
+  return {
+    version: 1,
+    cards,
+    units,
+    steps: maxRec(a.steps, b.steps),
+    readings,
+    grammar: maxRec(a.grammar, b.grammar),
+    exams,
+    // XP per day: the larger count wins, so syncing twice never doubles it.
+    xp: maxRec(a.xp, b.xp),
+    conj: { right: Math.max(a.conj.right, b.conj.right), wrong: Math.max(a.conj.wrong, b.conj.wrong) },
+    settings: a.settings,
+  };
 }
 
 /** Consecutive days (ending today, or yesterday if today has no XP yet) with any XP. */

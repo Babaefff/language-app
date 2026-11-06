@@ -1,5 +1,6 @@
 import { L, LANG } from '../data/lang';
 import { useEffect, useRef, useState } from 'react';
+import { AccountCard } from '../components/AccountCard';
 import { exportProgress, importProgress, resetProgress, updateSettings, useProgress } from '../lib/store';
 import { clipAccent, clipCount, onVoicesChanged, spanishVoices, speak, speechSupported } from '../lib/speech';
 
@@ -60,6 +61,8 @@ export function Settings() {
         </label>
         <label className="toggle"><input type="checkbox" checked={settings.autoplay} onChange={(e) => updateSettings({ autoplay: e.target.checked })} /> Play audio automatically</label>
       </section>
+
+      <AccountCard />
 
       <section className="card">
         <h2>⌨️ Answers</h2>
