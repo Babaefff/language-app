@@ -12,6 +12,7 @@ import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { WORDS, SENTENCES } from '../src/data/course';
 import { READINGS, SONGS } from '../src/data/readings';
 import { GRAMMAR } from '../src/data/grammar';
+import { EXAMS } from '../src/data/exams';
 import { VERBS } from '../src/data/verbs';
 import { conjugate, gerund, participle, TENSES } from '../src/lib/conjugate';
 import { audioFile, audioKey, speakable, chunks } from '../src/lib/audioKey';
@@ -53,6 +54,7 @@ for (const g of GRAMMAR) {
   for (const b of g.blocks) if (b.t === 'mistakes') b.items.forEach(([, right]) => add(right));
   for (const q of g.practice.choice ?? []) if (q.q.includes('___')) add(q.q.replace(/_{2,}/, q.options[q.answer]));
 }
+for (const e of EXAMS) for (const m of e.modules) for (const p of m.parts) { add(p.audio); p.items.forEach((it) => add(it.audio)); }
 // Every single word of readings, songs and sentences, so tapping a word always has a clip.
 const tokens = (t?: string) => t?.match(/\p{L}+/gu) ?? [];
 for (const r of [...READINGS, ...SONGS]) for (const p of r.paragraphs) tokens(p).forEach(add);

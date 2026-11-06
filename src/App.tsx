@@ -1,3 +1,4 @@
+import { ExamList, ExamPage } from './pages/Exam';
 import { HashRouter, MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Link, NavLink, PREVIEW } from './components/Nav';
@@ -86,6 +87,8 @@ function Shell() {
           <Route path="/reading" element={<Readings />} />
           <Route path="/reading/:id" element={<ReadingPage />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/exam" element={<ExamList />} />
+          <Route path="/exam/:id" element={<ExamPage />} />
           <Route path="/grammar" element={<GrammarList />} />
           <Route path="/grammar/:id" element={<GrammarLessonPage />} />
           <Route path="*" element={<Home />} />

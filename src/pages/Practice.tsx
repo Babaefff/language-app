@@ -1,6 +1,7 @@
 import { Link } from '../components/Nav';
 
 const ITEMS = [
+  { to: '/exam', icon: '📝', title: 'Mock exams', text: 'Full A1, A2 and B1 exams in the official certificate format — check that you really are at that level.' },
   { to: '/practice/verbs', icon: '🔁', title: 'Conjugation', text: 'Drill any tense, or browse full verb tables with audio.' },
   { to: '/practice/sentences', icon: '🧩', title: 'Sentence builder', text: 'Put words in order, or write whole sentences yourself.' },
   { to: '/practice/listen', icon: '🎧', title: 'Listen mode', text: 'Hands-free: words and examples play one after another. Great on a walk or commute.' },

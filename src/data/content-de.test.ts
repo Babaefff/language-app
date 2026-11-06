@@ -56,6 +56,21 @@ describe('German course', () => {
     expect(m.readings.SONGS.length).toBeGreaterThanOrEqual(5);
   });
 
+  it('mock exams are well-formed', async () => {
+    const { EXAMS } = await import('./exams');
+    expect(EXAMS.map((e) => e.level)).toEqual(['A1', 'A2', 'B1']);
+    for (const e of EXAMS) {
+      for (const m of e.modules) for (const p of m.parts) {
+        expect(p.items.length, `${e.id} ${p.title}`).toBeGreaterThan(0);
+        for (const it of p.items) {
+          expect(it.answer, `${e.id}: ${it.q}`).toBeLessThan(it.options.length);
+          if (m.id === 'hoeren') expect(!!(it.audio ?? p.audio), `${e.id}: ${it.q} has audio`).toBe(true);
+        }
+      }
+      expect(e.writing.length).toBeGreaterThan(0);
+    }
+  });
+
   it('conjugates every verb and accepts ss for ß', () => {
     for (const v of m.verbs.VERBS) for (const t of m.conj.TENSES) expect(() => m.conj.conjugate(v.inf, t.id)).not.toThrow();
     expect(m.text.checkAnswer('weiss', 'weiß').ok).toBe(true);

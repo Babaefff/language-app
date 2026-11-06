@@ -426,3 +426,11 @@ body:has(.session) .feedback { bottom: 1rem; }
 .gap.right { color: var(--good, #2e9e5b); }
 .gap.wrong { color: var(--bad, #d33); }
 .gap-game .options { margin: 0.75rem 0; }
+
+.exam-module { margin-bottom: 1rem; }
+.exam-part { border-top: 1px solid var(--border); padding-top: 0.75rem; margin-top: 0.75rem; }
+.exam-text { white-space: pre-line; background: color-mix(in srgb, var(--accent) 8%, transparent); border-radius: 10px; padding: 0.75rem 1rem; margin: 0.5rem 0; line-height: 1.6; }
+.exam-write { width: 100%; box-sizing: border-box; font: inherit; padding: 0.6rem; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: inherit; }
+.exam-score.pass { color: var(--good); }
+.exam-score.fail { color: var(--bad); }
+.exam-module details { margin-left: 0.5rem; }

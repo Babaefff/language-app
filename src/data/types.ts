@@ -49,6 +49,58 @@ export interface Unit {
   conj?: { verbs: string[]; tenses: Tense[] };
 }
 
+/** Mock exams modelled on the official format (Goethe-Zertifikat, DELE); all tasks are original. */
+export interface ExamItem {
+  /** Optional text shown above the question (a sign, an advert, an opinion). */
+  text?: string;
+  /** Listening: what is heard for this item (hidden until the module is submitted). */
+  audio?: string;
+  q: string;
+  options: string[];
+  answer: number;
+}
+
+export interface ExamPart {
+  title: string;
+  /** Instructions as printed in the exam, plus English. */
+  instructions: string;
+  instructionsEn: string;
+  /** Reading: a text shared by all items. Listening: audio shared by all items. */
+  text?: string;
+  audio?: string;
+  /** How many times each recording may be played (as in the real exam). */
+  plays?: number;
+  items: ExamItem[];
+}
+
+export interface ExamModule {
+  id: 'hoeren' | 'lesen';
+  title: string;
+  titleEn: string;
+  minutes: number;
+  parts: ExamPart[];
+}
+
+export interface WritingTask {
+  title: string;
+  prompt: string;
+  promptEn: string;
+  points: string[];
+  words: [number, number];
+  model: string;
+  checklist: string[];
+}
+
+export interface Exam {
+  id: string;
+  level: Level;
+  title: string;
+  /** e.g. "Format of the Goethe-Zertifikat A1: Start Deutsch 1". */
+  basedOn: string;
+  modules: ExamModule[];
+  writing: WritingTask[];
+}
+
 export interface Reading {
   id: string;
   level: Level | 'B1+';

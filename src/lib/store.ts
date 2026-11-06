@@ -12,6 +12,8 @@ export interface Settings {
   dailyGoal: number;
 }
 
+export interface ExamResult { at: number; scores: Record<string, number>; best: number }
+
 export interface Progress {
   version: 1;
   cards: Record<string, Card>;
@@ -21,6 +23,8 @@ export interface Progress {
   readings: Record<string, { readAt: number; score: number }>;
   /** Best practice score (0–100) per grammar lesson. */
   grammar: Record<string, number>;
+  /** Mock exams: latest and best result per exam, as percentages per module. */
+  exams: Record<string, ExamResult>;
   xp: Record<string, number>;
   conj: { right: number; wrong: number };
   settings: Settings;
@@ -38,6 +42,7 @@ const DEFAULT: Progress = {
   steps: {},
   readings: {},
   grammar: {},
+  exams: {},
   xp: {},
   conj: { right: 0, wrong: 0 },
   settings: { rate: 0.9, voiceURI: null, accent: 'es-ES', autoplay: true, ticker: true, natural: true, dailyGoal: 50 },
@@ -60,6 +65,7 @@ function load(): Progress {
       steps: pick('steps'),
       readings: pick('readings'),
       grammar: pick('grammar'),
+      exams: pick('exams'),
       xp: pick('xp'),
       conj: { ...DEFAULT.conj, ...pick('conj') },
       settings: { ...DEFAULT.settings, ...pick('settings') },
@@ -121,6 +127,12 @@ export function completeStep(unitId: string, step: number, score: number, stepCo
 
 export function completeReading(id: string, score: number) {
   set({ ...state, readings: { ...state.readings, [id]: { readAt: Date.now(), score } } });
+}
+
+export function completeExam(id: string, scores: Record<string, number>) {
+  const total = Math.round(Object.values(scores).reduce((a, b) => a + b, 0) / Math.max(1, Object.keys(scores).length));
+  const best = Math.max(total, state.exams[id]?.best ?? 0);
+  set({ ...state, exams: { ...state.exams, [id]: { at: Date.now(), scores, best } } });
 }
 
 export function completeGrammar(id: string, score: number) {
