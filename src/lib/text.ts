@@ -1,3 +1,4 @@
+import { LANG } from '../data/lang';
 const ARTICLES = /^(el|la|los|las|un|una|unos|unas|der|die|das|ein|eine)\s+/;
 
 /** Lower-case, trim, drop punctuation, collapse spaces. Keeps accents. */
@@ -26,26 +27,63 @@ export function bare(s: string): string {
 
 export interface Check {
   ok: boolean;
-  /** Correct except for accents. */
+  /** Right except for accents / special letters (á, ñ, ä, ß…). */
   accent?: boolean;
-  /** Correct except the article was missing. */
+  /** Right except for capital letters (German nouns, Sie…). */
+  letterCase?: boolean;
+  /** Right except the article was missing. */
   article?: boolean;
 }
 
+const ARTICLES_I = new RegExp(ARTICLES.source, 'i');
+/** Drops punctuation but keeps letter case. */
+const clean = (s: string) => s.replace(/[¿?¡!.,;:"“”«»()…]/g, ' ').replace(/\s+/g, ' ').trim();
+/** Lower case without accents; in German, ae/oe/ue typed for ä/ö/ü count as the same letter. */
+function fold(s: string) {
+  const f = stripAccents(s.toLowerCase());
+  return LANG === 'de' ? f.replace(/ae/g, 'a').replace(/oe/g, 'o').replace(/ue/g, 'u') : f;
+}
+/** A capital letter where a small one belongs, or the other way round. The first letter of a
+ * sentence is free, except a single German word (where a capital means "noun"). */
+function caseSlip(a: string, b: string) {
+  const wa = a.split(' ');
+  const wb = b.split(' ');
+  const up = (w: string) => w[0] !== w[0].toLowerCase();
+  return wb.some((w, i) => !!wa[i] && (i > 0 || (LANG === 'de' && wb.length === 1)) && up(wa[i]) !== up(w));
+}
+
 /**
- * Compares a typed answer with the expected Spanish text. Missing accents and a missing
- * article are accepted but flagged so the learner gets a gentle reminder.
+ * Compares a typed answer with the expected text. Slips in accents, special letters, capital
+ * letters or a missing article are accepted but flagged — or count as wrong when `strict`.
  */
-export function checkAnswer(input: string, expected: string): Check {
-  const a = normalize(input);
-  const alternatives = expected.split('/').map((e) => normalize(e));
-  for (const b of alternatives) {
-    if (a === b) return { ok: true };
-    if (stripAccents(a) === stripAccents(b)) return { ok: true, accent: true };
-    const bb = b.replace(ARTICLES, '');
-    if (bb !== b && (a === bb || stripAccents(a) === stripAccents(bb))) return { ok: true, article: true };
+export function checkAnswer(input: string, expected: string, strict = false): Check {
+  const a = clean(input);
+  for (const alt of expected.split('/')) {
+    const full = clean(alt);
+    const variants: [string, boolean][] = [[full, false]];
+    const noArt = full.replace(ARTICLES_I, '');
+    if (noArt !== full) variants.push([noArt, true]);
+    for (const [b, article] of variants) {
+      if (fold(a) !== fold(b)) continue;
+      const accent = a.toLowerCase() !== b.toLowerCase();
+      const letterCase = caseSlip(a, b);
+      const r: Check = { ok: !(strict && (accent || letterCase)) };
+      if (accent) r.accent = true;
+      if (letterCase) r.letterCase = true;
+      if (article) r.article = true;
+      return r;
+    }
   }
   return { ok: false };
+}
+
+/** Indexes of the expected words that the typed answer got wrong in any way (for highlighting). */
+export function wrongWords(input: string, expected: string): Set<number> {
+  const a = clean(input).split(' ');
+  const b = clean(expected.split('/')[0]).split(' ');
+  const offset = b.length - a.length === 1 && ARTICLES_I.test(clean(expected)) ? 1 : 0;
+  const same = (x: string | undefined, w: string, i: number) => x === w || (i === 0 && b.length > 1 && x?.toLowerCase() === w.toLowerCase());
+  return new Set(b.map((w, i) => (i < offset || same(a[i - offset], w, i) ? -1 : i)).filter((i) => i >= 0));
 }
 
 export function shuffle<T>(items: readonly T[]): T[] {

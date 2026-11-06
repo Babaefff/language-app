@@ -441,3 +441,5 @@ body:has(.session) .feedback { bottom: 1rem; }
 .heard-miss { color: var(--bad); text-decoration: underline dotted; }
 .checklist { list-style: none; padding-left: 0; }
 .checklist li { margin: 0.2rem 0; }
+.fix { margin-top: 0.25rem; font-weight: 600; }
+.fix-word { color: var(--bad); text-decoration: underline wavy; text-underline-offset: 3px; }

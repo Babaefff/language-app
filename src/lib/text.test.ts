@@ -13,4 +13,12 @@ describe('checkAnswer', () => {
     expect(stripAccents('año')).toBe('año');
     expect(checkAnswer('ano', 'año').ok).toBe(false);
   });
+  it('flags capitals and accents, and fails them in strict mode', () => {
+    expect(checkAnswer('Hola', 'hola')).toEqual({ ok: true });
+    expect(checkAnswer('yo me llamo Ana', 'Yo me llamo Ana')).toEqual({ ok: true });
+    expect(checkAnswer('me llamo ana', 'Me llamo Ana')).toEqual({ ok: true, letterCase: true });
+    expect(checkAnswer('adios', 'adiós', true)).toEqual({ ok: false, accent: true });
+    expect(checkAnswer('adiós', 'adiós', true)).toEqual({ ok: true });
+    expect(checkAnswer('car', 'caer').ok).toBe(false);
+  });
 });

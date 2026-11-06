@@ -2,9 +2,9 @@ import { L, LANG } from '../data/lang';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Exercise } from '../lib/exercises';
 import { personLabel, tenseLabel } from '../lib/exercises';
-import { checkAnswer, normalize, shuffle } from '../lib/text';
+import { checkAnswer, normalize, shuffle, wrongWords } from '../lib/text';
 import { speak } from '../lib/speech';
-import { getProgress } from '../lib/store';
+import { getProgress, updateSettings } from '../lib/store';
 import { VERB_MAP } from '../data/verbs';
 import { SpeakButton } from './SpeakButton';
 import { AccentKeys } from './AccentKeys';
@@ -15,6 +15,8 @@ export interface Result {
   /** The correct answer to show when wrong. */
   answer: string;
   note?: string;
+  /** What was typed, to highlight the words that need fixing. */
+  typed?: string;
   /** Per-word outcome (for match exercises that cover several words). */
   words?: Record<string, boolean>;
 }
@@ -97,6 +99,7 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
               </div>
             )}
             {result.note && <div className="small">{result.note}</div>}
+            {result.typed && result.note && <Highlight typed={result.typed} expected={result.answer} />}
           </div>
           <button className="btn primary" onClick={next} autoFocus>Continue</button>
         </div>
@@ -126,7 +129,11 @@ function useAutoplay(text: string | undefined) {
 
 function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'choice' }>; onResult: (r: Result) => void; locked: boolean }) {
   const [chosen, setChosen] = useState<string | null>(null);
+  const [typing, setTyping] = useState(() => getProgress().settings.typeChoices);
   useAutoplay(ex.audio);
+  // Options in the language being learned can be typed instead (the setting is remembered).
+  const canType = ex.optionsSpanish;
+  const toggle = () => { setTyping(!typing); updateSettings({ typeChoices: !typing }); };
   const choose = (o: string) => {
     if (locked) return;
     setChosen(o);
@@ -136,12 +143,27 @@ function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'c
   };
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (canType && typing) return;
       const n = Number(e.key);
       if (n >= 1 && n <= ex.options.length) choose(ex.options[n - 1]);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   });
+  if (canType && typing) {
+    return (
+      <>
+        <p className="ex-label">{ex.promptSpanish ? 'Type the missing word' : `Type it in ${L.name}`}</p>
+        <div className="ex-prompt">
+          <span lang={ex.audio || ex.promptSpanish ? LANG : 'en'}>{ex.prompt}</span>
+          {ex.audio && <SpeakButton text={ex.audio} />}
+        </div>
+        {ex.hint && <p className="muted">{ex.hint}</p>}
+        <TextAnswer locked={locked} onSubmit={(v) => onResult(feedbackFor(v, ex.answer))} />
+        {!locked && <button className="link small" onClick={toggle}>☰ Show options instead</button>}
+      </>
+    );
+  }
   return (
     <>
       <p className="ex-label">{ex.label}</p>
@@ -164,6 +186,7 @@ function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'c
           </button>
         ))}
       </div>
+      {canType && !locked && <button className="link small" onClick={toggle}>⌨️ Type the answer instead</button>}
     </>
   );
 }
@@ -201,10 +224,24 @@ function TextAnswer({ onSubmit, locked, placeholder }: { onSubmit: (v: string) =
 }
 
 function feedbackFor(input: string, expected: string): Result {
-  const c = checkAnswer(input, expected);
-  const note = c.accent ? `Watch the accents: ${expected}` : c.article ? `Remember the article: ${expected}` : undefined;
+  const c = checkAnswer(input, expected, getProgress().settings.strictSpelling);
+  const notes = [
+    c.accent && (LANG === 'de' ? 'Watch the special letters (ä ö ü ß).' : 'Watch the accents (á é í ó ú ñ ü).'),
+    c.letterCase && (LANG === 'de' ? 'Watch the capitals: nouns and Sie start with a capital letter.' : 'Watch the capital letters.'),
+    c.article && 'Remember the article.',
+  ].filter(Boolean);
   if (c.ok) speak(expected);
-  return { ok: c.ok, answer: expected, note };
+  return { ok: c.ok, answer: expected, note: notes.length ? notes.join(' ') : undefined, typed: input };
+}
+
+/** The expected answer with the words that were typed differently marked. */
+function Highlight({ typed, expected }: { typed: string; expected: string }) {
+  const bad = wrongWords(typed, expected);
+  return (
+    <div className="fix" lang={LANG}>
+      {expected.split('/')[0].trim().split(/\s+/).map((w, i) => <span key={i} className={bad.has(i) ? 'fix-word' : ''}>{w} </span>)}
+    </div>
+  );
 }
 
 function TypeView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'type' }>; onResult: (r: Result) => void; locked: boolean }) {

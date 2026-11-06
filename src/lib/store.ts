@@ -10,6 +10,10 @@ export interface Settings {
   /** Use generated natural-voice clips when available. */
   natural: boolean;
   dailyGoal: number;
+  /** Type the answer instead of choosing from options. */
+  typeChoices: boolean;
+  /** Accents, special letters and capitals must be exactly right. */
+  strictSpelling: boolean;
 }
 
 export interface ExamResult { at: number; scores: Record<string, number>; best: number }
@@ -45,7 +49,7 @@ const DEFAULT: Progress = {
   exams: {},
   xp: {},
   conj: { right: 0, wrong: 0 },
-  settings: { rate: 0.9, voiceURI: null, accent: 'es-ES', autoplay: true, ticker: true, natural: true, dailyGoal: 50 },
+  settings: { rate: 0.9, voiceURI: null, accent: 'es-ES', autoplay: true, ticker: true, natural: true, dailyGoal: 50, typeChoices: false, strictSpelling: false },
 };
 
 const isObj = (v: unknown): v is Record<string, never> => typeof v === 'object' && v !== null && !Array.isArray(v);

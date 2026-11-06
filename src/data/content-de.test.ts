@@ -81,6 +81,11 @@ describe('German course', () => {
     for (const v of m.verbs.VERBS) for (const t of m.conj.TENSES) expect(() => m.conj.conjugate(v.inf, t.id)).not.toThrow();
     expect(m.text.checkAnswer('weiss', 'weiß').ok).toBe(true);
     expect(m.text.checkAnswer('Hund', 'der Hund')).toEqual({ ok: true, article: true });
+    expect(m.text.checkAnswer('hund', 'der Hund')).toEqual({ ok: true, letterCase: true, article: true });
+    expect(m.text.checkAnswer('das Maedchen', 'das Mädchen')).toEqual({ ok: true, accent: true });
+    expect(m.text.checkAnswer('Strasse', 'die Straße', true)).toEqual({ ok: false, accent: true, article: true });
+    expect(m.text.checkAnswer('Wie geht es ihnen', 'Wie geht es Ihnen?', true).ok).toBe(false);
+    expect([...m.text.wrongWords('das haus ist gross', 'Das Haus ist groß.')]).toEqual([1, 3]);
     expect(m.conj.lookupForm('fährt')[0]).toMatchObject({ inf: 'fahren' });
   });
 });

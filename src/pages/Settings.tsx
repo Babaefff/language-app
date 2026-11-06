@@ -62,6 +62,13 @@ export function Settings() {
       </section>
 
       <section className="card">
+        <h2>⌨️ Answers</h2>
+        <label className="toggle"><input type="checkbox" checked={settings.typeChoices} onChange={(e) => updateSettings({ typeChoices: e.target.checked })} /> Type answers instead of choosing from options</label>
+        <label className="toggle"><input type="checkbox" checked={settings.strictSpelling} onChange={(e) => updateSettings({ strictSpelling: e.target.checked })} /> Strict spelling: {LANG === 'de' ? 'ä ö ü ß and capital letters (nouns, Sie)' : 'accents, ñ and capital letters'} must be exactly right</label>
+        <p className="muted small">Without strict spelling, small slips are accepted but the exact spelling is shown. {LANG === 'de' ? 'Typing ae, oe, ue or ss for ä, ö, ü, ß always counts as a slip.' : ''}</p>
+      </section>
+
+      <section className="card">
         <h3>🎯 Learning</h3>
         <label className="field">
           Daily goal
