@@ -24,6 +24,12 @@ const optional = args.includes('--optional');
 /** Stop starting new clips after this many minutes (deploy builds have a time limit). */
 const timeLimitMs = Number(process.env.TTS_TIME_LIMIT ?? 0) * 60_000;
 const startedAt = Date.now();
+// The key can live in .env.local (ignored by git): GOOGLE_TTS_KEY=...
+try {
+  process.loadEnvFile('.env.local');
+} catch {
+  // no .env.local: use the terminal's environment
+}
 const key = process.env.GOOGLE_TTS_KEY;
 import { LANG } from '../src/data/lang';
 const voice = process.env.TTS_VOICE ?? (LANG === 'de' ? 'de-DE-Neural2-A' : 'es-ES-Neural2-A');
