@@ -129,7 +129,7 @@ function useAutoplay(text: string | undefined) {
 
 function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'choice' }>; onResult: (r: Result) => void; locked: boolean }) {
   const [chosen, setChosen] = useState<string | null>(null);
-  const [typing, setTyping] = useState(() => getProgress().settings.typeChoices);
+  const [typing, setTyping] = useState(() => !!ex.typed || getProgress().settings.typeChoices);
   useAutoplay(ex.audio);
   // Options in the language being learned can be typed instead (the setting is remembered).
   const canType = ex.optionsSpanish;
@@ -160,7 +160,7 @@ function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'c
         </div>
         {ex.hint && <p className="muted">{ex.hint}</p>}
         <TextAnswer locked={locked} onSubmit={(v) => onResult(feedbackFor(v, ex.answer))} />
-        {!locked && <button className="link small" onClick={toggle}>☰ Show options instead</button>}
+        {!locked && !ex.typed && <button className="link small" onClick={toggle}>☰ Show options instead</button>}
       </>
     );
   }

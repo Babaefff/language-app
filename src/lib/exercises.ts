@@ -6,7 +6,7 @@ import { sample, shuffle } from './text';
 import { L } from '../data/lang';
 
 export type Exercise =
-  | { kind: 'choice'; key: string; prompt: string; label: string; audio?: string; options: string[]; answer: string; wordId?: string; optionsSpanish: boolean; hint?: string; promptSpanish?: boolean }
+  | { kind: 'choice'; key: string; prompt: string; label: string; audio?: string; options: string[]; answer: string; wordId?: string; optionsSpanish: boolean; hint?: string; promptSpanish?: boolean; typed?: boolean }
   | { kind: 'type'; key: string; prompt: string; label: string; answer: string; wordId?: string }
   | { kind: 'listen'; key: string; answer: string; en: string; wordId: string }
   | { kind: 'build'; key: string; en: string; es: string; tiles: string[] }
@@ -111,7 +111,9 @@ export function stepExercises(unit: Unit, step: number, review: Word[] = []): Ex
     const old = shuffle(review).slice(0, 4).map((w) => (Math.random() < 0.5 ? typeEnEs(w) : listen(w)));
     return shuffle([...practice, ...old]);
   }
-  const builds = unit.sentences.map((s) => build(s, unit.words));
+  // Most sentences are built from tiles; every third one is written out in full.
+  const builds = shuffle(unit.sentences).map((s, i): Exercise =>
+    i % 3 === 2 ? { kind: 'type', key: key(), label: `Write the sentence in ${L.name}`, prompt: s.en, answer: s.es } : build(s, unit.words));
   const conj: Exercise[] = [];
   if (unit.conj) {
     for (let i = 0; i < 6; i++) {
@@ -132,16 +134,18 @@ export function reviewExercise(word: Word, reps: number): Exercise {
 }
 
 /** A fill-the-gap grammar question, e.g. "Ana ___ cansada." → es / está. */
-export function gapChoice(q: ChoiceQuestion): Exercise {
+export function gapChoice(q: ChoiceQuestion, typed = false): Exercise {
   return {
     kind: 'choice', key: key(), label: 'Choose the right word', prompt: q.q, hint: q.en,
     // Gap-fill questions are Spanish; "what does X mean?" questions have English options.
     options: shuffle(q.options), answer: q.options[q.answer], optionsSpanish: q.q.includes('___'), promptSpanish: q.q.includes('___'),
+    // Every other gap question must be typed: recall is stronger than recognition.
+    typed: typed && q.q.includes('___'),
   };
 }
 
 export function grammarExercises(lesson: GrammarLesson): Exercise[] {
-  const out: Exercise[] = (lesson.practice.choice ?? []).map(gapChoice);
+  const out: Exercise[] = (lesson.practice.choice ?? []).map((q, i) => gapChoice(q, i % 2 === 1));
   const c = lesson.practice.conj;
   if (c) {
     for (let i = 0, guard = 0; out.length < (lesson.practice.choice?.length ?? 0) + c.count && guard < c.count * 10; guard++, i++) {
