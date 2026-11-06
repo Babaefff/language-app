@@ -38,6 +38,15 @@ describe('course content', () => {
     for (const w of WRITING) for (const u of w.units) expect(UNITS.some((x) => x.id === u), `${w.id}: ${u}`).toBe(true);
   });
 
+  it('DELE mock exams are well-formed', async () => {
+    const { EXAMS } = await import('./exams');
+    expect(EXAMS.map((e) => e.level)).toEqual(['A1', 'A2', 'B1']);
+    for (const e of EXAMS) for (const m of e.modules) for (const p of m.parts) for (const it of p.items) {
+      expect(it.answer, `${e.id}: ${it.q}`).toBeLessThan(it.options.length);
+      if (m.id === 'hoeren') expect(!!(it.audio ?? p.audio), `${e.id}: ${it.q}`).toBe(true);
+    }
+  });
+
   it('readings are well-formed', () => {
     for (const r of [...READINGS, ...SONGS]) {
       expect(r.translation.length, r.id).toBe(r.paragraphs.length);
