@@ -44,6 +44,7 @@ for (const s of SENTENCES) add(s.es);
 for (const r of READINGS) for (const p of r.paragraphs) splitSentences(p).forEach(add);
 for (const g of GRAMMAR) {
   for (const b of g.blocks) if (b.t === 'examples') b.items.forEach(([es]) => add(es));
+  for (const b of g.blocks) if (b.t === 'mistakes') b.items.forEach(([, right]) => add(right));
   for (const q of g.practice.choice ?? []) if (q.q.includes('___')) add(q.q.replace(/_{2,}/, q.options[q.answer]));
 }
 if (withVerbs) {
