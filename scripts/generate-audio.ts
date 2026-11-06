@@ -60,8 +60,19 @@ mkdirSync(OUT, { recursive: true });
 const todo = [...texts].filter(([k]) => !existsSync(OUT + audioFile(k)));
 console.log(`${todo.length} to generate, ${texts.size - todo.length} already exist.`);
 
+const ENDPOINT = process.env.TTS_ENDPOINT ?? 'https://texttospeech.googleapis.com/v1/text:synthesize';
+/** Requests per minute. Google's default quota for Neural2 voices is low, so stay well under it. */
+const RPM = Number(process.env.TTS_RPM ?? 150);
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+class HttpError extends Error {
+  constructor(public status: number, body: string) {
+    super(`${status} ${body.slice(0, 200)}`);
+  }
+}
+
 async function synth(text: string): Promise<Buffer> {
-  const res = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${key}`, {
+  const res = await fetch(`${ENDPOINT}?key=${key}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -70,29 +81,62 @@ async function synth(text: string): Promise<Buffer> {
       audioConfig: { audioEncoding: 'MP3', speakingRate: 0.95 },
     }),
   });
-  if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+  if (!res.ok) throw new HttpError(res.status, await res.text());
   return Buffer.from(((await res.json()) as { audioContent: string }).audioContent, 'base64');
 }
 
-let done = 0;
-let failed = 0;
-async function worker() {
-  for (let item = todo.shift(); item; item = todo.shift()) {
-    const [k, text] = item;
+/** Retries rate limits (429) and server errors with growing pauses: 5 s, 10 s, 20 s… up to 2 min. */
+async function synthWithRetry(text: string): Promise<Buffer> {
+  for (let attempt = 0; ; attempt++) {
     try {
-      writeFileSync(OUT + audioFile(k), await synth(text));
+      return await synth(text);
     } catch (e) {
-      failed++;
-      console.error(`✗ ${text}: ${(e as Error).message.slice(0, 200)}`);
-      if (failed > 10) process.exit(1);
+      const status = e instanceof HttpError ? e.status : 0;
+      const retryable = status === 429 || status >= 500 || status === 0;
+      if (!retryable || attempt >= 6) throw e;
+      const wait = Math.min(120_000, Number(process.env.TTS_RETRY_MS ?? 5000) * 2 ** attempt);
+      if (status === 429) console.log(`  Google says "too many requests" — pausing ${wait / 1000}s and retrying…`);
+      await sleep(wait);
     }
-    if (++done % 50 === 0) console.log(`  ${done} done…`);
   }
 }
-await Promise.all(Array.from({ length: 6 }, worker));
 
-// The manifest lists every key that has a clip on disk; the app only plays those.
-const files = new Set(readdirSync(OUT));
-const manifest = [...texts.keys()].filter((k) => files.has(audioFile(k)));
-writeFileSync(OUT + 'manifest.json', JSON.stringify(manifest));
-console.log(`Done: ${manifest.length} clips in public/audio (${failed} failed).`);
+/** The manifest lists every key that has a clip on disk; the app only plays those. */
+function writeManifest(): number {
+  const files = new Set(readdirSync(OUT));
+  const manifest = [...texts.keys()].filter((k) => files.has(audioFile(k)));
+  writeFileSync(OUT + 'manifest.json', JSON.stringify(manifest));
+  return manifest.length;
+}
+// Ctrl+C still saves what was made so far.
+process.on('SIGINT', () => {
+  console.log(`\nStopped. Saved ${writeManifest()} clips — run the same command again to continue.`);
+  process.exit(130);
+});
+
+let done = 0;
+let failed = 0;
+let nextSlot = Date.now();
+async function worker() {
+  for (let item = todo.shift(); item; item = todo.shift()) {
+    // Simple pacing shared by all workers: at most RPM requests per minute.
+    const slot = Math.max(nextSlot, Date.now());
+    nextSlot = slot + 60_000 / RPM;
+    await sleep(slot - Date.now());
+    const [k, text] = item;
+    try {
+      writeFileSync(OUT + audioFile(k), await synthWithRetry(text));
+    } catch (e) {
+      failed++;
+      console.error(`✗ ${text}: ${(e as Error).message}`);
+    }
+    if (++done % 50 === 0) {
+      const saved = writeManifest();
+      console.log(`  ${done} done (${saved} clips saved)…`);
+    }
+  }
+}
+await Promise.all(Array.from({ length: 4 }, worker));
+
+const total = writeManifest();
+console.log(`Done: ${total} clips in ${OUT.replace(/.*public\//, 'public/')} (${failed} failed${failed ? ' — run the command again to retry them' : ''}).`);
