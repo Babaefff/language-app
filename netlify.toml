@@ -1,7 +1,19 @@
-# Netlify build settings (alternative to the GitHub Pages workflow).
+# Netlify build settings.
+# If GOOGLE_TTS_KEY is set in Netlify (Project configuration → Environment variables),
+# each build first creates natural-voice clips for any new words, then builds the site.
+# The key is only used during the build; it never reaches the website.
 [build]
-  command = "npm run build"
+  command = "npm run audio:deploy && npm run build"
   publish = "dist"
 
 [build.environment]
   NODE_VERSION = "22"
+  # Netlify's free plan stops builds after 15 minutes: spend at most 5 per language on audio.
+  TTS_TIME_LIMIT = "5"
+
+# Keep clips generated during builds, so missing audio fills up over a few deploys
+# instead of being re-generated every time.
+[[plugins]]
+  package = "netlify-plugin-cache"
+  [plugins.inputs]
+    paths = ["public/audio"]

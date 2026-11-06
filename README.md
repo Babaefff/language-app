@@ -28,7 +28,11 @@ npm run build      # static site in dist/
 
 `dist/` is a plain static site. You can deploy it to GitHub Pages, Netlify, Vercel, Cloudflare Pages or any other static host.
 
-## Publishing (GitHub Pages)
+## Publishing (Netlify — live at https://habloso.netlify.app)
+
+Netlify builds the site on every push (`netlify.toml`). If **GOOGLE_TTS_KEY** is set under *Project configuration → Environment variables* in Netlify, each build first creates natural-voice clips for anything new (up to 5 minutes per language), and keeps them between builds with `netlify-plugin-cache`. For a big backlog, run `npm run audio -- --verbs` (and with `HABLO_LANG=de`) locally once and commit `public/audio/`.
+
+## Publishing (GitHub Pages, alternative)
 
 `.github/workflows/deploy.yml` runs on every push: it generates any missing natural-voice audio (if the `GOOGLE_TTS_KEY` repository secret is set), commits the new clips, runs the tests, builds, and publishes to GitHub Pages.
 
