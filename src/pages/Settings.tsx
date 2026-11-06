@@ -40,18 +40,20 @@ export function Settings() {
           </select>
         </label>
         )}
+        {!(settings.natural && clipCount()) && (
         <label className="field">
-          Voice
+          Device voice (used when a word has no recorded clip)
           <select value={settings.voiceURI ?? ''} onChange={(e) => updateSettings({ voiceURI: e.target.value || null })}>
             <option value="">Automatic (best available)</option>
             {voices.map((v) => <option key={v.voiceURI} value={v.voiceURI}>{v.name} ({v.lang})</option>)}
           </select>
         </label>
+        )}
         <label className="field">
           Speed: {settings.rate.toFixed(2)}×
           <input type="range" min={0.5} max={1.3} step={0.05} value={settings.rate} onChange={(e) => updateSettings({ rate: Number(e.target.value) })} />
         </label>
-        <button className="btn" onClick={() => speak('Hola, ¿qué tal? Me llamo Lucía y aprendo español.')}>▶ Test voice</button>
+        <button className="btn" onClick={() => speak(LANG === 'de' ? 'Hallo, wie geht’s? Ich heiße Lena und ich lerne Deutsch.' : 'Hola, ¿qué tal? Me llamo Lucía y aprendo español.')}>▶ Test voice</button>
         <label className="toggle">
           <input type="checkbox" checked={settings.natural} onChange={(e) => updateSettings({ natural: e.target.checked })} />
           Use natural recorded voice ({clipCount() ? `${clipCount()} clips, ${LANG !== 'es' ? L.native : clipAccent() === 'es-US' ? 'Latin American accent' : 'Spain accent'}` : 'not generated yet — see README'})
