@@ -122,12 +122,16 @@ function playClip(url: string, rate: number): Promise<boolean> {
   });
 }
 
+const ARTICLE_PREFIXES = LANG === 'de' ? ['der ', 'die ', 'das '] : ['el ', 'la ', 'los ', 'las '];
+
 /** Speaks text in the language being studied. Resolves when finished (or immediately if speech is unavailable). */
 export function speak(text: string, opts: { rate?: number; lang?: 'es' | 'en' } = {}): Promise<void> {
   if (opts.lang !== 'en' && getProgress().settings.natural) {
-    const key = audioKey(text);
     const set = activeSet();
-    if (set?.keys.has(key)) {
+    // A tapped noun may only have a clip with its article ("Geschäft" → "das geschäft").
+    const base = audioKey(text);
+    const key = [base, ...ARTICLE_PREFIXES.map((a) => a + base)].find((k) => set?.keys.has(k));
+    if (set && key) {
       try { synth?.cancel(); } catch { /* ignore */ }
       const rate = Math.max(0.5, Math.min(1.5, (opts.rate ?? getProgress().settings.rate) / 0.9));
       return playClip(set.base + audioFile(key), rate).then((ok) => (ok ? undefined : speakTts(text, opts)));

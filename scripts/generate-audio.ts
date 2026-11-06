@@ -53,6 +53,11 @@ for (const g of GRAMMAR) {
   for (const b of g.blocks) if (b.t === 'mistakes') b.items.forEach(([, right]) => add(right));
   for (const q of g.practice.choice ?? []) if (q.q.includes('___')) add(q.q.replace(/_{2,}/, q.options[q.answer]));
 }
+// Every single word of readings, songs and sentences, so tapping a word always has a clip.
+const tokens = (t?: string) => t?.match(/\p{L}+/gu) ?? [];
+for (const r of [...READINGS, ...SONGS]) for (const p of r.paragraphs) tokens(p).forEach(add);
+for (const s of SENTENCES) tokens(s.es).forEach(add);
+for (const w of WORDS) tokens(w.ex).forEach(add);
 if (withVerbs) {
   for (const v of VERBS) {
     add(v.inf); add(participle(v)); add(gerund(v));
