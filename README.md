@@ -28,6 +28,14 @@ npm run build      # static site in dist/
 
 `dist/` is a plain static site. You can deploy it to GitHub Pages, Netlify, Vercel, Cloudflare Pages or any other static host.
 
+## Publishing (GitHub Pages)
+
+`.github/workflows/deploy.yml` runs on every push: it generates any missing natural-voice audio (if the `GOOGLE_TTS_KEY` repository secret is set), commits the new clips, runs the tests, builds, and publishes to GitHub Pages.
+
+One-time setup on GitHub:
+1. **Settings → Pages → Build and deployment → Source: GitHub Actions**
+2. *(optional, for automatic audio)* **Settings → Secrets and variables → Actions → New repository secret**, name `GOOGLE_TTS_KEY`
+
 ## Mobile
 
 **Now (no app store needed):** Hablo is a PWA. Open the deployed site, then:
