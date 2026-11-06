@@ -83,4 +83,25 @@ export const READINGS_DE_B1: Reading[] = [
       { q: 'Wo war Gregor?', options: ['Im Büro', 'In seinem Bett', 'Im Zug'], answer: 1 },
     ],
   },
+  {
+    id: 'de-r-homeoffice',
+    level: 'B1',
+    title: 'Homeoffice: Fluch oder Segen?',
+    paragraphs: [
+      'Seit einigen Jahren arbeiten viele Deutsche regelmäßig von zu Hause aus. Was früher eine Ausnahme war, ist heute für Millionen Menschen normal geworden.',
+      'Die Vorteile liegen auf der Hand: Man spart Zeit, weil man nicht mehr pendeln muss, und kann seinen Tag flexibler planen. Besonders Eltern finden es praktisch, dass sie Arbeit und Familie besser verbinden können.',
+      'Trotzdem gibt es auch Nachteile. Viele vermissen den Kontakt zu ihren Kollegen und fühlen sich manchmal einsam. Außerdem fällt es manchen schwer, nach der Arbeit wirklich abzuschalten, wenn der Schreibtisch im Wohnzimmer steht.',
+    ],
+    translation: [
+      'For some years now, many Germans have regularly worked from home. What used to be an exception has become normal for millions of people today.',
+      "The advantages are obvious: you save time because you no longer have to commute, and you can plan your day more flexibly. Parents in particular find it practical that they can combine work and family better.",
+      "Nevertheless there are also disadvantages. Many miss contact with their colleagues and sometimes feel lonely. In addition, some find it hard to really switch off after work when the desk is in the living room.",
+    ],
+    glossary: { fluch: 'curse', segen: 'blessing', einigen: 'some / several', ausnahme: 'exception', geworden: 'become', vorteile: 'advantages', 'liegen auf der hand': 'are obvious', pendeln: 'to commute', flexibler: 'more flexibly', besonders: 'especially', verbinden: 'combine', nachteile: 'disadvantages', kontakt: 'contact', einsam: 'lonely', außerdem: 'in addition', 'fällt es schwer': 'it is hard (for)', abzuschalten: 'to switch off', schreibtisch: 'desk' },
+    questions: [
+      { q: 'Warum spart man im Homeoffice Zeit?', options: ['Man muss nicht pendeln', 'Man arbeitet weniger', 'Man schläft länger'], answer: 0 },
+      { q: 'Für wen ist Homeoffice besonders praktisch?', options: ['Für Studenten', 'Für Eltern', 'Für Rentner'], answer: 1 },
+      { q: 'Was ist ein Nachteil?', options: ['Man verdient weniger', 'Man fühlt sich manchmal einsam', 'Der Weg ist zu lang'], answer: 1 },
+    ],
+  },
 ];

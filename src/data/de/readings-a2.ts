@@ -83,4 +83,25 @@ export const READINGS_DE_A2: Reading[] = [
       { q: 'Wohin geht der Esel?', options: ['Nach Hamburg', 'Nach Bremen', 'Nach Berlin'], answer: 1 },
     ],
   },
+  {
+    id: 'de-r-weihnachten',
+    level: 'A2',
+    title: 'Weihnachten bei Familie Becker',
+    paragraphs: [
+      'Für Familie Becker ist Weihnachten das wichtigste Fest des Jahres. Schon Anfang Dezember backen die Kinder Plätzchen mit ihrer Oma, und jeden Abend öffnen sie ein Türchen am Adventskalender.',
+      'Am 24. Dezember, dem Heiligabend, kommt die ganze Familie zusammen. Am Nachmittag schmücken sie den Weihnachtsbaum mit Kerzen und Kugeln. Am Abend gibt es Kartoffelsalat mit Würstchen — ein ganz einfaches Essen, aber eine alte Tradition.',
+      'Danach packen alle ihre Geschenke aus. Der kleine Paul hat dieses Jahr ein Fahrrad bekommen und war sehr glücklich. Am 25. und 26. Dezember besuchen die Beckers ihre Verwandten und essen viel zu viel.',
+    ],
+    translation: [
+      "For the Becker family, Christmas is the most important celebration of the year. At the beginning of December the children already bake biscuits with their grandma, and every evening they open a door on the Advent calendar.",
+      'On 24 December, Christmas Eve, the whole family gets together. In the afternoon they decorate the Christmas tree with candles and baubles. In the evening there is potato salad with sausages — a very simple meal, but an old tradition.',
+      'Afterwards everyone unwraps their presents. Little Paul got a bike this year and was very happy. On 25 and 26 December the Beckers visit their relatives and eat far too much.',
+    ],
+    glossary: { wichtigste: 'most important', anfang: 'beginning', backen: 'bake', plätzchen: 'Christmas biscuits', türchen: 'little door', adventskalender: 'Advent calendar', heiligabend: 'Christmas Eve', zusammen: 'together', schmücken: 'decorate', weihnachtsbaum: 'Christmas tree', kugeln: 'baubles', kartoffelsalat: 'potato salad', würstchen: 'sausages', einfaches: 'simple', tradition: 'tradition', packen: 'unwrap (auspacken)', bekommen: 'got / received', verwandten: 'relatives' },
+    questions: [
+      { q: 'Was backen die Kinder mit der Oma?', options: ['Plätzchen', 'Brot', 'Pizza'], answer: 0 },
+      { q: 'Was isst die Familie an Heiligabend?', options: ['Gans', 'Kartoffelsalat mit Würstchen', 'Fisch'], answer: 1 },
+      { q: 'Was hat Paul bekommen?', options: ['Ein Buch', 'Ein Handy', 'Ein Fahrrad'], answer: 2 },
+    ],
+  },
 ];

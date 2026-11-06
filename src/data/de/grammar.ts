@@ -1,3 +1,4 @@
+import { GRAMMAR_DE_MORE_A1, GRAMMAR_DE_MORE_A2, GRAMMAR_DE_MORE_B1 } from './grammar-more';
 import type { GrammarLesson } from '../types';
 import { GRAMMAR_DE_A2 } from './grammar-a2';
 import { GRAMMAR_DE_B1 } from './grammar-b1';
@@ -257,4 +258,4 @@ Most verbs use **haben**. Use **sein** for **movement from A to B** or a **chang
   },
 ];
 
-export const GRAMMAR_DE: GrammarLesson[] = [...GRAMMAR_DE_A1, ...GRAMMAR_DE_A2, ...GRAMMAR_DE_B1];
+export const GRAMMAR_DE: GrammarLesson[] = [...GRAMMAR_DE_A1, ...GRAMMAR_DE_MORE_A1, ...GRAMMAR_DE_A2, ...GRAMMAR_DE_MORE_A2, ...GRAMMAR_DE_B1, ...GRAMMAR_DE_MORE_B1];
