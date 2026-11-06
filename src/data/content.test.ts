@@ -32,6 +32,12 @@ describe('course content', () => {
     for (const v of VERBS) for (const t of TENSES) expect(() => conjugate(v.inf, t.id)).not.toThrow();
   });
 
+  it('writing tasks point at real units', async () => {
+    const { WRITING } = await import('./writing');
+    const { UNITS } = await import('./course');
+    for (const w of WRITING) for (const u of w.units) expect(UNITS.some((x) => x.id === u), `${w.id}: ${u}`).toBe(true);
+  });
+
   it('readings are well-formed', () => {
     for (const r of [...READINGS, ...SONGS]) {
       expect(r.translation.length, r.id).toBe(r.paragraphs.length);

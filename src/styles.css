@@ -434,3 +434,10 @@ body:has(.session) .feedback { bottom: 1rem; }
 .exam-score.pass { color: var(--good); }
 .exam-score.fail { color: var(--bad); }
 .exam-module details { margin-left: 0.5rem; }
+
+.speak-card h2 { margin: 0.25rem 0 0.5rem; }
+.speak-target { font-size: 1.3rem; line-height: 1.6; margin: 0.5rem 0; }
+.heard-ok { color: var(--good); }
+.heard-miss { color: var(--bad); text-decoration: underline dotted; }
+.checklist { list-style: none; padding-left: 0; }
+.checklist li { margin: 0.2rem 0; }

@@ -56,6 +56,12 @@ describe('German course', () => {
     expect(m.readings.SONGS.length).toBeGreaterThanOrEqual(5);
   });
 
+  it('writing tasks point at real units', async () => {
+    const { WRITING } = await import('./writing');
+    expect(WRITING.length).toBeGreaterThanOrEqual(6);
+    for (const w of WRITING) for (const u of w.units) expect(m.course.UNITS.some((x) => x.id === u), `${w.id}: ${u}`).toBe(true);
+  });
+
   it('mock exams are well-formed', async () => {
     const { EXAMS } = await import('./exams');
     expect(EXAMS.map((e) => e.level)).toEqual(['A1', 'A2', 'B1']);
