@@ -153,6 +153,33 @@ export const VERBS_DE: VerbDe[] = [
   { inf: 'schließen', en: 'to close', level: 'A2', pret: 'schloss', part: 'geschlossen' },
   { inf: 'gefallen', en: 'to please (to like)', level: 'A2', insep: true, pres: 'gefäll', pret: 'gefiel', part: 'gefallen' },
   { inf: 'gehören', en: 'to belong to', level: 'A2', insep: true },
+
+  // --- B1 ---------------------------------------------------------------------
+  { inf: 'planen', en: 'to plan', level: 'B1' },
+  { inf: 'sparen', en: 'to save (money)', level: 'B1' },
+  { inf: 'umziehen', en: 'to move (house)', level: 'B1', prefix: 'um', sein: true },
+  { inf: 'einziehen', en: 'to move in', level: 'B1', prefix: 'ein', sein: true },
+  { inf: 'vorhaben', en: 'to plan / to intend', level: 'B1', prefix: 'vor' },
+  { inf: 'schlagen', en: 'to hit / to beat', level: 'B1', pres: 'schläg', pret: 'schlug', part: 'geschlagen' },
+  { inf: 'vorschlagen', en: 'to suggest', level: 'B1', prefix: 'vor' },
+  { inf: 'versuchen', en: 'to try', level: 'B1', insep: true },
+  { inf: 'aufhören', en: 'to stop', level: 'B1', prefix: 'auf' },
+  { inf: 'bestehen', en: 'to pass (an exam)', level: 'B1', insep: true, pret: 'bestand', part: 'bestanden' },
+  { inf: 'kündigen', en: 'to quit / to give notice', level: 'B1' },
+  { inf: 'berichten', en: 'to report', level: 'B1', insep: true },
+  { inf: 'passieren', en: 'to happen', level: 'B1', sein: true },
+  { inf: 'heiraten', en: 'to marry', level: 'B1' },
+  { inf: 'vermissen', en: 'to miss (someone)', level: 'B1', insep: true },
+  { inf: 'vertrauen', en: 'to trust', level: 'B1', insep: true },
+  { inf: 'schützen', en: 'to protect', level: 'B1' },
+  { inf: 'trennen', en: 'to separate', level: 'B1' },
+  { inf: 'wünschen', en: 'to wish', level: 'B1' },
+  { inf: 'renovieren', en: 'to renovate', level: 'B1' },
+  { inf: 'entscheiden', en: 'to decide', level: 'B1', insep: true, pret: 'entschied', part: 'entschieden' },
+  { inf: 'erreichen', en: 'to reach / to achieve', level: 'B1', insep: true },
+  { inf: 'bauen', en: 'to build', level: 'B1' },
+  { inf: 'reparieren', en: 'to repair', level: 'B1' },
+  { inf: 'erfinden', en: 'to invent', level: 'B1', insep: true, pret: 'erfand', part: 'erfunden' },
 ];
 
 export const VERB_MAP_DE: Record<string, VerbDe> = Object.fromEntries(VERBS_DE.map((v) => [v.inf, v]));

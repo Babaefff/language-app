@@ -35,7 +35,7 @@ export const LANGS: Record<LangId, LangInfo> = {
     levels: {
       A1: 'Greetings, numbers, family, home, food, daily routine, der/die/das and the present tense.',
       A2: 'Shopping, health, travel, work, the past, the dative case and adjective endings.',
-      B1: 'Coming soon.',
+      B1: 'Plans, advice, work, the environment, feelings, media — Konjunktiv II, relative clauses and the passive.',
     },
   },
 };

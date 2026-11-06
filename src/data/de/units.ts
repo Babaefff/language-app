@@ -1,5 +1,6 @@
 import { units, type SentenceRow, type WordRow } from '../build';
 import { DE_A2_UNIT_LESSONS, DE_A2_UNITS } from './a2';
+import { DE_B1_UNIT_LESSONS, DE_B1_UNITS } from './b1';
 
 const TOPICS = units('A1', [
   {
@@ -371,7 +372,7 @@ const CORE_UNITS = [0, 1, 2, 3].map((i) =>
   }])[0],
 );
 
-export const DE_UNITS = [...TOPICS, ...CORE_UNITS, ...DE_A2_UNITS];
+export const DE_UNITS = [...TOPICS, ...CORE_UNITS, ...DE_A2_UNITS, ...DE_B1_UNITS];
 
 export const DE_UNIT_LESSONS: Record<string, string[]> = {
   'de-a1-01': ['de-g-verbs', 'de-g-sein-haben'],
@@ -385,4 +386,5 @@ export const DE_UNIT_LESSONS: Record<string, string[]> = {
   'de-a1-09': ['de-g-vowel', 'de-g-modals'],
   'de-a1-10': ['de-g-word-order', 'de-g-perfekt'],
   ...DE_A2_UNIT_LESSONS,
+  ...DE_B1_UNIT_LESSONS,
 };

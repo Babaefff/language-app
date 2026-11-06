@@ -1,5 +1,6 @@
 import type { Reading } from '../types';
 import { READINGS_DE_A2 } from './readings-a2';
+import { READINGS_DE_B1 } from './readings-b1';
 
 const READINGS_DE_A1: Reading[] = [
   {
@@ -86,4 +87,4 @@ const READINGS_DE_A1: Reading[] = [
   },
 ];
 
-export const READINGS_DE: Reading[] = [...READINGS_DE_A1, ...READINGS_DE_A2].sort((a, b) => ['A1', 'A2', 'B1', 'B1+'].indexOf(a.level) - ['A1', 'A2', 'B1', 'B1+'].indexOf(b.level));
+export const READINGS_DE: Reading[] = [...READINGS_DE_A1, ...READINGS_DE_A2, ...READINGS_DE_B1].sort((a, b) => ['A1', 'A2', 'B1', 'B1+'].indexOf(a.level) - ['A1', 'A2', 'B1', 'B1+'].indexOf(b.level));
