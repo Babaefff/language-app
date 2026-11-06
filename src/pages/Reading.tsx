@@ -1,3 +1,4 @@
+import { LANG } from '../data/lang';
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Link } from '../components/Nav';
@@ -19,7 +20,7 @@ export function Readings() {
         {READINGS.map((r) => (
           <Link key={r.id} to={`/reading/${r.id}`} className="card action">
             <span className={`badge ${r.level.replace('+', 'plus')}`}>{r.level}</span>
-            <h2 lang="es">{r.title}</h2>
+            <h2 lang={LANG}>{r.title}</h2>
             <p className="muted small">{r.source ?? r.paragraphs[0].slice(0, 90) + '…'}</p>
             {readings[r.id] && <span className="small">✓ Read · {readings[r.id].score}/{r.questions.length} correct</span>}
           </Link>
@@ -66,7 +67,7 @@ export function ReadingPage() {
       <div className="row wrap between">
         <div>
           <span className={`badge ${r.level.replace('+', 'plus')}`}>{r.level}</span>
-          <h1 lang="es">{r.title}</h1>
+          <h1 lang={LANG}>{r.title}</h1>
           {r.source && <p className="muted small">{r.source}</p>}
         </div>
         <div className="row">
@@ -78,7 +79,7 @@ export function ReadingPage() {
       <article className="card reading">
         {r.paragraphs.map((p, pi) => (
           <div key={pi} className="para">
-            <p lang="es">
+            <p lang={LANG}>
               {sentences(p).map((s, si) => (
                 <span key={si} className={current === `${pi}:${si}` ? 'reading-now' : ''}>
                   {tokenize(s).map((t, ti) =>
@@ -99,11 +100,11 @@ export function ReadingPage() {
       {popup && (
         <div className="popup card" role="dialog">
           <div className="row between">
-            <div className="row"><strong lang="es">{popup.word}</strong><SpeakButton text={popup.word} /></div>
+            <div className="row"><strong lang={LANG}>{popup.word}</strong><SpeakButton text={popup.word} /></div>
             <button className="icon-btn" onClick={() => setPopup(null)} aria-label="Close">✕</button>
           </div>
           <div>{popup.meaning}</div>
-          {popup.detail && <div className="muted small" lang="es">{popup.detail}</div>}
+          {popup.detail && <div className="muted small" lang={LANG}>{popup.detail}</div>}
           {popup.wordId && !cards[popup.wordId] && <button className="btn small-btn" onClick={() => { gradeWord(popup.wordId!, 0); setPopup(null); }}>+ Add to my reviews</button>}
         </div>
       )}
@@ -112,12 +113,12 @@ export function ReadingPage() {
         <h3>Comprensión</h3>
         {r.questions.map((q, qi) => (
           <div key={qi} className="question">
-            <p lang="es"><strong>{qi + 1}. {q.q}</strong></p>
+            <p lang={LANG}><strong>{qi + 1}. {q.q}</strong></p>
             <div className="options">
               {q.options.map((o, oi) => (
                 <button
                   key={oi}
-                  lang="es"
+                  lang={LANG}
                   className={`option ${answers[qi] === oi ? 'selected' : ''} ${submitted && oi === q.answer ? 'right' : ''} ${submitted && answers[qi] === oi && oi !== q.answer ? 'wrong' : ''}`}
                   disabled={submitted}
                   onClick={() => setAnswers({ ...answers, [qi]: oi })}

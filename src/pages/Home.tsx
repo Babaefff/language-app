@@ -1,3 +1,4 @@
+import { L, LANG } from '../data/lang';
 import { Link } from '../components/Nav';
 import { UNITS, WORDS } from '../data/course';
 import { useProgress, streak, today } from '../lib/store';
@@ -25,7 +26,7 @@ export function Home() {
     <div className="page">
       <section className="hero card">
         <div>
-          <h1>¡Hola! 👋</h1>
+          <h1>{L.hello} 👋</h1>
           <p className="muted">{days > 0 ? `🔥 ${days}-day streak — keep it going!` : 'Start a streak today: a few minutes a day is all it takes.'}</p>
         </div>
         <div className="goal">
@@ -39,7 +40,7 @@ export function Home() {
           <Link to={`/unit/${next.id}`} className="card action">
             <span className="tag">{next.level} · Next lesson</span>
             <h2>{next.emoji} {next.title}</h2>
-            <p className="muted" lang="es">{next.titleEs}</p>
+            <p className="muted" lang={LANG}>{next.titleEs}</p>
             <span className="btn primary">{Object.keys(p.units).length ? 'Continue' : 'Start learning'}</span>
           </Link>
         ) : (
@@ -58,13 +59,13 @@ export function Home() {
       </div>
 
       <section className="card wotd">
-        <span className="tag">Palabra del día · Word of the day</span>
+        <span className="tag">{L.wordOfDay} · Word of the day</span>
         <div className="row">
-          <h2 lang="es">{wotd.es}</h2>
+          <h2 lang={LANG}>{wotd.es}</h2>
           <SpeakButton text={wotd.es} />
         </div>
         <p>{wotd.en}</p>
-        {wotd.ex && <p className="muted" lang="es">“{wotd.ex}” <SpeakButton text={wotd.ex} /> <br /><span className="small">{wotd.exEn}</span></p>}
+        {wotd.ex && <p className="muted" lang={LANG}>“{wotd.ex}” <SpeakButton text={wotd.ex} /> <br /><span className="small">{wotd.exEn}</span></p>}
       </section>
 
       <section className="grid-4">

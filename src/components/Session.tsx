@@ -1,3 +1,4 @@
+import { L, LANG } from '../data/lang';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Exercise } from '../lib/exercises';
 import { personLabel, tenseLabel } from '../lib/exercises';
@@ -92,7 +93,7 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
             <strong>{result.ok ? pick(['¡Muy bien!', '¡Perfecto!', '¡Genial!', '¡Correcto!']) : 'Not quite'}</strong>
             {!result.ok && (
               <div className="feedback-answer">
-                Correct answer: <span lang="es">{result.answer}</span> <SpeakButton text={result.answer} />
+                Correct answer: <span lang={LANG}>{result.answer}</span> <SpeakButton text={result.answer} />
               </div>
             )}
             {result.note && <div className="small">{result.note}</div>}
@@ -145,7 +146,7 @@ function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'c
     <>
       <p className="ex-label">{ex.label}</p>
       <div className="ex-prompt">
-        <span lang={ex.audio || ex.promptSpanish ? 'es' : 'en'}>{ex.prompt}</span>
+        <span lang={ex.audio || ex.promptSpanish ? LANG : 'en'}>{ex.prompt}</span>
         {ex.audio && <SpeakButton text={ex.audio} />}
       </div>
       {ex.hint && <p className="muted">{ex.hint}</p>}
@@ -156,7 +157,7 @@ function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'c
             className={`option ${locked && o === ex.answer ? 'right' : ''} ${locked && o === chosen && o !== ex.answer ? 'wrong' : ''}`}
             onClick={() => choose(o)}
             disabled={locked}
-            lang={ex.optionsSpanish ? 'es' : 'en'}
+            lang={ex.optionsSpanish ? LANG : 'en'}
           >
             <span className="key">{i + 1}</span>
             {o}
@@ -183,14 +184,14 @@ function TextAnswer({ onSubmit, locked, placeholder }: { onSubmit: (v: string) =
     >
       <input
         ref={input}
-        lang="es"
+        lang={LANG}
         autoCapitalize="off"
         autoComplete="off"
         autoCorrect="off"
         spellCheck={false}
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder={placeholder ?? 'Type in Spanish…'}
+        placeholder={placeholder ?? `Type in ${L.name}…`}
         disabled={locked}
       />
       <AccentKeys onKey={(ch) => { setValue((v) => v + ch); input.current?.focus(); }} disabled={locked} />
@@ -244,15 +245,15 @@ function BuildView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'bu
   };
   return (
     <>
-      <p className="ex-label">Build the sentence in Spanish</p>
+      <p className="ex-label">Build the sentence in {L.name}</p>
       <div className="ex-prompt"><span lang="en">{ex.en}</span></div>
-      <div className="build-line" lang="es">
+      <div className="build-line" lang={LANG}>
         {picked.length === 0 && <span className="muted">Tap the words below…</span>}
         {picked.map((i) => (
           <button key={i} className="tile" disabled={locked} onClick={() => setPicked(picked.filter((p) => p !== i))}>{tiles[i].t}</button>
         ))}
       </div>
-      <div className="tiles" lang="es">
+      <div className="tiles" lang={LANG}>
         {tiles.map(({ t, i }) => (
           <HintTile key={i} text={t} used={picked.includes(i)} disabled={locked || picked.includes(i)} onPick={() => { speak(t); setPicked([...picked, i]); }} />
         ))}
@@ -302,7 +303,7 @@ function MatchView({ ex, onResult }: { ex: Extract<Exercise, { kind: 'match' }>;
     <>
       <p className="ex-label">Match the pairs</p>
       <div className="match">
-        <div>{left.map((p) => <button key={p.wordId} lang="es" className={cls('es', p.wordId)} disabled={done.includes(p.wordId)} onClick={() => tap('es', p.wordId)}>{p.es}</button>)}</div>
+        <div>{left.map((p) => <button key={p.wordId} lang={LANG} className={cls('es', p.wordId)} disabled={done.includes(p.wordId)} onClick={() => tap('es', p.wordId)}>{p.es}</button>)}</div>
         <div>{right.map((p) => <button key={p.wordId} lang="en" className={cls('en', p.wordId)} disabled={done.includes(p.wordId)} onClick={() => tap('en', p.wordId)}>{p.en}</button>)}</div>
       </div>
     </>
@@ -315,7 +316,7 @@ function ConjView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'con
       <p className="ex-label">Conjugate · {tenseLabel(ex.tense)}</p>
       <div className="ex-prompt conj">
         <span className="pill">{personLabel(ex.tense, ex.person)}</span>
-        <span lang="es">{ex.inf}</span>
+        <span lang={LANG}>{ex.inf}</span>
         <span className="muted small">{VERB_MAP[ex.inf]?.en}</span>
       </div>
       <TextAnswer locked={locked} placeholder="Conjugated form…" onSubmit={(v) => onResult(feedbackFor(v, ex.answer))} />

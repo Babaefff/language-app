@@ -1,3 +1,4 @@
+import { L, LANG } from '../data/lang';
 import { Link } from '../components/Nav';
 import { unitsForLevel } from '../data/course';
 import { LEVEL_INFO, LEVELS } from '../data/types';
@@ -19,7 +20,7 @@ export function Course() {
               <h2><span className={`badge ${level}`}>{level}</span> {LEVEL_INFO[level].name}</h2>
               <span className="muted small">{done}/{units.length} units</span>
             </div>
-            <p className="muted small">{LEVEL_INFO[level].description}</p>
+            <p className="muted small">{L.levels[level]}</p>
             <div className="unit-list">
               {units.map((u) => {
                 const steps = STEPS.filter((_, i) => p.steps[`${u.id}:${i}`] !== undefined).length;
@@ -28,7 +29,7 @@ export function Course() {
                     <span className="unit-emoji">{u.emoji}</span>
                     <div className="unit-text">
                       <strong>{u.title}</strong>
-                      <span className="muted small" lang="es">{u.titleEs}</span>
+                      <span className="muted small" lang={LANG}>{u.titleEs}</span>
                       <div className="dots">{STEPS.map((_, i) => <i key={i} className={i < steps ? 'on' : ''} />)}</div>
                     </div>
                     {p.units[u.id] && <span className="check">✓</span>}

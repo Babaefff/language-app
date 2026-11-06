@@ -1,3 +1,4 @@
+import { L, LANG } from '../data/lang';
 import { useEffect, useRef, useState } from 'react';
 import { exportProgress, importProgress, resetProgress, updateSettings, useProgress } from '../lib/store';
 import { clipAccent, clipCount, onVoicesChanged, spanishVoices, speak, speechSupported } from '../lib/speech';
@@ -27,8 +28,9 @@ export function Settings() {
         <h3>🔊 Audio</h3>
         {!speechSupported() && <p className="warn">Your browser doesn't support speech. Try Chrome, Edge or Safari.</p>}
         {speechSupported() && voices.length === 0 && (
-          <p className="warn">No Spanish voice found on this device. On Android install one in Settings → Text-to-speech; on iPhone go to Settings → Accessibility → Spoken Content → Voices → Spanish; on Windows add Spanish under Time & Language → Speech.</p>
+          <p className="warn">No {L.name} voice found on this device. On Android install one in Settings → Text-to-speech; on iPhone go to Settings → Accessibility → Spoken Content → Voices → {L.name}; on Windows add {L.name} under Time & Language → Speech.</p>
         )}
+        {LANG === 'es' && (
         <label className="field">
           Accent
           <select value={settings.accent} onChange={(e) => updateSettings({ accent: e.target.value as typeof settings.accent, voiceURI: null })}>
@@ -37,6 +39,7 @@ export function Settings() {
             <option value="any">Any Spanish voice</option>
           </select>
         </label>
+        )}
         <label className="field">
           Voice
           <select value={settings.voiceURI ?? ''} onChange={(e) => updateSettings({ voiceURI: e.target.value || null })}>
@@ -51,7 +54,7 @@ export function Settings() {
         <button className="btn" onClick={() => speak('Hola, ¿qué tal? Me llamo Lucía y aprendo español.')}>▶ Test voice</button>
         <label className="toggle">
           <input type="checkbox" checked={settings.natural} onChange={(e) => updateSettings({ natural: e.target.checked })} />
-          Use natural recorded voice ({clipCount() ? `${clipCount()} clips, ${clipAccent() === 'es-US' ? 'Latin American' : 'Spain'} accent` : 'not generated yet — see README'})
+          Use natural recorded voice ({clipCount() ? `${clipCount()} clips, ${LANG !== 'es' ? L.native : clipAccent() === 'es-US' ? 'Latin American accent' : 'Spain accent'}` : 'not generated yet — see README'})
         </label>
         <label className="toggle"><input type="checkbox" checked={settings.autoplay} onChange={(e) => updateSettings({ autoplay: e.target.checked })} /> Play audio automatically</label>
       </section>

@@ -1,6 +1,9 @@
 import type { Reading } from './types';
 
-export const READINGS: Reading[] = [
+import { LANG } from './lang';
+import { READINGS_DE } from './de/readings';
+
+const READINGS_ES: Reading[] = [
   {
     id: 'r-lucia',
     level: 'A1',
@@ -445,3 +448,5 @@ export const READINGS: Reading[] = [
     ],
   },
 ];
+
+export const READINGS: Reading[] = LANG === 'de' ? READINGS_DE : READINGS_ES;

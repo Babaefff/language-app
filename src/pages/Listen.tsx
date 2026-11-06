@@ -1,3 +1,4 @@
+import { LANG } from '../data/lang';
 import { useEffect, useRef, useState } from 'react';
 import { UNITS, WORD_MAP, WORDS } from '../data/course';
 import type { Word } from '../data/types';
@@ -17,7 +18,7 @@ function wordsFor(source: Source): Word[] {
       .sort((a, b) => recallChance(a[1]) - recallChance(b[1]))
       .slice(0, 50)
       .map(([id]) => WORD_MAP[id]);
-    return mine.length ? shuffle(mine) : WORDS.filter((w) => w.unitId === 'a1-01');
+    return mine.length ? shuffle(mine) : WORDS.filter((w) => w.unitId === UNITS[0].id);
   }
   return shuffle(WORDS.filter((w) => w.unitId === source));
 }
@@ -95,9 +96,9 @@ export function Listen() {
       </div>
       {w && (
         <div className="card listen-card">
-          <div className="learn-es" lang="es">{w.es}</div>
+          <div className="learn-es" lang={LANG}>{w.es}</div>
           <div className={`learn-en ${phase === 'en' ? '' : 'hidden'}`}>{w.en}</div>
-          {w.ex && <div className={`learn-ex ${phase === 'en' ? '' : 'hidden'}`}><div lang="es">{w.ex}</div><div className="muted">{w.exEn}</div></div>}
+          {w.ex && <div className={`learn-ex ${phase === 'en' ? '' : 'hidden'}`}><div lang={LANG}>{w.ex}</div><div className="muted">{w.exEn}</div></div>}
           <div className="muted small">{i + 1} / {list.length}</div>
         </div>
       )}

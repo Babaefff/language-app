@@ -3,6 +3,7 @@ import { WORDS } from '../data/course';
 import { VERB_MAP } from '../data/verbs';
 import { conjugate, IMP_PERSONS, PERSONS, TENSE_MAP } from './conjugate';
 import { sample, shuffle } from './text';
+import { L } from '../data/lang';
 
 export type Exercise =
   | { kind: 'choice'; key: string; prompt: string; label: string; audio?: string; options: string[]; answer: string; wordId?: string; optionsSpanish: boolean; hint?: string; promptSpanish?: boolean }
@@ -44,13 +45,13 @@ export function choiceEsEn(word: Word): Exercise {
 
 export function choiceEnEs(word: Word): Exercise {
   return {
-    kind: 'choice', key: key(), label: 'Choose the Spanish', prompt: word.en,
+    kind: 'choice', key: key(), label: `Choose the ${L.name}`, prompt: word.en,
     options: shuffle([word.es, ...distractors(word, poolFor(word), 'es')]), answer: word.es, wordId: word.id, optionsSpanish: true,
   };
 }
 
 export function typeEnEs(word: Word): Exercise {
-  return { kind: 'type', key: key(), label: 'Write in Spanish', prompt: word.en, answer: word.es, wordId: word.id };
+  return { kind: 'type', key: key(), label: `Write in ${L.name}`, prompt: word.en, answer: word.es, wordId: word.id };
 }
 
 export function listen(word: Word): Exercise {
@@ -61,7 +62,7 @@ export function build(sentence: Sentence, extraWords: Word[] = []): Exercise {
   const tokens = sentence.es.split(' ');
   const lower = new Set(tokens.map((t) => t.toLowerCase()));
   const extras = sample(extraWords, 8)
-    .map((w) => w.es.replace(/^(el|la|los|las) /, ''))
+    .map((w) => w.es.replace(/^(el|la|los|las|der|die|das) /, ''))
     .filter((t) => !t.includes(' ') && !lower.has(t.toLowerCase()))
     .slice(0, 2);
   return { kind: 'build', key: key(), en: sentence.en, es: sentence.es, tiles: shuffle([...tokens, ...extras]) };

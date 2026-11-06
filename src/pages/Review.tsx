@@ -1,3 +1,4 @@
+import { LANG } from '../data/lang';
 import { useEffect, useState } from 'react';
 import { Link } from '../components/Nav';
 import { WORD_MAP } from '../data/course';
@@ -122,7 +123,7 @@ function TrickyWords({ onPractise }: { onPractise: (w: Word[]) => void }) {
         You've forgotten these several times. Try linking each one to an image or a similar-sounding English word
         (e.g. <em>la cara</em> — "a car with a face"), then drill them on their own.
       </p>
-      <p lang="es">{leeches.slice(0, 12).map((w) => w.es).join(' · ')}</p>
+      <p lang={LANG}>{leeches.slice(0, 12).map((w) => w.es).join(' · ')}</p>
       <button className="btn" onClick={() => onPractise(leeches.slice(0, 15))}>Practise tricky words</button>
     </div>
   );
@@ -170,12 +171,12 @@ function Flashcards({ words, onDone, onExit }: { words: Word[]; onDone: (s: Sess
       </div>
       <div className="session-body">
         <button className="learn-card flip" onClick={() => setShown(true)} key={w.id}>
-          <div className="learn-es" lang="es">{w.es}</div>
+          <div className="learn-es" lang={LANG}>{w.es}</div>
           <div className="row center"><SpeakButton text={w.es} /></div>
           {shown ? (
             <>
               <div className="learn-en">{w.en}</div>
-              {w.ex && <div className="learn-ex"><div lang="es">{w.ex}</div><div className="muted">{w.exEn}</div></div>}
+              {w.ex && <div className="learn-ex"><div lang={LANG}>{w.ex}</div><div className="muted">{w.exEn}</div></div>}
             </>
           ) : (
             <div className="muted">Tap to reveal</div>

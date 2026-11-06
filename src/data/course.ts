@@ -4,16 +4,20 @@ import { A2B } from './a2b';
 import { B1B } from './b1b';
 import { A1C, A2C, B1C } from './extra';
 import { CORE_UNITS } from './core';
+import { LANG } from './lang';
+import { DE_UNITS, DE_UNIT_LESSONS } from './de/units';
 import { A2 } from './a2';
 import { B1 } from './b1';
 import type { Level, Sentence, Unit, Word } from './types';
 import { bare, normalize } from '../lib/text';
 
-export const UNITS: Unit[] = [
+const ES_UNITS: Unit[] = [
   ...A1, ...A1B, ...A1C, ...CORE_UNITS.filter((u) => u.level === 'A1'),
   ...A2, ...A2B, ...A2C, ...CORE_UNITS.filter((u) => u.level === 'A2'),
   ...B1, ...B1B, ...B1C, ...CORE_UNITS.filter((u) => u.level === 'B1'),
 ];
+/** Units of the language being studied. */
+export const UNITS: Unit[] = LANG === 'de' ? DE_UNITS : ES_UNITS;
 export const UNIT_MAP: Record<string, Unit> = Object.fromEntries(UNITS.map((u) => [u.id, u]));
 export const WORDS: Word[] = UNITS.flatMap((u) => u.words);
 export const WORD_MAP: Record<string, Word> = Object.fromEntries(WORDS.map((w) => [w.id, w]));
@@ -51,7 +55,7 @@ export function lookupWord(token: string): Word | undefined {
 }
 
 /** Grammar lessons that explain the grammar used in each unit. */
-export const UNIT_LESSONS: Record<string, string[]> = {
+const ES_UNIT_LESSONS: Record<string, string[]> = {
   'a1-01': ['g-stem-ending', 'g-ser-estar'],
   'a1-02': ['g-yo-go'],
   'a1-03': ['g-gender'],
@@ -96,3 +100,5 @@ export const UNIT_LESSONS: Record<string, string[]> = {
   'b1-12': ['g-gustar', 'g-ser-estar'],
   'b1-13': ['g-perfect', 'g-subj-use'],
 };
+
+export const UNIT_LESSONS: Record<string, string[]> = LANG === 'de' ? DE_UNIT_LESSONS : ES_UNIT_LESSONS;

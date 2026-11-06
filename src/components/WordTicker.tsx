@@ -1,3 +1,4 @@
+import { LANG } from '../data/lang';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { WORD_MAP, WORDS } from '../data/course';
@@ -50,7 +51,7 @@ export function WordTicker() {
   if (!settings.ticker || !word) return null;
   return (
     <button className="ticker" onClick={() => speak(word.es)} title="Tap to hear it" key={word.id}>
-      <span className="ticker-es" lang="es">🔊 {word.es}</span>
+      <span className="ticker-es" lang={LANG}>🔊 {word.es}</span>
       <span className={`ticker-en ${reveal ? 'show' : ''}`}>{word.en}</span>
     </button>
   );

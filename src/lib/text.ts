@@ -1,4 +1,4 @@
-const ARTICLES = /^(el|la|los|las|un|una|unos|unas)\s+/;
+const ARTICLES = /^(el|la|los|las|un|una|unos|unas|der|die|das|ein|eine)\s+/;
 
 /** Lower-case, trim, drop punctuation, collapse spaces. Keeps accents. */
 export function normalize(s: string): string {
@@ -15,7 +15,8 @@ export function stripAccents(s: string): string {
     .replace(/ñ/g, '\u0000')
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
-    .replace(/\u0000/g, 'ñ');
+    .replace(/\u0000/g, 'ñ')
+    .replace(/ß/g, 'ss');
 }
 
 /** Removes a leading article: "el perro" → "perro". */

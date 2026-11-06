@@ -1,7 +1,8 @@
+import { L, LANG } from '../data/lang';
 import { useMemo, useState } from 'react';
 import { VERBS, VERB_MAP } from '../data/verbs';
 import { LEVELS, type Level, type Tense } from '../data/types';
-import { conjugate, gerund, participle, TENSES } from '../lib/conjugate';
+import { conjugate, gerund, HAS_GERUND, participle, TENSES } from '../lib/conjugate';
 import { conjItem, personLabel, type Exercise } from '../lib/exercises';
 import { addXp, recordConj, useProgress } from '../lib/store';
 import { Session, type SessionSummary } from '../components/Session';
@@ -106,7 +107,7 @@ function Drill() {
 
 function Tables() {
   const [query, setQuery] = useState('');
-  const [inf, setInf] = useState('ser');
+  const [inf, setInf] = useState(VERBS[0].inf);
   const matches = useMemo(() => {
     const q = normalize(query);
     return VERBS.filter((v) => !q || v.inf.includes(q) || v.en.toLowerCase().includes(q)).slice(0, 30);
@@ -116,21 +117,22 @@ function Tables() {
   return (
     <>
       <div className="card">
-        <input className="search" placeholder="Search a verb (Spanish or English)…" value={query} onChange={(e) => setQuery(e.target.value)} />
+        <input className="search" placeholder={`Search a verb (${L.name} or English)…`} value={query} onChange={(e) => setQuery(e.target.value)} />
         <div className="chips">
           {matches.map((v) => (
-            <button key={v.inf} className={`chip ${v.inf === inf ? 'on' : ''}`} onClick={() => setInf(v.inf)} lang="es">{v.inf}</button>
+            <button key={v.inf} className={`chip ${v.inf === inf ? 'on' : ''}`} onClick={() => setInf(v.inf)} lang={LANG}>{v.inf}</button>
           ))}
         </div>
       </div>
       <div className="card">
         <div className="row">
-          <h2 lang="es">{def.inf}</h2>
+          <h2 lang={LANG}>{def.inf}</h2>
           <SpeakButton text={def.inf} />
           <span className="muted">{def.en}</span>
         </div>
         <p className="small">
-          Participle: <strong lang="es">{participle(def)}</strong> · Gerund: <strong lang="es">{gerund(def)}</strong>
+          {HAS_GERUND ? 'Participle' : 'Partizip II'}: <strong lang={LANG}>{participle(def)}</strong>
+          {HAS_GERUND && <> · Gerund: <strong lang={LANG}>{gerund(def)}</strong></>}
         </p>
         <div className="conj-grid">
           {TENSES.map((t) => {
@@ -145,7 +147,7 @@ function Tables() {
                       f ? (
                         <tr key={i}>
                           <td className="muted">{personLabel(t.id, i)}</td>
-                          <td lang="es">{f}</td>
+                          <td lang={LANG}>{f}</td>
                           <td><SpeakButton text={f} /></td>
                         </tr>
                       ) : null,

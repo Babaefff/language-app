@@ -1,4 +1,6 @@
 import type { Level, Tense } from './types';
+import { LANG } from './lang';
+import { VERBS_DE } from './verbs-de';
 
 export type StemChange = 'ie' | 'ue' | 'i' | 'u-ue';
 
@@ -24,7 +26,7 @@ export interface VerbDef {
   over?: Partial<Record<Tense, Forms>>;
 }
 
-export const VERBS: VerbDef[] = [
+export const VERBS_ES: VerbDef[] = [
   // --- Core irregulars -------------------------------------------------------
   {
     inf: 'ser', en: 'to be (identity, origin)', level: 'A1',
@@ -199,4 +201,11 @@ export const VERBS: VerbDef[] = [
   { inf: 'devolver', en: 'to give back / to return', level: 'B1', stem: 'ue', part: 'devuelto' },
 ];
 
-export const VERB_MAP: Record<string, VerbDef> = Object.fromEntries(VERBS.map((v) => [v.inf, v]));
+export const VERB_MAP_ES: Record<string, VerbDef> = Object.fromEntries(VERBS_ES.map((v) => [v.inf, v]));
+
+/** Fields every language's verbs share (what the UI needs). */
+export interface VerbInfo { inf: string; en: string; level: Level }
+
+/** Verbs of the language being studied. */
+export const VERBS: VerbInfo[] = LANG === 'de' ? VERBS_DE : VERBS_ES;
+export const VERB_MAP: Record<string, VerbInfo> = Object.fromEntries(VERBS.map((v) => [v.inf, v]));

@@ -1,4 +1,4 @@
-# Hablo: learn Spanish (A1 → B1)
+# Hablo: learn Spanish and German
 
 A web app for learning Spanish that also installs on phones. It covers vocabulary, conjugation, sentence building, graded reading, and audio for every word.
 
@@ -46,6 +46,15 @@ npm run build && npx cap add android && npx cap open android   # build & sign in
 
 iOS works the same way (`@capacitor/ios`), but it needs a Mac with Xcode. The app already uses relative paths and hash routing, so it runs unchanged inside Capacitor.
 
+## Languages
+
+Pick the language in the header (🇪🇸 Spanish / 🇩🇪 German). Each language keeps its own progress.
+
+- **Spanish:** A1 → B1 (`src/data/*.ts`)
+- **German:** A1, with 276 words, 9 grammar lessons and 4 readings (`src/data/de/`). Its own verb engine is in `src/lib/conjugate-de.ts`; it covers present, Perfekt, Präteritum, Futur, Konjunktiv II and imperative, including vowel changes and separable verbs.
+
+Scripts choose the language with `HABLO_LANG=de`.
+
 ## Natural voice (Google Cloud Text-to-Speech)
 
 By default the app uses the device's built-in voice. For a natural, consistent voice everywhere, generate MP3 clips once:
@@ -58,6 +67,8 @@ By default the app uses the device's built-in voice. For a natural, consistent v
    GOOGLE_TTS_KEY=your-key npm run audio -- --verbs   # + every verb form (≈76k characters)
    ```
 3. Commit `public/audio/`. For a Latin American voice run it again with `TTS_VOICE=es-US-Neural2-A` (clips go to `public/audio/es-US/`); the Accent setting switches between them. The app plays a clip whenever one exists and falls back to the device voice otherwise (toggle in Settings).
+
+German audio: `HABLO_LANG=de GOOGLE_TTS_KEY=your-key npm run audio -- --verbs` (clips go to `public/audio/de-DE/`).
 
 Choose another voice with `TTS_VOICE`, e.g. `es-US-Neural2-A` (Latin American) or `es-ES-Neural2-F` (male). Neural2 voices are free up to 1 million characters per month, so the whole course is well within the free tier. Re-running only generates new clips.
 

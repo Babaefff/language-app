@@ -1,3 +1,4 @@
+import { L, LANG } from '../data/lang';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { GRAMMAR, GRAMMAR_MAP } from '../data/grammar';
@@ -16,7 +17,7 @@ export function GrammarList() {
   return (
     <div className="page">
       <h1>Grammar</h1>
-      <p className="muted">Short lessons that explain the logic behind Spanish: why verbs change, which ones behave alike, and when to use what. Each ends with practice.</p>
+      <p className="muted">Short lessons that explain the logic behind {L.name}: why verbs change, which ones behave alike, and when to use what. Each ends with practice.</p>
       {LEVELS.map((level) => (
         <section key={level} className="level">
           <div className="level-head">
@@ -27,7 +28,7 @@ export function GrammarList() {
               <Link key={g.id} to={`/grammar/${g.id}`} className={`card unit ${grammar[g.id] !== undefined ? 'done' : ''}`}>
                 <div className="unit-text">
                   <strong>{g.title}</strong>
-                  <span className="muted small" lang="es">{g.titleEs}</span>
+                  <span className="muted small" lang={LANG}>{g.titleEs}</span>
                   <span className="small">{g.summary}</span>
                 </div>
                 {grammar[g.id] !== undefined && <span className="check">✓</span>}
@@ -76,7 +77,7 @@ export function GrammarLessonPage() {
       <header>
         <span className={`badge ${lesson.level}`}>{lesson.level}</span>
         <h1>{lesson.title}</h1>
-        <p className="muted" lang="es">{lesson.titleEs}</p>
+        <p className="muted" lang={LANG}>{lesson.titleEs}</p>
       </header>
 
       {done && (
@@ -105,7 +106,7 @@ export function GrammarLessonPage() {
                   <ul>
                     {b.items.map(([wrong, right, why]) => (
                       <li key={wrong}>
-                        <div><span className="wrong" lang="es">✗ {wrong}</span> <span className="right" lang="es">✓ {right}</span> <SpeakButton text={right} /></div>
+                        <div><span className="wrong" lang={LANG}>✗ {wrong}</span> <span className="right" lang={LANG}>✓ {right}</span> <SpeakButton text={right} /></div>
                         <div className="muted small">{why}</div>
                       </li>
                     ))}
@@ -119,7 +120,7 @@ export function GrammarLessonPage() {
                   <ul>
                     {b.items.map(([es, en]) => (
                       <li key={es}>
-                        <span lang="es">{es}</span> <SpeakButton text={es} />
+                        <span lang={LANG}>{es}</span> <SpeakButton text={es} />
                         <div className="muted small">{en}</div>
                       </li>
                     ))}

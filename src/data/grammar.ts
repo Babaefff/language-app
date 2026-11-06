@@ -1,6 +1,9 @@
 import type { GrammarLesson } from './types';
 
-export const GRAMMAR: GrammarLesson[] = [
+import { LANG } from './lang';
+import { GRAMMAR_DE } from './de/grammar';
+
+const GRAMMAR_ES: GrammarLesson[] = [
   // ─── A1 ────────────────────────────────────────────────────────────────────
   {
     id: 'g-stem-ending',
@@ -784,4 +787,5 @@ It usually appears after **que**, when the two parts of the sentence have **diff
   },
 ];
 
+export const GRAMMAR: GrammarLesson[] = LANG === 'de' ? GRAMMAR_DE : GRAMMAR_ES;
 export const GRAMMAR_MAP: Record<string, GrammarLesson> = Object.fromEntries(GRAMMAR.map((g) => [g.id, g]));

@@ -20,7 +20,8 @@ const args = process.argv.slice(2);
 const dry = args.includes('--dry');
 const withVerbs = args.includes('--verbs');
 const key = process.env.GOOGLE_TTS_KEY;
-const voice = process.env.TTS_VOICE ?? 'es-ES-Neural2-A';
+import { LANG } from '../src/data/lang';
+const voice = process.env.TTS_VOICE ?? (LANG === 'de' ? 'de-DE-Neural2-A' : 'es-ES-Neural2-A');
 const lang = process.env.TTS_LANG ?? voice.slice(0, 5);
 // Spain clips live in public/audio/, other accents in public/audio/<lang>/ (e.g. es-US);
 // the app picks the folder matching the accent chosen in Settings.

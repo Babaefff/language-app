@@ -414,3 +414,6 @@ body:has(.session) .feedback { bottom: 1rem; }
 .mistakes ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.6rem; }
 .mistakes .wrong { color: var(--bad); text-decoration: line-through; margin-right: 0.5rem; }
 .mistakes .right { color: var(--good); font-weight: 700; }
+
+.lang-switch { padding: 0.3rem 0.5rem; border-radius: 999px; font-weight: 700; font-size: 0.9rem; }
+.vt-post { color: var(--b1); font-weight: 700; }

@@ -26,7 +26,10 @@ export interface Progress {
   settings: Settings;
 }
 
-const KEY = 'hablo:progress:v1';
+import { LANG } from '../data/lang';
+
+/** Each language keeps its own progress (Spanish keeps the original key). */
+const KEY = LANG === 'es' ? 'hablo:progress:v1' : `hablo:progress:${LANG}:v1`;
 
 const DEFAULT: Progress = {
   version: 1,

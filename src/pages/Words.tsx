@@ -1,3 +1,4 @@
+import { L, LANG } from '../data/lang';
 import { useMemo, useState } from 'react';
 import { WORDS, UNIT_MAP } from '../data/course';
 import { LEVELS, type Level } from '../data/types';
@@ -28,7 +29,7 @@ export function Words() {
     <div className="page">
       <h1>Word bank</h1>
       <div className="card">
-        <input className="search" placeholder="Search Spanish or English…" value={q} onChange={(e) => setQ(e.target.value)} />
+        <input className="search" placeholder={`Search ${L.name} or English…`} value={q} onChange={(e) => setQ(e.target.value)} />
         <div className="chips">
           {(['all', ...LEVELS] as const).map((l) => (
             <button key={l} className={`chip ${level === l ? 'on' : ''}`} onClick={() => setLevel(l)}>{l === 'all' ? 'All levels' : l}</button>
@@ -47,7 +48,7 @@ export function Words() {
         {list.map((w) => (
           <li key={w.id}>
             <span className={`dot ${strength(cards[w.id])}`} title={strength(cards[w.id])} />
-            <span lang="es" className="es">{w.es}</span>
+            <span lang={LANG} className="es">{w.es}</span>
             <span className="muted">{w.en}</span>
             <span className="small muted hide-sm">{w.level} · {UNIT_MAP[w.unitId].title}</span>
             <SpeakButton text={w.es} />

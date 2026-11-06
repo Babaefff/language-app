@@ -1,3 +1,4 @@
+import { L } from '../data/lang';
 import { useState } from 'react';
 import { SENTENCES, WORDS } from '../data/course';
 import { LEVELS, type Level } from '../data/types';
@@ -23,7 +24,7 @@ export function Sentences() {
       picked.map((s): Exercise =>
         mode === 'build'
           ? build(s, WORDS.filter((w) => w.unitId === s.unitId))
-          : { kind: 'type', key: `s${++n}`, label: 'Translate into Spanish', prompt: s.en, answer: s.es },
+          : { kind: 'type', key: `s${++n}`, label: `Translate into ${L.name}`, prompt: s.en, answer: s.es },
       ),
     );
   };

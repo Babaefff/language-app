@@ -16,6 +16,7 @@ import { Settings } from './pages/Settings';
 import { GrammarLessonPage, GrammarList } from './pages/GrammarPage';
 import { WordTicker } from './components/WordTicker';
 import { streak, useProgress } from './lib/store';
+import { LANG, LANGS, switchLanguage, type LangId } from './data/lang';
 
 const NAV = [
   { to: '/', icon: '🏠', label: 'Home' },
@@ -55,6 +56,16 @@ function Shell() {
           ))}
         </nav>
         <div className="row">
+          <select
+            className="lang-switch"
+            aria-label="Language you are learning"
+            value={LANG}
+            onChange={(e) => switchLanguage(e.target.value as LangId)}
+          >
+            {Object.values(LANGS).map((l) => (
+              <option key={l.id} value={l.id}>{l.flag} {l.name}</option>
+            ))}
+          </select>
           <span className="streak" title="Day streak">🔥 {days}</span>
           <Link to="/settings" className="icon-btn" aria-label="Settings">⚙️</Link>
         </div>

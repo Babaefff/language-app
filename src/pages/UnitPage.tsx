@@ -1,3 +1,4 @@
+import { LANG } from '../data/lang';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Link } from '../components/Nav';
@@ -93,7 +94,7 @@ export function UnitPage() {
         <div>
           <span className={`badge ${unit.level}`}>{unit.level}</span>
           <h1>{unit.title}</h1>
-          <p className="muted" lang="es">{unit.titleEs} · {unit.description}</p>
+          <p className="muted" lang={LANG}>{unit.titleEs} · {unit.description}</p>
         </div>
       </header>
 
@@ -119,7 +120,7 @@ export function UnitPage() {
           {unit.words.map((w) => (
             <li key={w.id}>
               <span className={`dot ${strength(p.cards[w.id])}`} title={strength(p.cards[w.id])} />
-              <span lang="es" className="es">{w.es}</span>
+              <span lang={LANG} className="es">{w.es}</span>
               <span className="muted">{w.en}</span>
               <SpeakButton text={w.es} />
             </li>
@@ -138,7 +139,7 @@ export function UnitPage() {
         <ul className="sentence-list">
           {unit.sentences.map((s) => (
             <li key={s.es}>
-              <div lang="es">{s.es} <SpeakButton text={s.es} /></div>
+              <div lang={LANG}>{s.es} <SpeakButton text={s.es} /></div>
               <div className="muted small">{s.en}</div>
             </li>
           ))}

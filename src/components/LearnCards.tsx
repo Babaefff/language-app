@@ -1,3 +1,4 @@
+import { LANG } from '../data/lang';
 import { useEffect, useState } from 'react';
 import type { Word } from '../data/types';
 import { speak } from '../lib/speech';
@@ -30,7 +31,7 @@ export function LearnCards({ words, onDone, onExit }: { words: Word[]; onDone: (
       <div className="session-body">
         <p className="ex-label">New word</p>
         <div className="learn-card" key={w.id}>
-          <div className="learn-es" lang="es">{w.es}</div>
+          <div className="learn-es" lang={LANG}>{w.es}</div>
           <div className="row center">
             <SpeakButton text={w.es} />
             <SpeakButton text={w.es} slow />
@@ -38,7 +39,7 @@ export function LearnCards({ words, onDone, onExit }: { words: Word[]; onDone: (
           <div className="learn-en">{w.en}</div>
           {w.ex && (
             <div className="learn-ex">
-              <div lang="es">{w.ex} <SpeakButton text={w.ex} /></div>
+              <div lang={LANG}>{w.ex} <SpeakButton text={w.ex} /></div>
               <div className="muted">{w.exEn}</div>
             </div>
           )}

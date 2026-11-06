@@ -1,3 +1,4 @@
+import { LANG } from '../data/lang';
 import { Fragment } from 'react';
 import type { Tense } from '../data/types';
 import { splitForms, TENSE_MAP } from '../lib/conjugate';
@@ -8,11 +9,12 @@ import { speak } from '../lib/speech';
  * Teaching table: one column per verb, stems in plain text, endings coloured, and stems that
  * changed (pienso, tuve…) highlighted so patterns such as the "boot" shape jump out.
  */
-const LABELS = ['yo', 'tú', 'él / ella', 'nosotros', 'vosotros', 'ellos / ellas'];
-const LABELS_IMP = ['', 'tú', 'usted', 'nosotros', 'vosotros', 'ustedes'];
+const DE = LANG === 'de';
+const LABELS = DE ? ['ich', 'du', 'er / sie / es', 'wir', 'ihr', 'sie / Sie'] : ['yo', 'tú', 'él / ella', 'nosotros', 'vosotros', 'ellos / ellas'];
+const LABELS_IMP = DE ? ['', 'du', 'Sie', 'wir', 'ihr', ''] : ['', 'tú', 'usted', 'nosotros', 'vosotros', 'ustedes'];
 /** Phone-width abbreviations so three verb columns fit without sideways scrolling. */
-const TINY = ['yo', 'tú', 'él', 'nos.', 'vos.', 'ellos'];
-const TINY_IMP = ['', 'tú', 'Ud.', 'nos.', 'vos.', 'Uds.'];
+const TINY = DE ? ['ich', 'du', 'er', 'wir', 'ihr', 'sie'] : ['yo', 'tú', 'él', 'nos.', 'vos.', 'ellos'];
+const TINY_IMP = DE ? ['', 'du', 'Sie', 'wir', 'ihr', ''] : ['', 'tú', 'Ud.', 'nos.', 'vos.', 'Uds.'];
 
 export function VerbTable({ verbs, tense, caption }: { verbs: string[]; tense: Tense; caption?: string }) {
   const columns = verbs.map((v) => splitForms(v, tense));
@@ -25,7 +27,7 @@ export function VerbTable({ verbs, tense, caption }: { verbs: string[]; tense: T
               <th />
               {verbs.map((v) => (
                 <th key={v}>
-                  <span lang="es">{v}</span>
+                  <span lang={LANG}>{v}</span>
                   <span className="vt-meaning">{VERB_MAP[v]?.en}</span>
                 </th>
               ))}
@@ -42,13 +44,14 @@ export function VerbTable({ verbs, tense, caption }: { verbs: string[]; tense: T
                   {columns.map((c, ci) => {
                     const f = c[i];
                     if (!f) return <td key={ci}>—</td>;
-                    const text = `${f.pre ? f.pre + ' ' : ''}${f.stem}${f.ending}`;
+                    const text = `${f.pre ? f.pre + ' ' : ''}${f.stem}${f.ending}${f.post ? ' ' + f.post : ''}`;
                     return (
-                      <td key={ci} lang="es">
+                      <td key={ci} lang={LANG}>
                         <button className="vt-form" onClick={() => speak(text)} title="Listen">
                           {f.pre && <Fragment><span className="vt-pre">{f.pre}</span> </Fragment>}
                           <span className={f.changed ? 'vt-changed' : 'vt-stem'}>{f.stem}</span>
                           <span className="vt-end">{f.ending}</span>
+                          {f.post && <Fragment> <span className="vt-post">{f.post}</span></Fragment>}
                         </button>
                       </td>
                     );

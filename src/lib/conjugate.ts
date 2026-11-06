@@ -1,11 +1,14 @@
-import { VERB_MAP, VERBS, type Forms, type StemChange, type VerbDef } from '../data/verbs';
+import { VERB_MAP_ES as VERB_MAP, VERBS_ES as VERBS, type Forms, type StemChange, type VerbDef } from '../data/verbs';
+import { LANG } from '../data/lang';
+import { VERB_MAP_DE } from '../data/verbs-de';
+import { allFormsDe, conjugateDe, IMP_PERSONS_DE, participleDe, PERSONS_DE, splitFormsDe, TENSES_DE } from './conjugate-de';
 import type { Level, Tense } from '../data/types';
 
-export const PERSONS = ['yo', 'tú', 'él/ella/usted', 'nosotros', 'vosotros', 'ellos/ellas/ustedes'];
-export const IMP_PERSONS = ['—', 'tú', 'usted', 'nosotros', 'vosotros', 'ustedes'];
+const PERSONS_ES = ['yo', 'tú', 'él/ella/usted', 'nosotros', 'vosotros', 'ellos/ellas/ustedes'];
+const IMP_PERSONS_ES = ['—', 'tú', 'usted', 'nosotros', 'vosotros', 'ustedes'];
 const REFLEXIVE = ['me', 'te', 'se', 'nos', 'os', 'se'];
 
-export const TENSES: { id: Tense; es: string; en: string; level: Level; hint: string }[] = [
+const TENSES_ES: { id: Tense; es: string; en: string; level: Level; hint: string }[] = [
   { id: 'presente', es: 'Presente', en: 'Present', level: 'A1', hint: 'I speak / I am speaking' },
   { id: 'progresivo', es: 'Presente continuo', en: 'Present progressive', level: 'A1', hint: 'estar + gerund: I am speaking (right now)' },
   { id: 'preterito', es: 'Pretérito indefinido', en: 'Preterite', level: 'A2', hint: 'Finished past: I spoke' },
@@ -17,7 +20,7 @@ export const TENSES: { id: Tense; es: string; en: string; level: Level; hint: st
   { id: 'imperativo', es: 'Imperativo', en: 'Imperative', level: 'B1', hint: 'Commands: speak!' },
 ];
 
-export const TENSE_MAP = Object.fromEntries(TENSES.map((t) => [t.id, t])) as Record<Tense, (typeof TENSES)[number]>;
+
 
 const ENDINGS = {
   presente: { ar: ['o', 'as', 'a', 'amos', 'áis', 'an'], er: ['o', 'es', 'e', 'emos', 'éis', 'en'], ir: ['o', 'es', 'e', 'imos', 'ís', 'en'] },
@@ -123,14 +126,14 @@ function subjunctive(p: Parsed): string[] {
   return endings.map((e, i) => fix(BOOT[i] ? changed : i === 3 || i === 4 ? weak : p.stem) + e);
 }
 
-export function participle(def: VerbDef): string {
+function participleEs(def: VerbDef): string {
   if (def.part) return def.part;
   const p = parse(def);
   if (p.type === 'ar') return p.stem + 'ado';
   return p.stem + (endsInVowel(p.stem) ? 'ído' : 'ido');
 }
 
-export function gerund(def: VerbDef): string {
+function gerundEs(def: VerbDef): string {
   if (def.ger) return def.ger;
   const p = parse(def);
   if (p.type === 'ar') return p.stem + 'ando';
@@ -160,7 +163,7 @@ function imperative(p: Parsed): Forms {
 }
 
 /** Returns the six forms (yo … ellos) of `inf` in `tense`. Imperative slot 0 is always null. */
-export function conjugate(inf: string, tense: Tense): Forms {
+function conjugateEs(inf: string, tense: Tense): Forms {
   const def = VERB_MAP[inf];
   if (!def) throw new Error(`unknown verb: ${inf}`);
   const p = parse(def);
@@ -168,10 +171,10 @@ export function conjugate(inf: string, tense: Tense): Forms {
 
   let forms: string[];
   if (tense === 'perfecto') {
-    const part = participle(def);
+    const part = participleEs(def);
     forms = present(parse(VERB_MAP.haber)).map((h) => `${h} ${part}`);
   } else if (tense === 'progresivo') {
-    const ger = gerund(def);
+    const ger = gerundEs(def);
     forms = present(parse(VERB_MAP.estar)).map((e) => `${e} ${ger}`);
   } else {
     forms = simple(p, tense);
@@ -188,7 +191,7 @@ export interface FormInfo {
 let formIndex: Map<string, FormInfo[]> | null = null;
 
 /** Reverse lookup: a single-word verb form (fui, tengo, hablaste…) → which verb/tense/person it is. */
-export function lookupForm(form: string): FormInfo[] {
+function lookupFormEs(form: string): FormInfo[] {
   if (!formIndex) {
     formIndex = new Map();
     const add = (f: string, info: FormInfo) => {
@@ -198,12 +201,12 @@ export function lookupForm(form: string): FormInfo[] {
     };
     for (const v of VERBS) {
       for (const t of ['presente', 'preterito', 'imperfecto', 'futuro', 'condicional', 'subjuntivo', 'imperativo'] as Tense[]) {
-        conjugate(v.inf, t).forEach((f, person) => {
+        conjugateEs(v.inf, t).forEach((f, person) => {
           if (f) add(f.split(' ').pop()!, { inf: v.inf, tense: t, person });
         });
       }
-      add(participle(v), { inf: v.inf, tense: 'participio', person: -1 });
-      add(gerund(v), { inf: v.inf, tense: 'gerundio', person: -1 });
+      add(participleEs(v), { inf: v.inf, tense: 'participio', person: -1 });
+      add(gerundEs(v), { inf: v.inf, tense: 'gerundio', person: -1 });
     }
   }
   return formIndex.get(form.toLowerCase()) ?? [];
@@ -216,17 +219,19 @@ export interface FormParts {
   ending: string;
   /** The stem differs from the regular one (stem change or irregular verb). */
   changed: boolean;
+  /** Separable prefix printed after the verb (German: stehe … auf). */
+  post?: string;
 }
 
 /**
  * Splits each form into stem + ending for teaching tables: habl|o, piens|o, tuv|e.
  * Forms that don't end in the expected ending (soy, voy, fui) come back whole with `changed`.
  */
-export function splitForms(inf: string, tense: Tense): (FormParts | null)[] {
+function splitFormsEs(inf: string, tense: Tense): (FormParts | null)[] {
   const def = VERB_MAP[inf];
   if (!def) throw new Error(`unknown verb: ${inf}`);
   const p = parse(def);
-  const forms = conjugate(inf, tense);
+  const forms = conjugateEs(inf, tense);
   return forms.map((full, i) => {
     if (!full) return null;
     const words = full.split(' ');
@@ -256,4 +261,50 @@ export function splitForms(inf: string, tense: Tense): (FormParts | null)[] {
     const stem = form.slice(0, -expected.length);
     return { pre, stem, ending: expected, changed: stem !== regularStem };
   });
+}
+
+// ---- Public API: dispatches to the language being studied ------------------------------
+
+const DE = LANG === 'de';
+export const PERSONS = DE ? PERSONS_DE : PERSONS_ES;
+export const IMP_PERSONS = DE ? IMP_PERSONS_DE : IMP_PERSONS_ES;
+/** Tenses offered for this language. `es` holds the native name (Presente, Präsens…). */
+export const TENSES = DE ? TENSES_DE : TENSES_ES;
+export const TENSE_MAP = Object.fromEntries(TENSES.map((t) => [t.id, t])) as Record<Tense, (typeof TENSES)[number]>;
+/** Label for the -ing form row in verb tables (German has none). */
+export const HAS_GERUND = !DE;
+
+export function conjugate(inf: string, tense: Tense): Forms {
+  return DE ? conjugateDe(inf, tense) : conjugateEs(inf, tense);
+}
+
+export function splitForms(inf: string, tense: Tense): (FormParts | null)[] {
+  return DE ? splitFormsDe(inf, tense) : splitFormsEs(inf, tense);
+}
+
+export function participle(v: { inf: string }): string {
+  return DE ? participleDe(VERB_MAP_DE[v.inf]) : participleEs(VERB_MAP[v.inf]);
+}
+
+export function gerund(v: { inf: string }): string {
+  return DE ? '' : gerundEs(VERB_MAP[v.inf]);
+}
+
+let deIndex: Map<string, FormInfo[]> | null = null;
+export function lookupForm(form: string): FormInfo[] {
+  if (!DE) return lookupFormEs(form);
+  if (!deIndex) {
+    deIndex = new Map();
+    for (const f of allFormsDe()) {
+      const k = f.form.toLowerCase();
+      const list = deIndex.get(k) ?? [];
+      if (!list.some((x) => x.inf === f.inf && x.tense === f.tense)) list.push({ inf: f.inf, tense: f.tense, person: f.person });
+      deIndex.set(k, list);
+    }
+    for (const v of Object.values(VERB_MAP_DE)) {
+      const k = participleDe(v).toLowerCase();
+      deIndex.set(k, [...(deIndex.get(k) ?? []), { inf: v.inf, tense: 'participio', person: -1 }]);
+    }
+  }
+  return deIndex.get(form.toLowerCase()) ?? [];
 }

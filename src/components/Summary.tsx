@@ -1,3 +1,4 @@
+import { LANG } from '../data/lang';
 import type { SessionSummary } from './Session';
 
 export function Summary({ summary, xp, onDone, onRetry, doneLabel = 'Continue' }: { summary: SessionSummary; xp: number; onDone: () => void; onRetry?: () => void; doneLabel?: string }) {
@@ -13,7 +14,7 @@ export function Summary({ summary, xp, onDone, onRetry, doneLabel = 'Continue' }
         <div><strong>{summary.correct}/{summary.total}</strong><span>first try</span></div>
       </div>
       {missed.length > 0 && (
-        <p className="muted small">Words to watch — they'll come back sooner in your reviews: <span lang="es">{missed.join(', ')}</span></p>
+        <p className="muted small">Words to watch — they'll come back sooner in your reviews: <span lang={LANG}>{missed.join(', ')}</span></p>
       )}
       <div className="row center">
         {onRetry && <button className="btn" onClick={onRetry}>Practise again</button>}
