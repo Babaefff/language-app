@@ -13,7 +13,3 @@
 
 # Keep clips generated during builds, so missing audio fills up over a few deploys
 # instead of being re-generated every time.
-[[plugins]]
-  package = "netlify-plugin-cache"
-  [plugins.inputs]
-    paths = ["public/audio"]
