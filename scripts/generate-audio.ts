@@ -19,6 +19,11 @@ import { audioFile, audioKey, speakable, splitSentences } from '../src/lib/audio
 const args = process.argv.slice(2);
 const dry = args.includes('--dry');
 const withVerbs = args.includes('--verbs');
+/** --optional: used in deploy builds — no key means "skip", never an error. */
+const optional = args.includes('--optional');
+/** Stop starting new clips after this many minutes (deploy builds have a time limit). */
+const timeLimitMs = Number(process.env.TTS_TIME_LIMIT ?? 0) * 60_000;
+const startedAt = Date.now();
 const key = process.env.GOOGLE_TTS_KEY;
 import { LANG } from '../src/data/lang';
 const voice = process.env.TTS_VOICE ?? (LANG === 'de' ? 'de-DE-Neural2-A' : 'es-ES-Neural2-A');
@@ -52,6 +57,10 @@ const chars = [...texts.values()].reduce((a, t) => a + t.length, 0);
 console.log(`${texts.size} clips, ${chars.toLocaleString()} characters (voice ${voice}).`);
 if (dry) process.exit(0);
 if (!key) {
+  if (optional) {
+    console.log('No GOOGLE_TTS_KEY set — skipping audio generation.');
+    process.exit(0);
+  }
   console.error('Set GOOGLE_TTS_KEY to a Google Cloud API key with the Text-to-Speech API enabled.');
   process.exit(1);
 }
@@ -119,6 +128,10 @@ let failed = 0;
 let nextSlot = Date.now();
 async function worker() {
   for (let item = todo.shift(); item; item = todo.shift()) {
+    if (timeLimitMs && Date.now() - startedAt > timeLimitMs) {
+      todo.length = 0; // time is up: the rest is generated on the next run
+      break;
+    }
     // Simple pacing shared by all workers: at most RPM requests per minute.
     const slot = Math.max(nextSlot, Date.now());
     nextSlot = slot + 60_000 / RPM;
@@ -139,4 +152,6 @@ async function worker() {
 await Promise.all(Array.from({ length: 4 }, worker));
 
 const total = writeManifest();
+const left = texts.size - total;
+if (left) console.log(`${left} clips still missing — they will be generated on the next run.`);
 console.log(`Done: ${total} clips in ${OUT.replace(/.*public\//, 'public/')} (${failed} failed${failed ? ' — run the command again to retry them' : ''}).`);

@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc",
-    "audio": "tsx scripts/generate-audio.ts"
+    "audio": "tsx scripts/generate-audio.ts",
+    "audio:deploy": "tsx scripts/generate-audio.ts --verbs --optional && HABLO_LANG=de tsx scripts/generate-audio.ts --verbs --optional"
   },
   "dependencies": {
     "react": "^19.3.0",
@@ -21,6 +22,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
+    "netlify-plugin-cache": "^1.0.3",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vite": "^8.3.1",
