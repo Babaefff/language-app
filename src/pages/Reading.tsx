@@ -80,10 +80,12 @@ export function ReadingPage() {
           {r.source && <p className="muted small">{r.source}</p>}
         </div>
         <div className="row">
-          {current ? <button className="btn" onClick={stop}>⏹ Stop</button> : <button className="btn primary" onClick={() => play()}>▶ {r.song ? 'Play lyrics' : 'Read aloud'}</button>}
+          {current ? <button className="btn" onClick={stop}>⏹ Stop</button> : <button className="btn primary" onClick={() => play()}>▶ {r.song ? 'Speak lyrics' : 'Read aloud'}</button>}
           <label className="toggle"><input type="checkbox" checked={showEn} onChange={(e) => setShowEn(e.target.checked)} /> English</label>
         </div>
       </div>
+
+      {r.song && <SungVersion r={r} />}
 
       <article className={`card reading ${r.song ? 'song' : ''}`}>
         {r.paragraphs.map((p, pi) => (
@@ -215,5 +217,30 @@ function GapGame({ r }: { r: Reading }) {
       </div>
       {picked && <button className="btn primary" onClick={() => { setPicked(null); setI(i + 1); }}>Next →</button>}
     </section>
+  );
+}
+
+/** A real sung performance: an embedded video when one is chosen, otherwise a search link. */
+function SungVersion({ r }: { r: Reading }) {
+  if (r.youtube) {
+    return (
+      <div className="card song-video">
+        <iframe
+          src={`https://www.youtube-nocookie.com/embed/${r.youtube}`}
+          title={`${r.title} — sung`}
+          allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          loading="lazy"
+        />
+        <p className="muted small">🎵 Listen to the song sung, then use “Speak lyrics” to hear each line slowly.</p>
+      </div>
+    );
+  }
+  const q = encodeURIComponent(`${r.title} ${LANG === 'de' ? 'Lied' : 'canción'}`);
+  return (
+    <p className="card">
+      🎵 <a href={`https://www.youtube.com/results?search_query=${q}`} target="_blank" rel="noreferrer">Hear “{r.title}” sung on YouTube</a>
+      <span className="muted small"> — then come back and use “Speak lyrics” to hear each line slowly.</span>
+    </p>
   );
 }

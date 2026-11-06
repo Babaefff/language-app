@@ -108,6 +108,8 @@ export interface Reading {
   source?: string;
   /** Songs: each paragraph is a verse, one line per "\n"; read and played line by line. */
   song?: boolean;
+  /** Songs: a YouTube video id of a real sung performance, embedded above the lyrics. */
+  youtube?: string;
   paragraphs: string[];
   translation: string[];
   /** Lower-case word form → English, checked before the course dictionary. */
