@@ -54,6 +54,10 @@ describe('German course', () => {
     for (const [u, ls] of Object.entries(m.course.UNIT_LESSONS)) for (const l of ls) expect(m.grammar.GRAMMAR_MAP[l], `${u}: ${l}`).toBeDefined();
     for (const r of [...m.readings.READINGS, ...m.readings.SONGS]) expect(r.translation.length, r.id).toBe(r.paragraphs.length);
     expect(m.readings.SONGS.length).toBeGreaterThanOrEqual(5);
+    for (const r of m.readings.SONGS) if (r.timings) {
+      expect(r.timings.length, `${r.id} timings`).toBe(r.paragraphs.join('\n').split('\n').length);
+      expect([...r.timings].sort((x, y) => x - y), `${r.id} timings in order`).toEqual(r.timings);
+    }
     for (const r of m.readings.SONGS) r.paragraphs.forEach((p, i) => expect(r.translation[i].split('\n').length, `${r.id} verse ${i + 1}`).toBe(p.split('\n').length));
   });
 
