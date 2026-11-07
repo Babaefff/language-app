@@ -26,19 +26,22 @@ export const SONGS_DE: Reading[] = [
   {
     id: 'de-s-haenschen', song: true, level: 'A1', title: 'Hänschen klein',
     source: 'Traditional children’s song, words by Franz Wiedemann (1860) — public domain',
+    youtube: 'estWuexvkqs',
     paragraphs: [
-      'Hänschen klein\nging allein\nin die weite Welt hinein.\nStock und Hut\nsteht ihm gut,\nist gar wohlgemut.',
-      'Aber Mutter weinet sehr,\nhat ja nun kein Hänschen mehr.\nDa besinnt sich das Kind,\nläuft nach Haus geschwind.',
+      'Hänschen klein ging allein in die weite Welt hinein.\nStock und Hut steht ihm gut, ist gar wohlgemut.\nDoch die Mutter weinet sehr, hat ja nun kein Hänschen mehr:\n„Wünsch dir Glück!“, sagt ihr Blick, „Kehr nur bald zurück!“',
+      'Sieben Jahr, trüb und klar, Hänschen in der Fremde war,\nda besinnt sich das Kind, eilt nach Haus geschwind.\nDoch nun ist’s kein Hänschen mehr, nein, ein großer Hans ist er,\nbraun gebrannt Stirn und Hand, wird er wohl erkannt?',
+      'Eins, zwei, drei gehn vorbei, wissen nicht, wer das wohl sei,\nSchwester spricht: „Welch Gesicht!“, kennt den Bruder nicht.\nKommt daher sein Mütterlein, schaut ihm kaum ins Aug hinein,\nruft sie schon: „Hans, mein Sohn! Grüß dich Gott, mein Sohn!“',
     ],
     translation: [
-      "Little Hans,\nwent off alone\nout into the wide world.\nStick and hat\nsuit him well,\nhe is in high spirits.",
-      "But his mother cries a lot,\nnow she has no little Hans any more.\nThen the child thinks again\nand runs home quickly.",
+      "Little Hans went off alone into the wide world.\nStick and hat suit him well, he is in high spirits.\nBut his mother cries a lot: now she has no little Hans any more.\n“I wish you luck!” her look says. “Just come back soon!”",
+      "For seven years, in dull days and bright, little Hans was far from home,\nthen the child thinks it over and hurries home quickly.\nBut now he is no little Hans any more — no, he is a big Hans,\nforehead and hands tanned brown: will anyone recognise him?",
+      "One, two, three people walk past; they don’t know who that could be.\nHis sister says: “What a face!” — she doesn’t recognise her brother.\nThen along comes his dear mother; she barely looks into his eyes\nbefore she calls: “Hans, my son! God bless you, my son!”",
     ],
-    glossary: { hänschen: 'little Hans', ging: 'went (gehen)', allein: 'alone', weite: 'wide', hinein: 'into', stock: 'walking stick', hut: 'hat', steht: 'suits (stehen + dative)', gar: '(old) very', wohlgemut: 'cheerful', weinet: '(old) weint — cries', besinnt: 'thinks again (sich besinnen)', geschwind: '(old) quickly' },
+    glossary: { hänschen: 'little Hans', ging: 'went (gehen)', allein: 'alone', weite: 'wide', hinein: 'into', stock: 'walking stick', hut: 'hat', steht: 'suits (stehen + dative)', gar: '(old) very', wohlgemut: 'cheerful', doch: 'but', weinet: '(old) weint — cries', wünsch: 'I wish (wünschen)', glück: 'luck / happiness', blick: 'look / gaze', kehr: 'kehr zurück: come back (zurückkehren)', zurück: 'back', trüb: 'dull, cloudy', klar: 'clear, bright', fremde: 'in der Fremde: far from home, abroad', besinnt: 'thinks it over (sich besinnen)', eilt: 'hurries (eilen)', geschwind: '(old) quickly', großer: 'big', gebrannt: 'braun gebrannt: tanned', stirn: 'forehead', erkannt: 'recognised (erkennen)', gehn: 'go / walk (gehen)', vorbei: 'past', sei: 'might be (subjunctive of sein)', spricht: 'says (sprechen)', welch: 'what a', gesicht: 'face', bruder: 'brother', daher: 'along', mütterlein: 'dear (little) mother', schaut: 'looks (schauen)', kaum: 'barely', aug: '(old) Auge — eye', ruft: 'calls (rufen)', sohn: 'son', grüß: 'Grüß dich Gott: hello / God bless you (southern German)' },
     questions: [
       { q: 'Wohin geht Hänschen?', options: ['Nach Hause', 'In die weite Welt', 'In die Schule'], answer: 1 },
-      { q: 'Was hat er dabei?', options: ['Stock und Hut', 'Einen Koffer', 'Ein Fahrrad'], answer: 0 },
-      { q: 'Warum geht er nach Hause?', options: ['Er hat Hunger', 'Es regnet', 'Seine Mutter weint'], answer: 2 },
+      { q: 'Wie lange war Hänschen in der Fremde?', options: ['Sieben Tage', 'Sieben Monate', 'Sieben Jahre'], answer: 2 },
+      { q: 'Wer erkennt Hans?', options: ['Die Schwester', 'Die Mutter', 'Der Nachbar'], answer: 1 },
     ],
   },
   {
