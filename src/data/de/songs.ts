@@ -26,7 +26,7 @@ export const SONGS_DE: Reading[] = [
   {
     id: 'de-s-haenschen', song: true, level: 'A1', title: 'Hänschen klein',
     source: 'Traditional children’s song, words by Franz Wiedemann (1860) — public domain',
-    youtube: 'estWuexvkqs',
+    youtube: 'estWuexvkqs', timings: [20.6, 25.4, 29.9, 35.2, 40, 44.8, 49.3, 54.5, 68.8, 73.6, 78.3, 83],
     paragraphs: [
       'Hänschen klein ging allein in die weite Welt hinein.\nStock und Hut steht ihm gut, ist gar wohlgemut.\nDoch die Mutter weinet sehr, hat ja nun kein Hänschen mehr:\n„Wünsch dir Glück!“, sagt ihr Blick, „Kehr nur bald zurück!“',
       'Sieben Jahr, trüb und klar, Hänschen in der Fremde war,\nda besinnt sich das Kind, eilt nach Haus geschwind.\nDoch nun ist’s kein Hänschen mehr, nein, ein großer Hans ist er,\nbraun gebrannt Stirn und Hand, wird er wohl erkannt?',
