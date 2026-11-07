@@ -32,6 +32,10 @@ export function youtubeId(input: string): string | null {
 const store = (id: string) => `hablo:song:${id}`;
 type Local = { youtube?: string; timings?: number[] };
 const readLocal = (id: string): Local => { try { return JSON.parse(localStorage.getItem(store(id)) ?? '{}') as Local; } catch { return {}; } };
+/** Tapping while syncing comes a little after the line starts (reaction time), so lyrics are
+ * shown this many seconds early. Adjustable per device in "Video options". */
+const LEAD_KEY = 'hablo:lyricsLead';
+const readLead = () => { try { const v = Number(localStorage.getItem(LEAD_KEY)); return Number.isFinite(v) && localStorage.getItem(LEAD_KEY) !== null ? v : 0.5; } catch { return 0.5; } };
 const writeLocal = (id: string, v: Local) => { try { localStorage.setItem(store(id), JSON.stringify(v)); } catch { /* storage blocked */ } };
 
 export interface SongPlayerHandle {
@@ -54,6 +58,10 @@ export const SongPlayer = forwardRef<SongPlayerHandle, { r: Reading; lines: stri
     const [loop, setLoop] = useState<number | null>(null);
     const [line, setLine] = useState<number | null>(null);
     const [copied, setCopied] = useState(false);
+    const [lead, setLead] = useState(readLead);
+    const leadRef = useRef(lead);
+    leadRef.current = lead;
+    const nudge = (d: number) => { const v = Math.round((lead + d) * 100) / 100; setLead(v); try { localStorage.setItem(LEAD_KEY, String(v)); } catch { /* storage blocked */ } };
     const box = useRef<HTMLDivElement>(null);
     const player = useRef<YTPlayer>(null);
     const loopRef = useRef(loop);
@@ -67,7 +75,8 @@ export const SongPlayer = forwardRef<SongPlayerHandle, { r: Reading; lines: stri
       synced,
       seekLine: (i) => {
         if (!synced || !player.current) return;
-        player.current.seekTo(timings![i], true);
+        // Start a moment before the line so its first word isn't cut off.
+        player.current.seekTo(Math.max(0, timings![i] - leadRef.current - 0.3), true);
         player.current.playVideo();
       },
     }), [synced, timings]);
@@ -94,16 +103,16 @@ export const SongPlayer = forwardRef<SongPlayerHandle, { r: Reading; lines: stri
         const now: number = p.getCurrentTime();
         const playing = p.getPlayerState?.() === 1;
         let i = -1;
-        for (let k = 0; k < timings!.length; k++) if (timings![k] <= now + 0.15) i = k;
+        for (let k = 0; k < timings!.length; k++) if (timings![k] <= now + leadRef.current) i = k;
         const l = loopRef.current;
         if (l !== null && playing) {
           const end = timings![l + 1] ?? timings![l] + 8;
-          if (now >= end || now < timings![l] - 0.5) { p.seekTo(timings![l], true); i = l; }
+          if (now >= end - leadRef.current || now < timings![l] - leadRef.current - 1) { p.seekTo(Math.max(0, timings![l] - leadRef.current - 0.3), true); i = l; }
         }
         const cur = i >= 0 ? i : null;
         setLine(cur);
         onLineRef.current(cur);
-      }, 150);
+      }, 80);
       return () => clearInterval(t);
     }, [synced, timings]);
 
@@ -181,6 +190,14 @@ export const SongPlayer = forwardRef<SongPlayerHandle, { r: Reading; lines: stri
               {synced && <button className="link" onClick={() => { setTiming([]); onLine(0); player.current?.seekTo(0, true); player.current?.playVideo(); }}>Re-sync lyrics</button>}
               <button className="link" onClick={() => { setVideo(undefined); setTimings(undefined); writeLocal(r.id, {}); }}>Choose another video</button>
             </div>
+            {synced && (
+              <div className="row wrap">
+                <span>Lyrics timing:</span>
+                <button className="btn small-btn" onClick={() => nudge(0.1)}>◀ earlier</button>
+                <button className="btn small-btn" onClick={() => nudge(-0.1)}>later ▶</button>
+                <span className="muted">{lead >= 0 ? `${lead.toFixed(1)} s ahead` : `${(-lead).toFixed(1)} s behind`}</span>
+              </div>
+            )}
             {synced && !r.timings && (
               <>
                 <p className="muted">These timings are saved on this device only. To add them to the app for everyone, send this line to the developer:</p>

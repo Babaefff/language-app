@@ -448,7 +448,8 @@ body:has(.session) .feedback { bottom: 1rem; }
 .song-video iframe { width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 10px; display: block; }
 .yt-box, .yt-box iframe { width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 10px; display: block; }
 .timing-btn { width: 100%; text-align: left; margin: 0.5rem 0; white-space: normal; }
-.seek { border: 0; background: none; color: var(--accent); cursor: pointer; padding: 0 0.35rem 0 0; font-size: 0.9em; }
+.seek { border: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 1.9rem; height: 1.9rem; margin-right: 0.45rem; vertical-align: middle; border-radius: 50%; font-size: 0.95rem; line-height: 1; color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.seek:hover { background: color-mix(in srgb, var(--accent) 28%, transparent); }
 .code { white-space: pre-wrap; word-break: break-all; font-size: 0.8rem; background: color-mix(in srgb, var(--accent) 8%, transparent); padding: 0.5rem; border-radius: 8px; }
 .reading.song .reading-now { transition: background 0.2s; }
 

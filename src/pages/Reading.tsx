@@ -99,7 +99,7 @@ export function ReadingPage() {
             <p lang={LANG}>
               {sentences(p).map((s, si) => (
                 <span key={si} className={`${r.song ? 'song-line' : ''} ${current === `${pi}:${si}` ? 'reading-now' : ''}`}>
-                  {synced && <button className="seek" aria-label="Play from this line" onClick={() => songRef.current?.seekLine(all.findIndex((x) => x.key === `${pi}:${si}`))}>▸</button>}
+                  {synced && <button className="seek" aria-label="Play from this line" onClick={() => songRef.current?.seekLine(all.findIndex((x) => x.key === `${pi}:${si}`))}>▶</button>}
                   {tokenize(s).map((t, ti) =>
                     t.word ? (
                       <button key={ti} className="w" onClick={() => { const g = gloss(t.text, r.glossary); setPopup(g); speak(t.text); }}>{t.text}</button>
