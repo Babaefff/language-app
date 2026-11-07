@@ -63,17 +63,20 @@ export const SONGS_DE: Reading[] = [
     id: 'de-s-tannenbaum', song: true, level: 'A2', title: 'O Tannenbaum',
     source: 'Ernst Anschütz (1824) — public domain',
     paragraphs: [
-      'O Tannenbaum, o Tannenbaum,\nwie treu sind deine Blätter!\nDu grünst nicht nur zur Sommerzeit,\nnein, auch im Winter, wenn es schneit.\nO Tannenbaum, o Tannenbaum,\nwie treu sind deine Blätter!',
-      'O Tannenbaum, o Tannenbaum,\ndu kannst mir sehr gefallen!\nWie oft hat nicht zur Weihnachtszeit\nein Baum von dir mich hoch erfreut!\nO Tannenbaum, o Tannenbaum,\ndu kannst mir sehr gefallen!',
+      'O Tannenbaum, o Tannenbaum,\nwie treu sind deine Blätter!\nDu grünst nicht nur zur Sommerszeit,\nnein, auch im Winter, wenn es schneit.\nO Tannenbaum, o Tannenbaum,\nwie treu sind deine Blätter!',
+      'O Tannenbaum, o Tannenbaum,\ndu kannst mir sehr gefallen!\nWie oft hat schon zur Weihnachtszeit\nein Baum von dir mich hocherfreut!\nO Tannenbaum, o Tannenbaum,\ndu kannst mir sehr gefallen!',
+      'O Tannenbaum, o Tannenbaum,\ndein Kleid will mich was lehren:\ndie Hoffnung und Beständigkeit\ngibt Trost und Kraft zu jeder Zeit.\nO Tannenbaum, o Tannenbaum,\ndein Kleid will mich was lehren!',
     ],
     translation: [
       "O fir tree, o fir tree,\nhow faithful are your leaves!\nYou are green not only in summertime,\nno, also in winter when it snows.\nO fir tree, o fir tree,\nhow faithful are your leaves!",
       "O fir tree, o fir tree,\nhow much I like you!\nHow often at Christmas time\nhas a tree like you delighted me!\nO fir tree, o fir tree,\nhow much I like you!",
+      "O fir tree, o fir tree,\nyour green dress wants to teach me something:\nhope and constancy\ngive comfort and strength at any time.\nO fir tree, o fir tree,\nyour green dress wants to teach me something!",
     ],
-    glossary: { tannenbaum: 'fir tree', treu: 'faithful / loyal', blätter: 'leaves (here: needles)', grünst: 'are green (grünen)', sommerzeit: 'summertime', schneit: 'it snows (schneien)', weihnachtszeit: 'Christmas time', hoch: 'highly / greatly', erfreut: 'delighted (erfreuen)' },
+    glossary: { tannenbaum: 'fir tree', treu: 'faithful / loyal', blätter: 'leaves (here: needles)', grünst: 'are green (grünen)', sommerszeit: 'summertime', schneit: 'it snows (schneien)', schon: 'already (here: so often)', weihnachtszeit: 'Christmas time', hocherfreut: 'greatly delighted', kleid: 'dress (here: its green needles)', was: 'something (= etwas)', lehren: 'to teach', hoffnung: 'hope', beständigkeit: 'constancy, staying the same', trost: 'comfort', kraft: 'strength' },
     questions: [
       { q: 'Wann ist der Tannenbaum grün?', options: ['Nur im Sommer', 'Auch im Winter', 'Nur zu Weihnachten'], answer: 1 },
       { q: 'Wie sind die Blätter des Baums?', options: ['Treu', 'Rot', 'Klein'], answer: 0 },
+      { q: 'Was gibt der Baum zu jeder Zeit?', options: ['Geld', 'Trost und Kraft', 'Licht'], answer: 1 },
     ],
   },
   {
