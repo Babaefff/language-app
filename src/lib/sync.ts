@@ -51,6 +51,15 @@ export async function signOut() {
   await sb.auth.signOut();
 }
 
+/** Deletes the account itself and all its cloud data (progress on this device stays). */
+export async function deleteAccount() {
+  const sb = await getClient();
+  if (!sync.user) return;
+  const { error } = await sb.rpc('delete_my_account');
+  if (error) throw error;
+  await sb.auth.signOut();
+}
+
 /** Deletes this account's saved progress in the cloud (all languages). Local progress stays. */
 export async function deleteCloudData() {
   const sb = await getClient();

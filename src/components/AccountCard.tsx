@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { accountsEnabled, deleteCloudData, googleEnabled, signInWithEmail, signInWithGoogle, signOut, useSync } from '../lib/sync';
+import { accountsEnabled, deleteAccount, deleteCloudData, googleEnabled, signInWithEmail, signInWithGoogle, signOut, useSync } from '../lib/sync';
 
 /** Optional sign-in so progress is saved in the cloud and follows you to other devices. */
 export function AccountCard() {
@@ -28,6 +28,7 @@ export function AccountCard() {
         <div className="row wrap">
           <button className="btn" disabled={busy} onClick={() => run(signOut)}>Sign out</button>
           <button className="btn" disabled={busy} onClick={() => { if (confirm('Delete your saved progress from the cloud? Progress on this device stays.')) void run(deleteCloudData); }}>Delete cloud data</button>
+          <button className="btn" disabled={busy} onClick={() => { if (confirm('Delete your account permanently? Your email and cloud progress are removed. Progress on this device stays.')) void run(deleteAccount); }}>Delete account</button>
         </div>
         {msg && <p className="warn small">{msg}</p>}
       </section>

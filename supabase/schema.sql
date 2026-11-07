@@ -19,3 +19,19 @@ create policy "own progress: read" on public.progress for select using (auth.uid
 create policy "own progress: insert" on public.progress for insert with check (auth.uid() = user_id);
 create policy "own progress: update" on public.progress for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "own progress: delete" on public.progress for delete using (auth.uid() = user_id);
+
+-- Limit each saved progress copy to 1 MB so nobody can fill the database with junk.
+alter table public.progress drop constraint if exists progress_size_limit;
+alter table public.progress add constraint progress_size_limit check (octet_length(data::text) < 1000000);
+
+-- Lets a signed-in user delete their own account (and, through "on delete cascade", their progress).
+create or replace function public.delete_my_account()
+returns void
+language sql
+security definer
+set search_path = ''
+as $$
+  delete from auth.users where id = auth.uid();
+$$;
+revoke all on function public.delete_my_account() from public, anon;
+grant execute on function public.delete_my_account() to authenticated;
