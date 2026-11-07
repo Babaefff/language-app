@@ -18,6 +18,10 @@ export function GrammarList() {
     <div className="page">
       <h1>Grammar</h1>
       <p className="muted">Short lessons that explain the logic behind {L.name}: why verbs change, which ones behave alike, and when to use what. Each ends with practice.</p>
+      <Link to="/pronunciation" className="card action pron-link">
+        <h2>🔤 Pronunciation</h2>
+        <p className="muted small">Start here: how every letter and letter combination sounds, with examples to hear.</p>
+      </Link>
       {LEVELS.map((level) => (
         <section key={level} className="level">
           <div className="level-head">

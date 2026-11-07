@@ -1,5 +1,6 @@
 import { ExamList, ExamPage } from './pages/Exam';
 import { Speaking } from './pages/Speaking';
+import { Pronunciation } from './pages/Pronunciation';
 import { WritingList, WritingPage } from './pages/Writing';
 import { HashRouter, MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -90,6 +91,7 @@ function Shell() {
           <Route path="/reading/:id" element={<ReadingPage />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/practice/speaking" element={<Speaking />} />
+          <Route path="/pronunciation" element={<Pronunciation />} />
           <Route path="/writing" element={<WritingList />} />
           <Route path="/writing/:id" element={<WritingPage />} />
           <Route path="/exam" element={<ExamList />} />
