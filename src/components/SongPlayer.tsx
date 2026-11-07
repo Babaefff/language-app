@@ -40,6 +40,8 @@ const writeLocal = (id: string, v: Local) => { try { localStorage.setItem(store(
 
 /** Taps come this long after a line really starts; it is subtracted when a tap is saved. */
 const REACTION = 0.2;
+/** 🔁 repeats a line at most this many times, then playback simply continues. */
+const MAX_REPEATS = 5;
 
 export interface SongPlayerHandle {
   /** Jumps the video to the start of a lyric line (flat index). */
@@ -61,7 +63,10 @@ export const SongPlayer = forwardRef<SongPlayerHandle, { r: Reading; lines: stri
     );
     const [link, setLink] = useState('');
     const [timing, setTiming] = useState<number[] | null>(null); // timing mode: times recorded so far
-    const [loop, setLoop] = useState<number | null>(null);
+    const [loop, setLoopState] = useState<number | null>(null);
+    const repeats = useRef(0);
+    const [repeatCount, setRepeatCount] = useState(0);
+    const setLoop = (l: number | null) => { repeats.current = 0; setRepeatCount(0); setLoopState(l); };
     const [line, setLine] = useState<number | null>(null);
     const [copied, setCopied] = useState(false);
     const [lead, setLead] = useState(readLead);
@@ -95,7 +100,8 @@ export const SongPlayer = forwardRef<SongPlayerHandle, { r: Reading; lines: stri
       box.current.replaceChildren(host);
       void loadApi().then((YT) => {
         if (cancelled) return;
-        player.current = new YT.Player(host, { videoId: video, playerVars: { playsinline: 1, rel: 0, modestbranding: 1 } });
+        // origin: YouTube recommends naming the embedding site when the IFrame API is used.
+        player.current = new YT.Player(host, { videoId: video, playerVars: { playsinline: 1, rel: 0, origin: window.location.origin } });
       });
       return () => { cancelled = true; player.current?.destroy?.(); player.current = null; };
     }, [video]);
@@ -110,15 +116,22 @@ export const SongPlayer = forwardRef<SongPlayerHandle, { r: Reading; lines: stri
         const playing = p.getPlayerState?.() === 1;
         let i = -1;
         for (let k = 0; k < timings!.length; k++) if (timings![k] <= now + leadRef.current) i = k;
+        // Repeat a line only while the learner has switched it on, at most MAX_REPEATS times,
+        // and stop as soon as they pause or the video ends.
         const l = loopRef.current;
-        if (l !== null && playing) {
+        const state = p.getPlayerState?.();
+        if (l !== null && (state === 0 || state === 2)) setLoop(null);
+        else if (l !== null && playing) {
           const end = timings![l + 1] ?? timings![l] + 8;
-          if (now >= end - leadRef.current || now < timings![l] - leadRef.current - 1) { p.seekTo(Math.max(0, timings![l] - leadRef.current + 0.6), true); i = l; }
+          if (now >= end - leadRef.current || now < timings![l] - leadRef.current - 1) {
+            if (repeats.current >= MAX_REPEATS) setLoop(null);
+            else { repeats.current++; setRepeatCount(repeats.current); p.seekTo(Math.max(0, timings![l] - leadRef.current + 0.6), true); i = l; }
+          }
         }
         const cur = i >= 0 ? i : null;
         setLine(cur);
         onLineRef.current(cur);
-      }, 80);
+      }, 150);
       return () => clearInterval(t);
     }, [synced, timings]);
 
@@ -181,7 +194,7 @@ export const SongPlayer = forwardRef<SongPlayerHandle, { r: Reading; lines: stri
           <div className="row wrap between">
             <span className="muted small">🎤 Lyrics follow the song. Tap ▸ next to a line to jump there.</span>
             <button className={`btn small-btn ${loop !== null ? 'playing' : ''}`} disabled={line === null && loop === null} onClick={() => setLoop(loop !== null ? null : line)}>
-              🔁 {loop !== null ? `Repeating line ${loop + 1} — stop` : 'Repeat this line'}
+              🔁 {loop !== null ? `Repeating line ${loop + 1} (${repeatCount}/${MAX_REPEATS}) — stop` : 'Repeat this line'}
             </button>
             <button className="btn small-btn" onClick={startSync}>⏱ Re-sync lyrics</button>
           </div>
