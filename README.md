@@ -100,7 +100,7 @@ Without these settings the app saves progress only in the browser. To let learne
 1. Create a free project at supabase.com.
 2. **SQL Editor → New query**: paste `supabase/schema.sql` and run it (creates the `progress` table with row-level security).
 3. **Authentication → URL Configuration**: set *Site URL* to the deployed address (e.g. `https://habloso.netlify.app`) and add it, plus `http://localhost:5173`, to *Redirect URLs*.
-4. **Project Settings → API**: copy the *Project URL* and the *anon public* key into Netlify (**Project configuration → Environment variables**) as `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`, and into `.env.local` for local development. Never use the `service_role` key in the app.
+4. **Project Settings → API Keys**: copy the *publishable* key (`sb_publishable_…`). The Project URL is `https://<Project ID>.supabase.co` (Project ID under **Project Settings → General**). Put them into Netlify (**Project configuration → Environment variables**) as `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`, and into `.env.local` for local development. Never use a *secret* key (`sb_secret_…`) in the app.
 5. Redeploy. A **☁️ Account** card appears in Settings (email sign-in link). For Google sign-in, enable the Google provider in Supabase and set `VITE_SUPABASE_GOOGLE=1`.
 
 ## Audio voices

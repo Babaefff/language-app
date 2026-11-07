@@ -9,7 +9,8 @@ import { getProgress, mergeProgress, onProgressChange, parseProgress, replacePro
  * is merged with the cloud copy and saved back a few seconds after every change.
  */
 const URL_ = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const ANON = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+// The publishable key (sb_publishable_…, formerly "anon") is public by design; never use a secret key here.
+const ANON = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? import.meta.env.VITE_SUPABASE_ANON_KEY) as string | undefined;
 export const accountsEnabled = !!(URL_ && ANON);
 export const googleEnabled = import.meta.env.VITE_SUPABASE_GOOGLE === '1';
 
