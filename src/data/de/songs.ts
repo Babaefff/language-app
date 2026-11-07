@@ -90,6 +90,7 @@ export const SONGS_DE: Reading[] = [
   },
   {
     id: 'de-s-stille-nacht', song: true, level: 'B1', title: 'Stille Nacht, heilige Nacht',
+    youtube: 'DKz1eOyIfz8', timings: [20.1, 28, 35.4, 42, 49.2, 56.8, 64.4, 71, 78.3, 85.4, 92.4, 100.3, 107.6, 113.9, 121.1, 127.8, 135.8, 142.4],
     source: 'Joseph Mohr (1816), music by Franz Xaver Gruber (1818) — public domain',
     paragraphs: [
       "Stille Nacht, Heilige Nacht!\nAlles schläft, einsam wacht\nnur das traute, hochheilige Paar.\nHolder Knabe im lockigen Haar,\nschlaf in himmlischer Ruh,\nschlaf in himmlischer Ruh.",

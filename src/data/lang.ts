@@ -63,5 +63,9 @@ export function switchLanguage(id: LangId) {
   } catch {
     // storage blocked: the switch lasts until reload only
   }
+  // Pages for one text, unit or lesson don't exist in the other language: open their list instead.
+  const parents: [RegExp, string][] = [[/^#\/reading\/.+/, '#/reading'], [/^#\/unit\/.+/, '#/course'], [/^#\/grammar\/.+/, '#/grammar'], [/^#\/exam\/.+/, '#/exam'], [/^#\/writing\/.+/, '#/writing']];
+  const parent = parents.find(([re]) => re.test(window.location.hash))?.[1];
+  if (parent) window.history.replaceState(null, '', parent);
   window.location.reload();
 }
