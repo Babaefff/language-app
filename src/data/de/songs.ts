@@ -61,6 +61,7 @@ export const SONGS_DE: Reading[] = [
   },
   {
     id: 'de-s-tannenbaum', song: true, level: 'A2', title: 'O Tannenbaum',
+    youtube: '27JleM39TPY', timings: [3.5, 7.2, 11.6, 15.7, 19.5, 23.7, 31.2, 35.8, 39.6, 43.9, 48.1, 51.8, 59.7, 64, 67.5, 72, 75.8, 80.2],
     source: 'Ernst Anschütz (1824) — public domain',
     paragraphs: [
       'O Tannenbaum, o Tannenbaum,\nwie treu sind deine Blätter!\nDu grünst nicht nur zur Sommerszeit,\nnein, auch im Winter, wenn es schneit.\nO Tannenbaum, o Tannenbaum,\nwie treu sind deine Blätter!',
