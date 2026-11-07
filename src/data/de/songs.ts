@@ -4,7 +4,7 @@ import type { Reading } from '../types';
 export const SONGS_DE: Reading[] = [
   {
     id: 'de-s-entchen', song: true, level: 'A1', title: 'Alle meine Entchen',
-    youtube: 'NN8_R44Ig0g', timings: [17.9, 20.4, 23.1, 26, 28.7, 38.2, 40.9, 43.5, 46.4, 49.2, 58.3, 60.9, 63.8, 66.2, 69],
+    youtube: 'NN8_R44Ig0g', timings: [17, 19.5, 22.2, 25.1, 27.8, 37.3, 40, 42.6, 45.5, 48.3, 57.4, 60, 62.9, 65.3, 68.1],
     source: 'Traditional children’s song (public domain)',
     paragraphs: [
       'Alle meine Entchen\nschwimmen auf dem See,\nschwimmen auf dem See,\nKöpfchen in das Wasser,\nSchwänzchen in die Höh.',

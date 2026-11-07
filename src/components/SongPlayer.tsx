@@ -34,9 +34,12 @@ type Local = { youtube?: string; timings?: number[] };
 const readLocal = (id: string): Local => { try { return JSON.parse(localStorage.getItem(store(id)) ?? '{}') as Local; } catch { return {}; } };
 /** Tapping while syncing comes a little after the line starts (reaction time), so lyrics are
  * shown this many seconds early. Adjustable per device in "Video options". */
-const LEAD_KEY = 'hablo:lyricsLead';
-const readLead = () => { try { const v = Number(localStorage.getItem(LEAD_KEY)); return Number.isFinite(v) && localStorage.getItem(LEAD_KEY) !== null ? v : 1.2; } catch { return 1.2; } };
+const LEAD_KEY = 'hablo:lyricsLead2';
+const readLead = () => { try { const v = Number(localStorage.getItem(LEAD_KEY)); return Number.isFinite(v) && localStorage.getItem(LEAD_KEY) !== null ? v : 0.3; } catch { return 0.3; } };
 const writeLocal = (id: string, v: Local) => { try { localStorage.setItem(store(id), JSON.stringify(v)); } catch { /* storage blocked */ } };
+
+/** Taps come this long after a line really starts; it is subtracted when a tap is saved. */
+const REACTION = 0.5;
 
 export interface SongPlayerHandle {
   /** Jumps the video to the start of a lyric line (flat index). */
@@ -52,7 +55,10 @@ export const SongPlayer = forwardRef<SongPlayerHandle, { r: Reading; lines: stri
   function SongPlayer({ r, lines, onLine, onSynced }, ref) {
     const local = readLocal(r.id);
     const [video, setVideo] = useState<string | undefined>(r.youtube ?? local.youtube);
-    const [timings, setTimings] = useState<number[] | undefined>(r.timings ?? local.timings);
+    const [timings, setTimings] = useState<number[] | undefined>(
+      // A sync made on this device for the same video wins over the built-in one.
+      local.timings && local.youtube === (r.youtube ?? local.youtube) ? local.timings : r.timings,
+    );
     const [link, setLink] = useState('');
     const [timing, setTiming] = useState<number[] | null>(null); // timing mode: times recorded so far
     const [loop, setLoop] = useState<number | null>(null);
@@ -116,6 +122,8 @@ export const SongPlayer = forwardRef<SongPlayerHandle, { r: Reading; lines: stri
       return () => clearInterval(t);
     }, [synced, timings]);
 
+    const startSync = () => { setLoop(null); setTiming([]); onLine(0); player.current?.seekTo(0, true); player.current?.playVideo(); };
+
     const chooseVideo = () => {
       const id = youtubeId(link);
       if (!id) return;
@@ -126,7 +134,7 @@ export const SongPlayer = forwardRef<SongPlayerHandle, { r: Reading; lines: stri
 
     const tap = () => {
       if (!timing || !player.current) return;
-      const next = [...timing, Math.max(0, Math.round((player.current.getCurrentTime() - 0.2) * 10) / 10)];
+      const next = [...timing, Math.max(0, Math.round((player.current.getCurrentTime() - REACTION) * 10) / 10)];
       if (next.length === lines.length) {
         setTimings(next);
         setTiming(null);
@@ -175,6 +183,7 @@ export const SongPlayer = forwardRef<SongPlayerHandle, { r: Reading; lines: stri
             <button className={`btn small-btn ${loop !== null ? 'playing' : ''}`} disabled={line === null && loop === null} onClick={() => setLoop(loop !== null ? null : line)}>
               🔁 {loop !== null ? `Repeating line ${loop + 1} — stop` : 'Repeat this line'}
             </button>
+            <button className="btn small-btn" onClick={startSync}>⏱ Re-sync lyrics</button>
           </div>
         ) : (
           <p className="small">
@@ -187,7 +196,6 @@ export const SongPlayer = forwardRef<SongPlayerHandle, { r: Reading; lines: stri
           <details className="small">
             <summary>Video options</summary>
             <div className="row wrap">
-              {synced && <button className="link" onClick={() => { setTiming([]); onLine(0); player.current?.seekTo(0, true); player.current?.playVideo(); }}>Re-sync lyrics</button>}
               <button className="link" onClick={() => { setVideo(undefined); setTimings(undefined); writeLocal(r.id, {}); }}>Choose another video</button>
             </div>
             {synced && (
@@ -198,7 +206,7 @@ export const SongPlayer = forwardRef<SongPlayerHandle, { r: Reading; lines: stri
                 <span className="muted">{lead >= 0 ? `${lead.toFixed(1)} s ahead` : `${(-lead).toFixed(1)} s behind`}</span>
               </div>
             )}
-            {synced && !r.timings && (
+            {synced && timings !== r.timings && (
               <>
                 <p className="muted">These timings are saved on this device only. To add them to the app for everyone, send this line to the developer:</p>
                 <pre className="code">{code}</pre>
