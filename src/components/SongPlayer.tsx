@@ -82,7 +82,7 @@ export const SongPlayer = forwardRef<SongPlayerHandle, { r: Reading; lines: stri
       seekLine: (i) => {
         if (!synced || !player.current) return;
         // Start a moment before the line so its first word isn't cut off.
-        player.current.seekTo(Math.max(0, timings![i] - leadRef.current - 0.3), true);
+        player.current.seekTo(Math.max(0, timings![i] - leadRef.current - 0.1), true);
         player.current.playVideo();
       },
     }), [synced, timings]);
@@ -113,7 +113,7 @@ export const SongPlayer = forwardRef<SongPlayerHandle, { r: Reading; lines: stri
         const l = loopRef.current;
         if (l !== null && playing) {
           const end = timings![l + 1] ?? timings![l] + 8;
-          if (now >= end - leadRef.current || now < timings![l] - leadRef.current - 1) { p.seekTo(Math.max(0, timings![l] - leadRef.current - 0.3), true); i = l; }
+          if (now >= end - leadRef.current || now < timings![l] - leadRef.current - 1) { p.seekTo(Math.max(0, timings![l] - leadRef.current - 0.1), true); i = l; }
         }
         const cur = i >= 0 ? i : null;
         setLine(cur);
