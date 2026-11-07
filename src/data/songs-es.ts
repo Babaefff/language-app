@@ -90,7 +90,6 @@ export const SONGS_ES: Reading[] = [
   },
   {
     id: 's-mananitas', song: true, level: 'A2', title: 'Las mañanitas',
-    youtube: 'ixZO0j_LCj4',
     source: 'Traditional Mexican birthday song (public domain)',
     paragraphs: [
       "Estas son las mañanitas\nque cantaba el rey David;\nhoy por ser día de tu santo\nte las cantamos a ti.",
