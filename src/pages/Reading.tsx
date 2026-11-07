@@ -107,10 +107,11 @@ export function ReadingPage() {
                       <span key={ti}>{t.text}</span>
                     ),
                   )}
+                  {r.song && showEn && <span className="line-en" lang="en">{r.translation[pi].split('\n')[si]}</span>}
                 </span>
               ))}
             </p>
-            {showEn && <p className="muted translation">{r.translation[pi]}</p>}
+            {showEn && !r.song && <p className="muted translation">{r.translation[pi]}</p>}
           </div>
         ))}
       </article>

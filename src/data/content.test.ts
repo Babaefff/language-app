@@ -47,6 +47,10 @@ describe('course content', () => {
     }
   });
 
+  it('songs have one English line per lyric line', () => {
+    for (const r of SONGS) r.paragraphs.forEach((p, i) => expect(r.translation[i].split('\n').length, `${r.id} verse ${i + 1}`).toBe(p.split('\n').length));
+  });
+
   it('readings are well-formed', () => {
     for (const r of [...READINGS, ...SONGS]) {
       expect(r.translation.length, r.id).toBe(r.paragraphs.length);

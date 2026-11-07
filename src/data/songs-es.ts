@@ -11,9 +11,9 @@ export const SONGS_ES: Reading[] = [
       'Bajo sus dos alas,\nacurrucaditos,\nduermen los pollitos\nhasta el otro día.',
     ],
     translation: [
-      'The little chicks say cheep, cheep, cheep when they are hungry, when they are cold.',
-      'The hen looks for corn and wheat, she gives them food and keeps them warm.',
-      'Under her two wings, snuggled up, the little chicks sleep until the next day.',
+      "The little chicks say\ncheep, cheep, cheep,\nwhen they are hungry,\nwhen they are cold.",
+      "The hen looks for\ncorn and wheat,\nshe gives them food\nand keeps them warm.",
+      "Under her two wings,\nsnuggled up,\nthe little chicks sleep\nuntil the next day.",
     ],
     glossary: { pollitos: 'little chicks', pío: 'cheep', gallina: 'hen', maíz: 'corn / maize', trigo: 'wheat', presta: 'lends / gives (prestar)', abrigo: 'shelter, warmth (also: coat)', alas: 'wings', acurrucaditos: 'snuggled up', otro: 'el otro día: here, the next day' },
     questions: [
@@ -31,9 +31,9 @@ export const SONGS_ES: Reading[] = [
       'Con esta sí,\ncon esta no,\ncon esta señorita\nme caso yo.',
     ],
     translation: [
-      'Rice pudding, I want to marry a young lady from San Nicolás,',
-      'who knows how to sew, who knows how to embroider, who knows how to open the door to go out and play.',
-      'With this one yes, with this one no, this is the young lady I will marry.',
+      "Rice pudding,\nI want to marry\na young lady\nfrom San Nicolás,",
+      "who knows how to sew,\nwho knows how to embroider,\nwho knows how to open the door\nto go out and play.",
+      "With this one yes,\nwith this one no,\nthis young lady\nis the one I’ll marry.",
     ],
     glossary: { arroz: 'rice (arroz con leche: rice pudding)', casar: 'to marry (casarse)', señorita: 'young lady', sepa: 'knows how to (subjunctive of saber)', coser: 'to sew', bordar: 'to embroider', caso: 'me caso: I get married' },
     questions: [
@@ -51,9 +51,9 @@ export const SONGS_ES: Reading[] = [
       'Ese lunar que tienes,\ncielito lindo, junto a la boca,\nno se lo des a nadie,\ncielito lindo, que a mí me toca.',
     ],
     translation: [
-      'From the Sierra Morena, my sweetheart, a pair of dark eyes come down, smuggled in.',
-      'Ay, ay, ay, ay! Sing and don’t cry, because singing, my sweetheart, makes hearts happy.',
-      'That beauty mark you have, my sweetheart, next to your mouth — don’t give it to anyone, my sweetheart, because it belongs to me.',
+      "From the Sierra Morena,\nmy sweetheart, coming down\nare a pair of dark eyes,\nmy sweetheart, smuggled in.",
+      "Ay, ay, ay, ay!\nSing and don’t cry,\nbecause by singing,\nmy sweetheart, hearts become happy.",
+      "That beauty mark you have,\nmy sweetheart, next to your mouth,\ndon’t give it to anyone,\nmy sweetheart, because it belongs to me.",
     ],
     glossary: { cielito: 'little sky — here: sweetheart', lindo: 'lovely / pretty', sierra: 'mountain range', morena: 'Sierra Morena: mountains in Spain', bajando: 'coming down (bajar)', par: 'pair', ojitos: 'little eyes', contrabando: 'de contrabando: smuggled', llores: 'no llores: don’t cry (llorar)', cantando: 'singing', alegran: 'become happy (alegrarse)', corazones: 'hearts', lunar: 'beauty mark / mole', junto: 'junto a: next to', des: 'no se lo des: don’t give it (dar)', toca: 'is mine / my turn (tocar)' },
     questions: [
@@ -71,9 +71,9 @@ export const SONGS_ES: Reading[] = [
       'Canta el gallo,\ncanta el gallo con el quiri, quiri, quiri, quiri, quiri.\nLa gallina,\nla gallina con el cara, cara, cara, cara, cara.\nLos polluelos,\nlos polluelos con el pío, pío, pío, pío, pí.',
     ],
     translation: [
-      'In colours, the fields dress in colours in spring. In colours, the little birds that come from far away are colourful.',
-      'In colours, the rainbow we see shining is colourful, and that’s why I love great loves of many colours.',
-      'The rooster sings, the rooster sings with a quiri, quiri… The hen with a cara, cara… The chicks with a pío, pío…',
+      "In colours,\nin colours the fields dress in spring.\nIn colours,\nin colours are the little birds that come from far away.",
+      "In colours,\nin colours is the rainbow we see shining,\nand that’s why great loves\nof many colours are the ones I like.",
+      "The rooster sings,\nthe rooster sings with a quiri, quiri, quiri, quiri, quiri.\nThe hen,\nthe hen with a cara, cara, cara, cara, cara.\nThe chicks,\nthe chicks with a cheep, cheep, cheep, cheep, cheep.",
     ],
     glossary: { colores: 'colours', visten: 'dress (vestirse: to get dressed)', campos: 'fields', primavera: 'spring', pajaritos: 'little birds', afuera: 'outside / far away', arco: 'arco iris: rainbow', iris: 'arco iris: rainbow', lucir: 'to shine', amores: 'loves', gallo: 'rooster', gallina: 'hen', polluelos: 'chicks', quiri: '(rooster sound)', cara: '(hen sound)', pío: 'cheep' },
     questions: [
@@ -90,8 +90,8 @@ export const SONGS_ES: Reading[] = [
       'Despierta, mi bien, despierta,\nmira que ya amaneció;\nya los pajaritos cantan,\nla luna ya se metió.',
     ],
     translation: [
-      'These are the morning songs that King David used to sing; today, because it’s your saint’s day, we sing them to you.',
-      'Wake up, my dear, wake up, look, the day has dawned; the little birds are already singing, the moon has already set.',
+      "These are the morning songs\nthat King David used to sing;\ntoday, because it’s your saint’s day,\nwe sing them to you.",
+      "Wake up, my dear, wake up,\nlook, the day has dawned;\nthe little birds are already singing,\nthe moon has already set.",
     ],
     glossary: { mañanitas: 'morning songs (a birthday serenade)', cantaba: 'used to sing (imperfect)', rey: 'king', santo: 'día de tu santo: your saint’s day / birthday', despierta: 'wake up! (despertar)', bien: 'mi bien: my dear', amaneció: 'day has dawned (amanecer)', metió: 'se metió: has set / gone in (meterse)' },
     questions: [
@@ -109,9 +109,9 @@ export const SONGS_ES: Reading[] = [
       'Con los pobres de la tierra\nquiero yo mi suerte echar;\nel arroyo de la sierra\nme complace más que el mar.',
     ],
     translation: [
-      'I am a sincere man from where the palm tree grows, and before I die I want to pour out the verses of my soul.',
-      'My verse is a light green and a fiery crimson; my verse is a wounded deer that looks for shelter in the hills.',
-      'I want to share my fate with the poor of the earth; the mountain stream pleases me more than the sea.',
+      "I am a sincere man\nfrom where the palm tree grows,\nand before I die I want\nto pour out the verses of my soul.",
+      "My verse is a light green\nand a fiery crimson;\nmy verse is a wounded deer\nthat seeks shelter in the hills.",
+      "With the poor of the earth\nI want to share my fate;\nthe mountain stream\npleases me more than the sea.",
     ],
     glossary: { sincero: 'sincere / honest', crece: 'grows (crecer)', palma: 'palm tree', morirme: 'antes de morirme: before I die', echar: 'to throw / pour out; echar la suerte: to share one’s fate', versos: 'verses', alma: 'soul', claro: 'light (colour)', carmín: 'crimson', encendido: 'bright / burning', ciervo: 'deer', herido: 'wounded', monte: 'hills / woodland', amparo: 'shelter / protection', pobres: 'the poor', suerte: 'fate / luck', arroyo: 'stream', sierra: 'mountains', complace: 'pleases (complacer)' },
     questions: [
