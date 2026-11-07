@@ -35,7 +35,7 @@ const readLocal = (id: string): Local => { try { return JSON.parse(localStorage.
 /** Tapping while syncing comes a little after the line starts (reaction time), so lyrics are
  * shown this many seconds early. Adjustable per device in "Video options". */
 const LEAD_KEY = 'hablo:lyricsLead';
-const readLead = () => { try { const v = Number(localStorage.getItem(LEAD_KEY)); return Number.isFinite(v) && localStorage.getItem(LEAD_KEY) !== null ? v : 0.9; } catch { return 0.9; } };
+const readLead = () => { try { const v = Number(localStorage.getItem(LEAD_KEY)); return Number.isFinite(v) && localStorage.getItem(LEAD_KEY) !== null ? v : 1.2; } catch { return 1.2; } };
 const writeLocal = (id: string, v: Local) => { try { localStorage.setItem(store(id), JSON.stringify(v)); } catch { /* storage blocked */ } };
 
 export interface SongPlayerHandle {
