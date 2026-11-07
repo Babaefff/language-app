@@ -110,6 +110,8 @@ export interface Reading {
   song?: boolean;
   /** Songs: a YouTube video id of a real sung performance, embedded above the lyrics. */
   youtube?: string;
+  /** Songs: second at which each lyric line starts in that video (karaoke sync). */
+  timings?: number[];
   paragraphs: string[];
   translation: string[];
   /** Lower-case word form → English, checked before the course dictionary. */

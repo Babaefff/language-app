@@ -1,5 +1,5 @@
 import { LANG } from '../data/lang';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Link } from '../components/Nav';
 import { READINGS, SONGS } from '../data/readings';
@@ -10,6 +10,7 @@ import { chunks } from '../lib/audioKey';
 import { speak, stopSpeaking } from '../lib/speech';
 import { addXp, completeReading, gradeWord, useProgress } from '../lib/store';
 import { SpeakButton } from '../components/SpeakButton';
+import { SongPlayer, type SongPlayerHandle } from '../components/SongPlayer';
 
 export function Readings() {
   return (
@@ -50,15 +51,20 @@ export function ReadingPage() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [submitted, setSubmitted] = useState(false);
   const playId = useRef(0);
+  const songRef = useRef<SongPlayerHandle>(null);
+  const [synced, setSynced] = useState(false);
+  const keysRef = useRef<string[]>([]);
+  const onSongLine = useCallback((i: number | null) => setCurrent(i === null ? null : keysRef.current[i] ?? null), []);
 
   useEffect(() => () => { playId.current++; stopSpeaking(); }, []);
 
   if (!r) return <div className="page"><p>Text not found. <Link to="/reading">Back</Link></p></div>;
 
   const sentences = (p: string) => chunks(p, r.song);
+  const all = r.paragraphs.flatMap((p, pi) => sentences(p).map((s, si) => ({ key: `${pi}:${si}`, s })));
+  keysRef.current = all.map((x) => x.key);
   const play = async (from = 0) => {
     const me = ++playId.current;
-    const all = r.paragraphs.flatMap((p, pi) => sentences(p).map((s, si) => ({ key: `${pi}:${si}`, s })));
     for (const { key, s } of all.slice(from)) {
       if (playId.current !== me) return;
       setCurrent(key);
@@ -85,7 +91,7 @@ export function ReadingPage() {
         </div>
       </div>
 
-      {r.song && <SungVersion r={r} />}
+      {r.song && <SongPlayer ref={songRef} r={r} lines={all.map((x) => x.s)} onLine={onSongLine} onSynced={setSynced} />}
 
       <article className={`card reading ${r.song ? 'song' : ''}`}>
         {r.paragraphs.map((p, pi) => (
@@ -93,6 +99,7 @@ export function ReadingPage() {
             <p lang={LANG}>
               {sentences(p).map((s, si) => (
                 <span key={si} className={`${r.song ? 'song-line' : ''} ${current === `${pi}:${si}` ? 'reading-now' : ''}`}>
+                  {synced && <button className="seek" aria-label="Play from this line" onClick={() => songRef.current?.seekLine(all.findIndex((x) => x.key === `${pi}:${si}`))}>▸</button>}
                   {tokenize(s).map((t, ti) =>
                     t.word ? (
                       <button key={ti} className="w" onClick={() => { const g = gloss(t.text, r.glossary); setPopup(g); speak(t.text); }}>{t.text}</button>
@@ -220,27 +227,3 @@ function GapGame({ r }: { r: Reading }) {
   );
 }
 
-/** A real sung performance: an embedded video when one is chosen, otherwise a search link. */
-function SungVersion({ r }: { r: Reading }) {
-  if (r.youtube) {
-    return (
-      <div className="card song-video">
-        <iframe
-          src={`https://www.youtube-nocookie.com/embed/${r.youtube}`}
-          title={`${r.title} — sung`}
-          allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          loading="lazy"
-        />
-        <p className="muted small">🎵 Listen to the song sung, then use “Speak lyrics” to hear each line slowly.</p>
-      </div>
-    );
-  }
-  const q = encodeURIComponent(`${r.title} ${LANG === 'de' ? 'Lied' : 'canción'}`);
-  return (
-    <p className="card">
-      🎵 <a href={`https://www.youtube.com/results?search_query=${q}`} target="_blank" rel="noreferrer">Hear “{r.title}” sung on YouTube</a>
-      <span className="muted small"> — then come back and use “Speak lyrics” to hear each line slowly.</span>
-    </p>
-  );
-}
