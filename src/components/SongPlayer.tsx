@@ -29,7 +29,7 @@ export function youtubeId(input: string): string | null {
 }
 
 // A video and timings chosen on this device are kept here until they are added to the course.
-const store = (id: string) => `hablo:song:${id}`;
+const store = (id: string) => `hablo:song2:${id}`;
 type Local = { youtube?: string; timings?: number[] };
 const readLocal = (id: string): Local => { try { return JSON.parse(localStorage.getItem(store(id)) ?? '{}') as Local; } catch { return {}; } };
 /** Tapping while syncing comes a little after the line starts (reaction time), so lyrics are
