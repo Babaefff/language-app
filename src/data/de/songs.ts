@@ -46,6 +46,7 @@ export const SONGS_DE: Reading[] = [
   },
   {
     id: 'de-s-vogel', song: true, level: 'A1', title: 'Kommt ein Vogel geflogen',
+    youtube: 'z9ynTEZ5rSo', timings: [27.6, 31.7, 35.5, 39.5, 50.7, 54.4, 57.8, 61.5, 88, 91.5, 95.4, 99.2, 110.2, 114.5, 117.8, 121.6],
     source: 'Traditional folk song (public domain)',
     paragraphs: [
       "Kommt ein Vogel geflogen,\nsetzt sich nieder auf mein Fuß,\nhat ein Zettel im Schnabel,\nvon der Mutter ein Gruß.",
@@ -91,16 +92,16 @@ export const SONGS_DE: Reading[] = [
     id: 'de-s-stille-nacht', song: true, level: 'B1', title: 'Stille Nacht, heilige Nacht',
     source: 'Joseph Mohr (1816), music by Franz Xaver Gruber (1818) — public domain',
     paragraphs: [
-      "Stille Nacht, heilige Nacht!\nAlles schläft, einsam wacht\nnur das traute hochheilige Paar.\nHolder Knabe im lockigen Haar,\nschlaf in himmlischer Ruh!\nSchlaf in himmlischer Ruh!",
-      "Stille Nacht, heilige Nacht!\nHirten erst kundgemacht,\ndurch der Engel Halleluja\ntönt es laut von fern und nah:\nChrist, der Retter, ist da!\nChrist, der Retter, ist da!",
-      "Stille Nacht, heilige Nacht!\nGottes Sohn, o wie lacht\nLieb aus deinem göttlichen Mund,\nda uns schlägt die rettende Stund,\nChrist, in deiner Geburt!\nChrist, in deiner Geburt!",
+      "Stille Nacht, Heilige Nacht!\nAlles schläft, einsam wacht\nnur das traute, hochheilige Paar.\nHolder Knabe im lockigen Haar,\nschlaf in himmlischer Ruh,\nschlaf in himmlischer Ruh.",
+      "Stille Nacht, Heilige Nacht!\nGottes Sohn, o wie lacht\nlieb aus deinem göttlichen Mund,\nda uns schlägt die rettende Stund,\nChrist, in deiner Geburt,\nChrist, in deiner Geburt.",
+      "Stille Nacht, Heilige Nacht!\nHirten erst kundgemacht\ndurch der Engel Halleluja.\nTönt es laut von fern und nah:\nChrist, der Retter ist da,\nChrist, der Retter ist da!",
     ],
     translation: [
-      "Silent night, holy night!\nAll is asleep; alone keeps watch\nonly the dear, most holy couple.\nLovely boy with curly hair,\nsleep in heavenly peace!\nSleep in heavenly peace!",
-      "Silent night, holy night!\nFirst made known to the shepherds,\nthrough the angels’ Hallelujah\nit rings out loud from far and near:\nChrist the Saviour is here!\nChrist the Saviour is here!",
-      "Silent night, holy night!\nSon of God, oh how love\nlaughs from your divine mouth,\nas the hour of our salvation strikes,\nChrist, at your birth!\nChrist, at your birth!",
+      "Silent night, holy night!\nAll is asleep; alone keeps watch\nonly the dear, most holy couple.\nLovely boy with curly hair,\nsleep in heavenly peace,\nsleep in heavenly peace.",
+      "Silent night, holy night!\nSon of God, oh how lovingly\nlove laughs from your divine mouth,\nas the hour of our salvation strikes,\nChrist, at your birth,\nChrist, at your birth.",
+      "Silent night, holy night!\nFirst made known to the shepherds\nthrough the angels’ Hallelujah.\nIt rings out loud from far and near:\nChrist the Saviour is here,\nChrist the Saviour is here!",
     ],
-    glossary: { stille: 'silent', heilige: 'holy', einsam: 'alone', wacht: 'keeps watch / is awake (wachen)', traute: '(old) dear, beloved', hochheilige: 'most holy', paar: 'couple', holder: '(old) lovely', knabe: '(old) boy', lockigen: 'curly', himmlischer: 'heavenly', ruh: '(old) Ruhe — peace, rest', hirten: 'shepherds', erst: 'first', kundgemacht: 'made known', engel: 'angels', tönt: 'sounds / rings out', fern: 'far', nah: 'near', retter: 'saviour', "gottes": "God’s", "lacht": "laughs (lachen)", "lieb": "(old) Liebe — love", "göttlichen": "divine", "schlägt": "strikes (schlagen)", "rettende": "saving", "stund": "(old) Stunde — hour", "geburt": "birth" },
+    glossary: { stille: 'silent', heilige: 'holy', einsam: 'alone', wacht: 'keeps watch / is awake (wachen)', traute: '(old) dear, beloved', hochheilige: 'most holy', paar: 'couple', holder: '(old) lovely', knabe: '(old) boy', lockigen: 'curly', himmlischer: 'heavenly', ruh: '(old) Ruhe — peace, rest', hirten: 'shepherds', erst: 'first', kundgemacht: 'made known', engel: 'angels', tönt: 'sounds / rings out', fern: 'far', nah: 'near', retter: 'saviour', "gottes": "God’s", "lacht": "laughs (lachen)", "lieb": "lovingly, dear", "göttlichen": "divine", "schlägt": "strikes (schlagen)", "rettende": "saving", "stund": "(old) Stunde — hour", "geburt": "birth" },
     questions: [
       { q: 'Was macht alles in der Nacht?', options: ['Es singt', 'Es schläft', 'Es tanzt'], answer: 1 },
       { q: 'Wem wurde die Nachricht zuerst gesagt?', options: ['Den Königen', 'Den Kindern', 'Den Hirten'], answer: 2 },
