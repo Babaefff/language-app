@@ -34,12 +34,12 @@ type Local = { youtube?: string; timings?: number[] };
 const readLocal = (id: string): Local => { try { return JSON.parse(localStorage.getItem(store(id)) ?? '{}') as Local; } catch { return {}; } };
 /** Tapping while syncing comes a little after the line starts (reaction time), so lyrics are
  * shown this many seconds early. Adjustable per device in "Video options". */
-const LEAD_KEY = 'hablo:lyricsLead2';
-const readLead = () => { try { const v = Number(localStorage.getItem(LEAD_KEY)); return Number.isFinite(v) && localStorage.getItem(LEAD_KEY) !== null ? v : 0.3; } catch { return 0.3; } };
+const LEAD_KEY = 'hablo:lyricsLead3';
+const readLead = () => { try { const v = Number(localStorage.getItem(LEAD_KEY)); return Number.isFinite(v) && localStorage.getItem(LEAD_KEY) !== null ? v : 0.2; } catch { return 0.2; } };
 const writeLocal = (id: string, v: Local) => { try { localStorage.setItem(store(id), JSON.stringify(v)); } catch { /* storage blocked */ } };
 
 /** Taps come this long after a line really starts; it is subtracted when a tap is saved. */
-const REACTION = 0.5;
+const REACTION = 0.2;
 
 export interface SongPlayerHandle {
   /** Jumps the video to the start of a lyric line (flat index). */
