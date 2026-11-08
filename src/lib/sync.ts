@@ -9,7 +9,8 @@ import { getProgress, mergeProgress, onProgressChange, parseProgress, replacePro
  * is merged with the cloud copy and saved back a few seconds after every change.
  */
 /** Removes spaces and quotes that are easy to paste by accident. */
-const clean = (v: unknown) => (typeof v === 'string' ? v.trim().replace(/^["']|["']$/g, '').trim() : '') || undefined;
+const clean = (v: unknown) =>
+  (typeof v === 'string' ? v.trim().replace(/^[A-Z_]+\s*=\s*/, '').trim().replace(/^["']|["']$/g, '').trim() : '') || undefined;
 const URL_ = clean(import.meta.env.VITE_SUPABASE_URL)?.replace(/\/+$/, '');
 // The publishable key (sb_publishable_…, formerly "anon") is public by design; never use a secret key here.
 const KEY = clean(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) ?? clean(import.meta.env.VITE_SUPABASE_ANON_KEY);
@@ -26,7 +27,8 @@ export const configProblem: string | null = (() => {
   }
   if (/x{6,}|your-project/i.test(KEY + URL_)) return 'The example placeholder text is still in the settings — paste your real Project URL and publishable key.';
   if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(URL_)) return `The Project URL looks wrong: "${URL_}". It should look like https://abcdefgh.supabase.co`;
-  if (!KEY.startsWith('sb_publishable_') && !KEY.startsWith('eyJ')) return 'The key doesn’t look like a Supabase publishable key (it should start with sb_publishable_).';
+  if (/^https?:/.test(KEY)) return 'The key setting contains a web address — the URL and the key seem to be swapped. VITE_SUPABASE_URL is the https://… address, VITE_SUPABASE_PUBLISHABLE_KEY is the sb_publishable_… key.';
+  if (!KEY.startsWith('sb_publishable_') && !KEY.startsWith('eyJ')) return `The key doesn’t look like a Supabase publishable key: it starts with “${KEY.slice(0, 6)}…” (${KEY.length} characters), but it should start with “sb_publishable_”. Copy it again from Supabase → Project Settings → API Keys → Publishable key.`;
   return null;
 })();
 /** Safe-to-show summary of the configuration, to compare with the Supabase dashboard. */
