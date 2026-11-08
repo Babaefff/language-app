@@ -16,3 +16,14 @@ export function q(question: string, options: string[], why: string, en?: string)
   FR_WHY[question] = why;
   return { q: question, options, answer: 0, ...(en ? { en } : {}) };
 }
+
+/** Content is written with the right answer first; this rotates the options so it lands in varied places. */
+export function vary<T extends { options: string[]; answer: number }>(items: T[]): T[] {
+  return items.map((it, i) => {
+    if (it.options[0] === 'Vrai') return it;
+    const n = it.options.length;
+    const k = (i * 2 + 1) % n;
+    const options = it.options.map((_, j) => it.options[(j + n - k) % n]);
+    return { ...it, options, answer: options.indexOf(it.options[it.answer]) };
+  });
+}

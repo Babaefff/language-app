@@ -1,7 +1,10 @@
 import type { Reading } from '../types';
+import { READINGS_FR_MORE } from './readings-more';
+import { SONGS_FR as SONGS } from './songs';
+import { vary } from './registry';
 
 /** Original A1 texts, built only from grammar taught in the A1 units. */
-export const READINGS_FR: Reading[] = [
+const READINGS_FR_A1: Reading[] = [
   {
     id: 'fr-r-claire', level: 'A1', title: 'Je m’appelle Claire',
     paragraphs: [
@@ -64,5 +67,6 @@ export const READINGS_FR: Reading[] = [
   },
 ];
 
-/** Songs come with a real sung performance; French ones are added once their timings are synced. */
-export const SONGS_FR: Reading[] = [];
+const spread = (r: Reading): Reading => ({ ...r, questions: vary(r.questions) });
+export const READINGS_FR: Reading[] = [...READINGS_FR_A1, ...READINGS_FR_MORE].map(spread);
+export const SONGS_FR: Reading[] = SONGS.map(spread);

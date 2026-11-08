@@ -2,6 +2,8 @@ import { units } from '../build';
 import { ex } from './registry';
 import { FR_A2_UNIT_LESSONS, FR_A2_UNITS } from './a2';
 import { FR_B1_UNIT_LESSONS, FR_B1_UNITS } from './b1';
+import { FR_MORE_A1, FR_MORE_A2, FR_MORE_B1, FR_MORE_UNIT_LESSONS } from './more';
+import { frCoreUnits } from './core';
 
 /** French A1. Each note shows the forms its sentences use before (or where) they first appear. */
 const FR_A1_UNITS = units('A1', [
@@ -509,12 +511,16 @@ ${ex('Je voudrais partir.', "I'd like to leave.")} (from vouloir) is more polite
   },
 ]);
 
-export const FR_UNITS = [...FR_A1_UNITS, ...FR_A2_UNITS, ...FR_B1_UNITS];
+const TOPICS = [...FR_A1_UNITS, ...FR_MORE_A1, ...FR_A2_UNITS, ...FR_MORE_A2, ...FR_B1_UNITS, ...FR_MORE_B1];
+const CORE = frCoreUnits(new Set(TOPICS.flatMap((u) => u.words.map((w) => w.id))));
+const core = (level: string) => CORE.filter((u) => u.level === level);
+export const FR_UNITS = [...FR_A1_UNITS, ...FR_MORE_A1, ...core('A1'), ...FR_A2_UNITS, ...FR_MORE_A2, ...core('A2'), ...FR_B1_UNITS, ...FR_MORE_B1, ...core('B1')];
 
 /** Grammar lessons that explain the grammar used in each unit. */
 export const FR_UNIT_LESSONS: Record<string, string[]> = {
   ...FR_A2_UNIT_LESSONS,
   ...FR_B1_UNIT_LESSONS,
+  ...FR_MORE_UNIT_LESSONS,
   'fr-a1-01': ['fr-g-etre-avoir'],
   'fr-a1-02': ['fr-g-etre-avoir'],
   'fr-a1-03': ['fr-g-gender', 'fr-g-verbs'],
