@@ -1,6 +1,7 @@
 import { units } from '../build';
 import { ex } from './registry';
 import { FR_A2_UNIT_LESSONS, FR_A2_UNITS } from './a2';
+import { FR_B1_UNIT_LESSONS, FR_B1_UNITS } from './b1';
 
 /** French A1. Each note shows the forms its sentences use before (or where) they first appear. */
 const FR_A1_UNITS = units('A1', [
@@ -508,11 +509,12 @@ ${ex('Je voudrais partir.', "I'd like to leave.")} (from vouloir) is more polite
   },
 ]);
 
-export const FR_UNITS = [...FR_A1_UNITS, ...FR_A2_UNITS];
+export const FR_UNITS = [...FR_A1_UNITS, ...FR_A2_UNITS, ...FR_B1_UNITS];
 
 /** Grammar lessons that explain the grammar used in each unit. */
 export const FR_UNIT_LESSONS: Record<string, string[]> = {
   ...FR_A2_UNIT_LESSONS,
+  ...FR_B1_UNIT_LESSONS,
   'fr-a1-01': ['fr-g-etre-avoir'],
   'fr-a1-02': ['fr-g-etre-avoir'],
   'fr-a1-03': ['fr-g-gender', 'fr-g-verbs'],

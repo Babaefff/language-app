@@ -117,7 +117,13 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
 
 const pick = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
 
-function ExerciseView({ ex, onResult, locked }: { ex: Exercise; onResult: (r: Result) => void; locked: boolean }) {
+function ExerciseView(props: { ex: Exercise; onResult: (r: Result) => void; locked: boolean }) {
+  const from = 'from' in props.ex ? props.ex.from : undefined;
+  // Review words from earlier units are labelled, so they never feel like a slip in this lesson.
+  return from ? <><p className="review-tag">🔁 Review · from “{from}”</p><ExerciseBody {...props} /></> : <ExerciseBody {...props} />;
+}
+
+function ExerciseBody({ ex, onResult, locked }: { ex: Exercise; onResult: (r: Result) => void; locked: boolean }) {
   switch (ex.kind) {
     case 'choice': return <ChoiceView ex={ex} onResult={onResult} locked={locked} />;
     case 'type': return <TypeView ex={ex} onResult={onResult} locked={locked} />;
