@@ -1,14 +1,21 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Link } from './Nav';
+import { LinguaBloom, useBloomData } from './LinguaBloom';
 import { accountsEnabled, configProblem, signOut, useSync } from '../lib/sync';
+import { updateSettings, useProgress } from '../lib/store';
+
+const THEMES = { system: '💻 Theme: System', light: '☀️ Theme: Light', dark: '🌙 Theme: Dark' } as const;
+const NEXT = { system: 'dark', dark: 'light', light: 'system' } as const;
 
 /**
- * Top-bar account entry. Signed out: "Sign in" + settings gear. Signed in: the user's initial,
- * opening a menu with profile, settings, privacy and sign out (the gear then lives in the menu).
+ * Top-bar account entry. Signed out: "Sign in" + settings gear. Signed in: the user's Lingua Bloom
+ * avatar, opening a menu with profile, settings, theme, privacy and sign out.
  */
 export function AccountButton() {
   const { user } = useSync();
+  const { settings } = useProgress();
+  const bloom = useBloomData();
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
   const { pathname } = useLocation();
@@ -28,20 +35,23 @@ export function AccountButton() {
   if (!accountsEnabled || configProblem) return gear;
   if (!user) return <>{<Link to="/account" className="btn signin-btn">Sign in</Link>}{gear}</>;
 
-  const name = (user.user_metadata?.full_name as string | undefined) ?? (user.user_metadata?.name as string | undefined) ?? user.email?.split('@')[0] ?? 'Account';
+  const name = userName(user);
+  const glyph = settings.avatarGlyph || name[0].toUpperCase();
+  const seed = `${user.id}:${settings.avatarShuffle}`;
   return (
     <div className="account-menu" ref={box}>
-      <button className="avatar" aria-haspopup="menu" aria-expanded={open} aria-label="Account menu" onClick={() => setOpen(!open)}>
-        {name[0].toUpperCase()}
+      <button className="avatar-btn" aria-haspopup="menu" aria-expanded={open} aria-label="Account menu" onClick={() => setOpen(!open)}>
+        <LinguaBloom seed={seed} glyph={glyph} data={bloom} size={36} detail={false} />
       </button>
       {open && (
         <div className="menu-pop" role="menu">
           <div className="menu-who">
-            <strong>{name}</strong>
-            <span className="muted small">{user.email}</span>
+            <LinguaBloom seed={seed} glyph={glyph} data={bloom} size={44} />
+            <div><strong>{name}</strong><span className="muted small">{user.email}</span></div>
           </div>
           <Link to="/account" className="menu-item">📊 Profile &amp; progress</Link>
           <Link to="/settings" className="menu-item">⚙️ Settings</Link>
+          <button className="menu-item" role="menuitem" onClick={() => updateSettings({ theme: NEXT[settings.theme] })}>{THEMES[settings.theme]}</button>
           <a href="./privacy.html" className="menu-item" role="menuitem">🔒 Privacy</a>
           <button className="menu-item" role="menuitem" onClick={() => { setOpen(false); void signOut(); }}>↩ Sign out</button>
         </div>
@@ -49,3 +59,7 @@ export function AccountButton() {
     </div>
   );
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const userName = (user: { email?: string; user_metadata?: any }) =>
+  (user.user_metadata?.full_name as string | undefined) ?? (user.user_metadata?.name as string | undefined) ?? user.email?.split('@')[0] ?? 'Learner';

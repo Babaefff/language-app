@@ -14,6 +14,11 @@ export interface Settings {
   typeChoices: boolean;
   /** Accents, special letters and capitals must be exactly right. */
   strictSpelling: boolean;
+  /** Colour theme: follow the device, or always light / dark. */
+  theme: 'system' | 'light' | 'dark';
+  /** Lingua Bloom avatar: centre emoji ('' = initial) and pattern shuffle count. */
+  avatarGlyph: string;
+  avatarShuffle: number;
 }
 
 export interface ExamResult { at: number; scores: Record<string, number>; best: number }
@@ -49,7 +54,7 @@ const DEFAULT: Progress = {
   exams: {},
   xp: {},
   conj: { right: 0, wrong: 0 },
-  settings: { rate: 0.9, voiceURI: null, accent: 'es-ES', autoplay: true, ticker: true, natural: true, dailyGoal: 50, typeChoices: false, strictSpelling: false },
+  settings: { rate: 0.9, voiceURI: null, accent: 'es-ES', autoplay: true, ticker: true, natural: true, dailyGoal: 50, typeChoices: false, strictSpelling: false, theme: 'system', avatarGlyph: '', avatarShuffle: 0 },
 };
 
 const isObj = (v: unknown): v is Record<string, never> => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -156,6 +161,7 @@ export function recordConj(right: number, wrong: number) {
 
 export function updateSettings(patch: Partial<Settings>) {
   set({ ...state, settings: { ...state.settings, ...patch } });
+  if (patch.theme) applyTheme(patch.theme);
 }
 
 export function resetProgress() {
@@ -170,6 +176,16 @@ export function importProgress(json: string) {
   const parsed = JSON.parse(json) as Progress;
   if (parsed.version !== 1 || typeof parsed.cards !== 'object') throw new Error('Not a Hablo backup file');
   set({ ...DEFAULT, ...parsed, settings: { ...DEFAULT.settings, ...parsed.settings } });
+}
+
+/** Applies the colour theme to the page (CSS reads :root[data-theme]). */
+export function applyTheme(theme: Settings['theme'] = state.settings.theme) {
+  if (typeof document === 'undefined') return;
+  const root = document.documentElement;
+  if (theme === 'system') delete root.dataset.theme;
+  else root.dataset.theme = theme;
+  const dark = theme === 'dark' || (theme === 'system' && window.matchMedia?.('(prefers-color-scheme: dark)').matches);
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#171412' : '#fbf7f2');
 }
 
 /** Listens to every progress change (used by cloud sync). */

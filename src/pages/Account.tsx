@@ -1,9 +1,11 @@
 import { AccountCard } from '../components/AccountCard';
+import { LinguaBloom, useBloomData } from '../components/LinguaBloom';
+import { userName } from '../components/AccountButton';
 import { UNITS, WORDS } from '../data/course';
 import { EXAMS } from '../data/exams';
 import { LANG, LANGS, switchLanguage, type LangId } from '../data/lang';
 import { SONGS } from '../data/readings';
-import { bestStreak, readProgressFor, streak, useProgress, type Progress } from '../lib/store';
+import { bestStreak, readProgressFor, streak, updateSettings, useProgress, type Progress } from '../lib/store';
 import { strength } from '../lib/srs';
 import { accountsEnabled, configProblem, useSync } from '../lib/sync';
 
@@ -32,7 +34,10 @@ export function Account() {
     { icon: '⚡', title: '1,000 XP', text: 'Earn 1,000 XP', done: totalXp(p) >= 1000 },
   ];
   const earned = achievements.filter((a) => a.done).length;
-  const name = (user?.user_metadata?.full_name as string | undefined) ?? (user?.user_metadata?.name as string | undefined) ?? user?.email?.split('@')[0];
+  const name = user ? userName(user) : undefined;
+  const bloom = useBloomData();
+  const glyph = p.settings.avatarGlyph || (name ? name[0].toUpperCase() : '★');
+  const seed = `${user?.id ?? 'guest'}:${p.settings.avatarShuffle}`;
   const since = user?.created_at ? new Date(user.created_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) : null;
   const langs = (Object.keys(LANGS) as LangId[]).map((id) => {
     const lp = id === LANG ? p : readProgressFor(id);
@@ -42,7 +47,7 @@ export function Account() {
   return (
     <div className="page narrow">
       <section className="card profile-head">
-        <div className="profile-avatar">{name ? name[0].toUpperCase() : '👤'}</div>
+        <LinguaBloom seed={seed} glyph={glyph} data={bloom} size={92} />
         <div className="profile-who">
           <h1>{signedIn ? name : 'Your profile'}</h1>
           {signedIn && <p className="small profile-email">{user!.email}</p>}
@@ -65,6 +70,21 @@ export function Account() {
           <AccountCard bare />
         </section>
       )}
+
+      <section className="card bloom-card">
+        <div className="row between wrap">
+          <h2>🌸 Your Lingua Bloom</h2>
+          <button className="btn small-btn" onClick={() => updateSettings({ avatarShuffle: p.settings.avatarShuffle + 1 })}>🎲 New pattern</button>
+        </div>
+        <p className="muted small">Your avatar is unique to you and grows as you learn: <strong>every lesson adds a petal</strong> (a second ring opens after 10), petals wear the colours of the language you’re learning, the <strong>gold dots</strong> are your streak days and the <strong>outer ring</strong> shows your level — grey, then green A1, blue A2, purple B1.</p>
+        <div className="glyphs" role="radiogroup" aria-label="Avatar centre">
+          {['', '🦉', '🦊', '🐻', '🐱', '🐸', '🌻', '⭐', '🚀', '🎧', '📚'].map((g) => (
+            <button key={g || 'initial'} role="radio" aria-checked={p.settings.avatarGlyph === g} className={p.settings.avatarGlyph === g ? 'on' : ''} onClick={() => updateSettings({ avatarGlyph: g })}>
+              {g || (name ? name[0].toUpperCase() : '★')}
+            </button>
+          ))}
+        </div>
+      </section>
 
       <section className="stat-grid">
         <div className="card stat"><span>🔥</span><strong>{days}</strong><small>day streak</small></div>

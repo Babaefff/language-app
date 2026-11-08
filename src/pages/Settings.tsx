@@ -26,6 +26,16 @@ export function Settings() {
       <h1>Settings</h1>
 
       <section className="card">
+        <h3>🎨 Appearance</h3>
+        <div className="segmented" role="radiogroup" aria-label="Colour theme">
+          {([['light', '☀️ Light'], ['dark', '🌙 Dark'], ['system', '💻 System']] as const).map(([v, label]) => (
+            <button key={v} role="radio" aria-checked={settings.theme === v} className={settings.theme === v ? 'on' : ''} onClick={() => updateSettings({ theme: v })}>{label}</button>
+          ))}
+        </div>
+        <p className="muted small">System follows your phone or computer setting.</p>
+      </section>
+
+      <section className="card">
         <h3>🔊 Audio</h3>
         {!speechSupported() && <p className="warn">Your browser doesn't support speech. Try Chrome, Edge or Safari.</p>}
         {speechSupported() && voices.length === 0 && (

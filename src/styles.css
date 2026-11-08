@@ -533,3 +533,16 @@ body:has(.session) .feedback { bottom: 1rem; }
 .menu-who { display: flex; flex-direction: column; padding: 0.55rem 0.7rem 0.65rem; border-bottom: 1px solid var(--border); margin-bottom: 0.3rem; overflow-wrap: anywhere; }
 .menu-item { display: block; width: 100%; text-align: left; padding: 0.6rem 0.7rem; border-radius: 10px; font: inherit; font-weight: 600; color: inherit; background: none; border: 0; cursor: pointer; }
 .menu-item:hover, .menu-item:focus-visible { background: var(--surface-2); }
+
+.segmented { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; padding: 3px; gap: 2px; background: var(--surface-2); flex-wrap: wrap; }
+.segmented button { border: 0; background: none; color: inherit; font: inherit; font-weight: 600; padding: 0.4rem 0.9rem; border-radius: 999px; cursor: pointer; }
+.segmented button.on { background: var(--surface); box-shadow: var(--shadow); color: var(--primary); }
+.avatar-btn { border: 0; padding: 0; background: none; cursor: pointer; border-radius: 50%; line-height: 0; }
+.avatar-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.menu-who { flex-direction: row; align-items: center; gap: 0.6rem; }
+.menu-who > div { display: flex; flex-direction: column; min-width: 0; }
+.bloom { flex: 0 0 auto; display: block; }
+.bloom-card h2 { margin: 0; }
+.glyphs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+.glyphs button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); font-size: 1.15rem; font-weight: 800; color: inherit; cursor: pointer; }
+.glyphs button.on { border: 2px solid var(--primary); }
