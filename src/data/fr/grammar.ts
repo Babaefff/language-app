@@ -1,11 +1,12 @@
 import type { GrammarLesson } from '../types';
 import { ex, q } from './registry';
+import { GRAMMAR_FR_A2 } from './grammar-a2';
 
 /**
  * French grammar, in teaching order: every lesson uses only forms taught in it or before it.
  * Each has a logic box (the idea that connects it to the rest) and a reason for every answer.
  */
-export const GRAMMAR_FR: GrammarLesson[] = [
+const GRAMMAR_FR_A1: GrammarLesson[] = [
   {
     id: 'fr-g-big-picture', level: 'A1', title: 'The big picture: 7 patterns behind French', titleEs: 'La grammaire en 7 idées',
     summary: 'Start here: the few ideas that explain most French grammar.',
@@ -435,3 +436,5 @@ ${ex('Je mets un pull.', "I'm putting on a jumper.")} · ${ex('Qu\'est-ce que tu
     },
   },
 ];
+
+export const GRAMMAR_FR: GrammarLesson[] = [...GRAMMAR_FR_A1, ...GRAMMAR_FR_A2];

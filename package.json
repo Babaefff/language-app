@@ -10,6 +10,9 @@
     "test": "vitest run",
     "typecheck": "tsc",
     "audio": "tsx scripts/generate-audio.ts",
+    "audio:es": "tsx scripts/generate-audio.ts --verbs",
+    "audio:de": "HABLO_LANG=de tsx scripts/generate-audio.ts --verbs",
+    "audio:fr": "HABLO_LANG=fr tsx scripts/generate-audio.ts --verbs",
     "audio:deploy": "tsx scripts/generate-audio.ts --verbs --optional && HABLO_LANG=de tsx scripts/generate-audio.ts --verbs --optional && HABLO_LANG=fr tsx scripts/generate-audio.ts --verbs --optional"
   },
   "dependencies": {

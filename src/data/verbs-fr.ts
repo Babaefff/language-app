@@ -79,6 +79,11 @@ export const VERBS_FR: VerbFr[] = [
   { inf: 'vivre', en: 'to live', level: 'A2', pres: ['vis', 'vis', 'vit', 'vivons', 'vivez', 'vivent'], part: 'vécu' },
   { inf: 'recevoir', en: 'to receive', level: 'B1', pres: ['reçois', 'reçois', 'reçoit', 'recevons', 'recevez', 'reçoivent'], part: 'reçu', fut: 'recevr' },
 
+  { inf: 'naître', en: 'to be born', level: 'A2', pres: ['nais', 'nais', 'naît', 'naissons', 'naissez', 'naissent'], part: 'né', etre: true },
+  { inf: 'mourir', en: 'to die', level: 'A2', pres: ['meurs', 'meurs', 'meurt', 'mourons', 'mourez', 'meurent'], part: 'mort', etre: true, fut: 'mourr' },
+  { inf: 'envoyer', en: 'to send', level: 'A2', pres: ['envoie', 'envoies', 'envoie', 'envoyons', 'envoyez', 'envoient'], fut: 'enverr' },
+  { inf: 'courir', en: 'to run', level: 'A2', pres: ['cours', 'cours', 'court', 'courons', 'courez', 'courent'], part: 'couru', fut: 'courr' },
+
   // --- Regular -er verbs (the first group: 9 verbs out of 10) -------------------
   { inf: 'parler', en: 'to speak', level: 'A1' },
   { inf: 'habiter', en: 'to live (somewhere)', level: 'A1' },
@@ -109,6 +114,14 @@ export const VERBS_FR: VerbFr[] = [
   { inf: 'téléphoner', en: 'to phone', level: 'A1' },
   { inf: 'commander', en: 'to order', level: 'A1' },
   { inf: 'utiliser', en: 'to use', level: 'A2' },
+  { inf: 'rencontrer', en: 'to meet', level: 'A2' },
+  { inf: 'passer', en: 'to spend (time) / to pass', level: 'A2' },
+  { inf: 'quitter', en: 'to leave (a place / person)', level: 'A2' },
+  { inf: 'louer', en: 'to rent', level: 'A2' },
+  { inf: 'garder', en: 'to keep / to look after', level: 'A2' },
+  { inf: 'nettoyer', en: 'to clean', level: 'A2', pres: ['nettoie', 'nettoies', 'nettoie', 'nettoyons', 'nettoyez', 'nettoient'], fut: 'nettoier' },
+  { inf: 'ranger', en: 'to tidy', level: 'A2' },
+  { inf: 'télécharger', en: 'to download', level: 'A2' },
   { inf: 'arriver', en: 'to arrive', level: 'A1', etre: true },
   { inf: 'rester', en: 'to stay', level: 'A1', etre: true },
   { inf: 'entrer', en: 'to go in', level: 'A1', etre: true },
@@ -150,6 +163,7 @@ export const VERBS_FR: VerbFr[] = [
   { inf: "s'habiller", en: 'to get dressed', level: 'A1' },
   { inf: 'se reposer', en: 'to rest', level: 'A1' },
   { inf: "s'amuser", en: 'to have fun', level: 'A2' },
+  { inf: 'se sentir', en: 'to feel', level: 'A2', pres: ['sens', 'sens', 'sent', 'sentons', 'sentez', 'sentent'] },
   { inf: 'se promener', en: 'to go for a walk', level: 'A2', pres: ['promène', 'promènes', 'promène', 'promenons', 'promenez', 'promènent'], fut: 'promèner' },
 ];
 
