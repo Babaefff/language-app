@@ -1,9 +1,9 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
 import { GoogleButton } from './GoogleButton';
 import { accountsEnabled, configProblem, configSummary, deleteAccount, deleteCloudData, googleClientId, googleEnabled, signInWithEmail, signInWithGoogle, signOut, useSync } from '../lib/sync';
 
 /** Optional sign-in so progress is saved in the cloud and follows you to other devices. */
-export function AccountCard() {
+export function AccountCard({ bare = false }: { bare?: boolean } = {}) {
   const { user, status, lastSync, error } = useSync();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
@@ -32,7 +32,7 @@ export function AccountCard() {
     return (
       <section className="card">
         <h2>☁️ Account</h2>
-        <p>Signed in as <strong>{user.email}</strong></p>
+        {!bare && <p>Signed in as <strong>{user.email}</strong></p>}
         <p className="muted small">
           {status === 'syncing' ? 'Saving…' : status === 'error' ? `⚠️ Sync problem: ${error}` : lastSync ? `✓ Progress saved to your account at ${new Date(lastSync).toLocaleTimeString()}` : '✓ Synced'}
         </p>
@@ -40,7 +40,7 @@ export function AccountCard() {
         <div className="row wrap">
           <button className="btn" disabled={busy} onClick={() => run(signOut)}>Sign out</button>
           <button className="btn" disabled={busy} onClick={() => { if (confirm('Delete your saved progress from the cloud? Progress on this device stays.')) void run(deleteCloudData); }}>Delete cloud data</button>
-          <button className="btn" disabled={busy} onClick={() => { if (confirm('Delete your account permanently? Your email and cloud progress are removed. Progress on this device stays.')) void run(deleteAccount); }}>Delete account</button>
+          <button className="btn danger" disabled={busy} onClick={() => { if (confirm('Delete your account permanently? Your email and cloud progress are removed. Progress on this device stays.')) void run(deleteAccount); }}>Delete account</button>
         </div>
         {msg && <p className="warn small">{msg}</p>}
       </section>
@@ -48,9 +48,8 @@ export function AccountCard() {
   }
 
   return (
-    <section className="card">
-      <h2>☁️ Account</h2>
-      <p className="muted small">Optional. Sign in to keep your progress safe and continue on your phone, tablet or computer. Without an account, progress is saved only in this browser.</p>
+    <Wrap bare={bare}>
+      {!bare && <p className="muted small">Optional. Sign in to keep your progress safe and continue on your phone, tablet or computer. Without an account, progress is saved only in this browser.</p>}
       {(googleEnabled || !!googleClientId) && (
         <>
           {googleClientId ? (
@@ -74,7 +73,11 @@ export function AccountCard() {
       )}
       {msg && <p className="warn small">{msg}</p>}
       <p className="muted small">We store only your email and your learning progress — nothing else, and it is never shared. <a href="./privacy.html">Privacy policy</a></p>
-      <p className="muted small">Server: {configSummary}</p>
-    </section>
+      {!bare && <p className="muted small">Server: {configSummary}</p>}
+    </Wrap>
   );
+}
+
+function Wrap({ bare, children }: { bare: boolean; children: ReactNode }) {
+  return bare ? <div className="account-form">{children}</div> : <section className="card"><h2>☁️ Account</h2>{children}</section>;
 }

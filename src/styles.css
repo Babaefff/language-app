@@ -496,4 +496,32 @@ body:has(.session) .feedback { bottom: 1rem; }
 .google-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; width: 100%; background: #fff; color: #1f1f1f; border: 1px solid #747775; font-weight: 600; }
 .or-line { text-align: center; margin: 0.25rem 0; }
 .center-text { text-align: center; }
-.gsi-box { display: flex; justify-content: center; min-height: 44px; width: 100%; }
+.gsi-box { display: flex; justify-content: center; min-height: 44px; width: 100%; color-scheme: light; }
+/* Google's button is an iframe: with a dark page it would get an opaque white box. */
+.gsi-box iframe { color-scheme: light; background: transparent !important; }
+
+/* --- Profile -------------------------------------------------------------- */
+.profile-head { display: flex; align-items: center; gap: 1rem; background: linear-gradient(135deg, var(--primary-soft), var(--surface)); }
+.profile-avatar { flex: 0 0 auto; width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--primary); color: var(--primary-ink); font-size: 1.8rem; font-weight: 800; }
+.profile-who { min-width: 0; }
+.profile-who h1 { font-size: 1.3rem; margin: 0; overflow-wrap: anywhere; }
+.profile-who p { margin: 0.2rem 0 0; }
+.signin-panel h2 { margin-top: 0; }
+.account-form { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.75rem; }
+.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
+.stat { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.1rem; padding: 0.8rem 0.4rem; }
+.stat span { font-size: 1.4rem; }
+.stat strong { font-size: 1.35rem; }
+.stat small { color: var(--muted); font-size: 0.75rem; }
+.lang-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0; border-top: 1px solid var(--border); }
+.lang-flag { font-size: 1.8rem; }
+.lang-info { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.6rem; margin-top: 0.5rem; }
+.badge-tile { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.15rem; padding: 0.75rem 0.5rem; border-radius: 12px; border: 1px dashed var(--border); opacity: 0.55; filter: grayscale(1); }
+.badge-tile span { font-size: 1.8rem; }
+.badge-tile small { color: var(--muted); font-size: 0.72rem; }
+.badge-tile.earned { opacity: 1; filter: none; border-style: solid; border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.menu-list { display: flex; flex-direction: column; padding: 0.25rem 1rem; }
+.menu-list > a { padding: 0.8rem 0; border-top: 1px solid var(--border); font-weight: 600; display: flex; gap: 0.5rem; align-items: baseline; flex-wrap: wrap; }
+.menu-list > a:first-child { border-top: 0; }
+.profile-email { margin: 0.1rem 0 0; overflow-wrap: anywhere; color: var(--muted); }

@@ -37,7 +37,7 @@ export interface Progress {
 import { LANG } from '../data/lang';
 
 /** Each language keeps its own progress (Spanish keeps the original key). */
-const KEY = LANG === 'es' ? 'hablo:progress:v1' : `hablo:progress:${LANG}:v1`;
+const KEY = LANG === 'es' ? 'hablo:progress:v1' : `hablo:progress:${LANG}:v1`; // keep in sync with progressKeyFor
 
 const DEFAULT: Progress = {
   version: 1,
@@ -225,6 +225,34 @@ export function mergeProgress(a: Progress, b: Progress): Progress {
     conj: { right: Math.max(a.conj.right, b.conj.right), wrong: Math.max(a.conj.wrong, b.conj.wrong) },
     settings: a.settings,
   };
+}
+
+/** Where each language keeps its progress in this browser. */
+export const progressKeyFor = (lang: string) => (lang === 'es' ? 'hablo:progress:v1' : `hablo:progress:${lang}:v1`);
+
+/** Progress of another language saved in this browser (the current one comes from useProgress). */
+export function readProgressFor(lang: string): Progress {
+  try {
+    const raw = localStorage.getItem(progressKeyFor(lang));
+    return raw ? parseProgress(JSON.parse(raw)) : DEFAULT;
+  } catch {
+    return DEFAULT;
+  }
+}
+
+/** Longest run of consecutive days with XP. */
+export function bestStreak(xp: Record<string, number>): number {
+  const days = Object.keys(xp).filter((k) => xp[k] > 0).sort();
+  let best = 0;
+  let run = 0;
+  let prev: number | null = null;
+  for (const d of days) {
+    const t = Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10));
+    run = prev !== null && t - prev === 86_400_000 ? run + 1 : 1;
+    best = Math.max(best, run);
+    prev = t;
+  }
+  return best;
 }
 
 /** Consecutive days (ending today, or yesterday if today has no XP yet) with any XP. */

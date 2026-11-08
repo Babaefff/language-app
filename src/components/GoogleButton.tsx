@@ -8,7 +8,8 @@ function loadGsi(): Promise<any> {
   if (w.google?.accounts?.id) return Promise.resolve(w.google);
   gsiPromise ??= new Promise((resolve, reject) => {
     const s = document.createElement('script');
-    s.src = 'https://accounts.google.com/gsi/client';
+    // hl=en: the app's interface is English, whatever the browser language.
+    s.src = 'https://accounts.google.com/gsi/client?hl=en';
     s.async = true;
     s.onload = () => resolve(w.google);
     s.onerror = () => { gsiPromise = null; reject(new Error('Could not load Google sign-in. Check your connection or ad blocker.')); };
@@ -45,7 +46,7 @@ export function GoogleButton({ onError }: { onError: (msg: string) => void }) {
         });
         const dark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
         google.accounts.id.renderButton(box.current, {
-          type: 'standard', theme: dark ? 'filled_black' : 'outline', size: 'large', text: 'continue_with', shape: 'pill',
+          type: 'standard', theme: dark ? 'filled_black' : 'outline', size: 'large', text: 'continue_with', shape: 'pill', locale: 'en',
           width: Math.min(400, box.current.clientWidth || 320),
         });
         setReady(true);
