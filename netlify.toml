@@ -26,6 +26,14 @@
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
     Cross-Origin-Opener-Policy = "same-origin-allow-popups"
 
+# Recorded clips: the Android/iOS app streams them from this site (the app's own origin is
+# https://localhost), so allow cross-origin reads, and let phones cache them for 30 days.
+[[headers]]
+  for = "/audio/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Cache-Control = "public, max-age=2592000"
+
 # The service worker must always be fresh so updates reach users.
 [[headers]]
   for = "/sw.js"

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AccountCard } from '../components/AccountCard';
 import { PracticePlan } from '../components/PracticePlan';
 import { exportProgress, importProgress, resetProgress, updateSettings, useProgress } from '../lib/store';
-import { clipAccent, clipCount, onVoicesChanged, spanishVoices, speak, speechSupported } from '../lib/speech';
+import { clipAccent, clipCount, onVoicesChanged, spanishVoices, speak, speechSupported, usesNativeVoice } from '../lib/speech';
 
 export function Settings() {
   const { settings } = useProgress();
@@ -41,7 +41,7 @@ export function Settings() {
       <section className="card">
         <h3>Audio</h3>
         {!speechSupported() && <p className="warn">Your browser doesn't support speech. Try Chrome, Edge or Safari.</p>}
-        {speechSupported() && voices.length === 0 && (
+        {speechSupported() && !usesNativeVoice && voices.length === 0 && (
           <p className="warn">No {L.name} voice found on this device. On Android install one in Settings → Text-to-speech; on iPhone go to Settings → Accessibility → Spoken Content → Voices → {L.name}; on Windows add {L.name} under Time & Language → Speech.</p>
         )}
         {LANG === 'es' && (
@@ -54,7 +54,7 @@ export function Settings() {
           </select>
         </label>
         )}
-        {!(settings.natural && clipCount()) && (
+        {!usesNativeVoice && !(settings.natural && clipCount()) && (
         <label className="field">
           Device voice (used when a word has no recorded clip)
           <select value={settings.voiceURI ?? ''} onChange={(e) => updateSettings({ voiceURI: e.target.value || null })}>

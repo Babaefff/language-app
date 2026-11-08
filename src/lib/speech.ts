@@ -1,6 +1,7 @@
 import { getProgress } from './store';
 import { audioFile, audioKey, speakable } from './audioKey';
 import { L, LANG } from '../data/lang';
+import { AUDIO_ORIGIN, isNative } from './native';
 
 // Sandboxed/embedded pages can expose speechSynthesis but throw when it is used, so every
 // call below is guarded: missing audio must never break a lesson.
@@ -35,7 +36,9 @@ if (synth) {
   }
 }
 
-export const speechSupported = () => !!synth;
+export const speechSupported = () => isNative || !!synth;
+/** The app speaks with the phone's own text-to-speech engine, so no browser voice list is needed. */
+export const usesNativeVoice = isNative;
 export const spanishVoices = () => voices;
 export function onVoicesChanged(l: () => void) {
   voiceListeners.add(l);
@@ -69,9 +72,10 @@ let audioEl: HTMLAudioElement | null = null;
 let endCurrent: (() => void) | null = null;
 
 async function loadSet(lang: string) {
-  for (const base of lang === 'es-ES' ? ['./audio/'] : [`./audio/${lang}/`]) {
+  for (const base of lang === 'es-ES' ? [`${AUDIO_ORIGIN}audio/`] : [`${AUDIO_ORIGIN}audio/${lang}/`]) {
     try {
-      const r = await fetch(base + 'manifest.json');
+      // no-cache: clips are cached for weeks, but the list of clips must always be fresh.
+      const r = await fetch(base + 'manifest.json', { cache: 'no-cache' });
       // The dev server answers unknown paths with index.html, so check it really is JSON.
       if (!r.ok || !(r.headers.get('content-type') ?? '').includes('json')) continue;
       const keys = (await r.json()) as string[];
@@ -147,6 +151,7 @@ export function speak(text: string, opts: { rate?: number; lang?: 'es' | 'en' } 
 function speakTts(text: string, opts: { rate?: number; lang?: 'es' | 'en' }): Promise<void> {
   endCurrent?.();
   audioEl?.pause();
+  if (isNative) return speakNative(text, opts);
   if (!synth) return Promise.resolve();
   return new Promise((resolve) => {
     try {
@@ -205,5 +210,21 @@ export function stopSpeaking() {
     synth?.cancel();
   } catch {
     // ignore
+  }
+}
+
+/** Android/iOS: the WebView has no speech synthesis, so use the phone's text-to-speech engine. */
+async function speakNative(text: string, opts: { rate?: number; lang?: 'es' | 'en' }): Promise<void> {
+  try {
+    const { TextToSpeech } = await import('@capacitor-community/text-to-speech');
+    await TextToSpeech.stop().catch(() => {});
+    await TextToSpeech.speak({
+      text: speakable(text),
+      lang: opts.lang === 'en' ? 'en-US' : L.tts,
+      rate: opts.lang === 'en' ? 1 : (opts.rate ?? getProgress().settings.rate),
+      category: 'playback',
+    });
+  } catch {
+    // No engine or language data installed: stay silent rather than break the lesson.
   }
 }

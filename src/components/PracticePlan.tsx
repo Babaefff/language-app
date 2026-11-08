@@ -1,6 +1,29 @@
 import { useState } from 'react';
 import { L, LANG } from '../data/lang';
 import { updateSettings, useProgress } from '../lib/store';
+import { isNative } from '../lib/native';
+
+const NOTIFY_ID: Record<string, number> = { es: 1, de: 2, fr: 3, ru: 4 };
+
+/** App only: a real daily notification at the planned time (one per language). */
+async function scheduleReminder(time: string, cue: string, minutes: number): Promise<boolean> {
+  try {
+    const { LocalNotifications } = await import('@capacitor/local-notifications');
+    const perm = await LocalNotifications.requestPermissions();
+    if (perm.display !== 'granted') return false;
+    const id = NOTIFY_ID[LANG] ?? 9;
+    await LocalNotifications.cancel({ notifications: [{ id }] });
+    const [hour, minute] = time.split(':').map(Number);
+    await LocalNotifications.schedule({ notifications: [{
+      id, title: `${L.flag} Time for ${L.name}`,
+      body: `${cue}, you practise ${L.name} for ${minutes} minutes. Your words are waiting!`,
+      schedule: { on: { hour, minute }, allowWhileIdle: true },
+    }] });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 const CUES = ['After breakfast', 'On my commute', 'In my lunch break', 'After work', 'After dinner', 'Before bed'];
 
@@ -38,8 +61,15 @@ export function PracticePlan({ compact = false }: { compact?: boolean }) {
   const [minutes, setMinutes] = useState(settings.planMinutes || 10);
   const [editing, setEditing] = useState(!settings.planTime);
 
-  const save = () => {
+  const [notice, setNotice] = useState('');
+  const save = async () => {
     updateSettings({ planTime: time, planCue: cue, planMinutes: minutes });
+    if (isNative) {
+      const ok = await scheduleReminder(time, cue, minutes);
+      setNotice(ok ? `Reminder set for ${time} every day.` : 'Notifications are turned off for Hablo. Allow them in your phone’s settings to get a reminder.');
+      setEditing(false);
+      return;
+    }
     const blob = new Blob([icsFor(time, cue, minutes)], { type: 'text/calendar' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -54,6 +84,7 @@ export function PracticePlan({ compact = false }: { compact?: boolean }) {
       <div className={compact ? '' : 'card'}>
         {!compact && <h3>Your practice plan</h3>}
         <p><strong>{settings.planCue} ({settings.planTime})</strong>, I practise {L.name} for {settings.planMinutes} minutes.</p>
+        {notice && <p className="small muted">{notice}</p>}
         <button className="link small" onClick={() => setEditing(true)}>Change plan</button>
       </div>
     );
@@ -68,8 +99,8 @@ export function PracticePlan({ compact = false }: { compact?: boolean }) {
         <label>For<select value={minutes} onChange={(e) => setMinutes(Number(e.target.value))}>{[5, 10, 15, 20].map((n) => <option key={n} value={n}>{n} min</option>)}</select></label>
       </div>
       <p className="small"><strong>“{cue}, I practise {L.name} for {minutes} minutes.”</strong></p>
-      <button className="btn primary" onClick={save}>📅 Save and add a daily reminder to my calendar</button>
-      <p className="muted small">This downloads a calendar event that repeats every day with an alert; open it to add it to your phone's calendar.</p>
+      <button className="btn primary" onClick={() => void save()}>{isNative ? 'Save and remind me every day' : '📅 Save and add a daily reminder to my calendar'}</button>
+      <p className="muted small">{isNative ? 'You’ll get a notification at this time every day.' : 'This downloads a calendar event that repeats every day with an alert; open it to add it to your phone\'s calendar.'}</p>
     </div>
   );
 }
