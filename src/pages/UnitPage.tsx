@@ -99,12 +99,7 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
         </div>
       </header>
 
-      <section className="lesson-intro card">
-        <span className="eyebrow">Your learning path</span>
-        <h2>Understand it. Recall it. Use it.</h2>
-        <p className="muted">Start with the words, practise without hints, then put them into sentences. One step is enough for today.</p>
-        <span className="small">{STEPS.filter((_, i) => p.steps[`${unit.id}:${i}`] !== undefined).length} of {STEPS.length} steps completed</span>
-      </section>
+      <p className="small muted">{STEPS.filter((_, i) => p.steps[`${unit.id}:${i}`] !== undefined).length}/{STEPS.length} steps completed</p>
       <div className="steps">
         {STEPS.map((s, i) => {
           const score = p.steps[`${unit.id}:${i}`];

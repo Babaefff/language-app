@@ -8,7 +8,7 @@ export function Summary({ summary, xp, onDone, onRetry, doneLabel = 'Continue' }
   return (
     <div className="summary card">
       <div className="summary-emoji">{pct >= 90 ? '🏆' : pct >= 70 ? '🎉' : '💪'}</div>
-      <h2>{pct >= 90 ? 'Nicely recalled.' : pct >= 70 ? 'You’re building on it.' : 'Every attempt teaches you something.'}</h2>
+      <h2>Results</h2>
       <div className="stats">
         <div><strong>{pct}%</strong><span>accuracy</span></div>
         <div><strong>+{xp}</strong><span>XP</span></div>

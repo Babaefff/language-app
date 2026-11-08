@@ -2,7 +2,7 @@
 
 ## What changed
 
-Home prioritizes a daily session, the next course step, and review. A shared palette, spacing system, controls, typography, and five-item mobile navigation apply across the app. Grammar and Songs remain available through Practice. Home, unit overviews, Review, and exercise feedback have dedicated layouts. Light and dark modes are supported.
+Home uses a compact dashboard with the next lesson, review counts, direct activity links, and course progress. The daily session is an optional sidebar action. A shared palette, spacing system, controls, typography, and five-item mobile navigation apply across the app. Grammar and Songs remain available through Practice. Home, unit overviews, Review, and exercise feedback have dedicated layouts. Light and dark modes are supported.
 
 The daily session freezes a plan when opened: up to five due word questions, up to three due mistakes not already covered by those words, one complete next lesson step, and one eligible sentence check. Stages with no material are omitted. It has a finite finish; additional practice is optional. Completed lesson steps and answers are saved. An interrupted daily session restarts its plan when revisited, rather than claiming partial steps were completed.
 
@@ -47,3 +47,7 @@ Export a progress backup before rollback: older code ignores the new learning-hi
 - 83 route/layout/language checks across 320, 390, 768, and 1440 px in light and dark themes, plus sign-in header checks at 320, 390, 800, 900, and 1440 px.
 - Production-preview smoke checks: all four languages load and start their daily lesson without runtime exceptions.
 - Live Netlify verification remains blocked by this environment's outbound proxy (403 on CONNECT). A Git push can trigger Netlify, but does not prove deployment completion.
+
+## Compact-layout correction
+
+Removed the Home hero, motivational paragraphs, and repeated explanations. Exercise feedback and headings now use short functional labels. Home has about 100 words for a new learner. The daily lesson workspace explicitly fills its available width (800 px on desktop, fluid on mobile), fixing shrink-to-content behavior caused by horizontal auto margins inside a flex column. The learning, notebook, and measurement behavior is unchanged. The original pre-redesign rollback branch remains available.

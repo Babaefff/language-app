@@ -119,7 +119,7 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
       {result && (
         <div role="status" className={`feedback ${result.ok ? 'good' : 'bad'}`}>
           <div>
-            <strong>{result.ok ? 'That’s right' : 'Let’s work on this'}</strong>
+            <strong>{result.ok ? 'Correct' : 'Incorrect'}</strong>
             {!result.ok && (
               <div className="feedback-answer">
                 Correct answer: <span lang={LANG}>{result.answer}</span> <SpeakButton text={result.answer} />
@@ -127,7 +127,7 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
             )}
             {result.note && <div className="small">{result.note}</div>}
             {result.typed && result.note && <Highlight typed={result.typed} expected={result.answer} />}
-            {!result.ok && <p className="small">Take a moment to recall the correction. We’ll try it again, and save it for a later review.</p>}
+            {!result.ok && <p className="small">Saved for review.</p>}
             {result.why && <div className="why">💡 {result.why}</div>}
           </div>
           <button className="btn primary" onClick={next} autoFocus>Continue</button>

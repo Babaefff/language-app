@@ -69,9 +69,9 @@ export function Review() {
 
   return (
     <div className="page narrow">
-<header className="page-heading"><span className="eyebrow">Keep what you’ve learned</span><h1>A little recall goes a long way.</h1></header>
+<h1>Review</h1>
       <p className="muted">
-        Try to remember before you reveal the answer. Reviews are spaced using your previous results; mistakes are a useful signal, not a setback.
+        Due words and saved mistakes.
       </p>
       {total === 0 ? (
         <div className="card">
