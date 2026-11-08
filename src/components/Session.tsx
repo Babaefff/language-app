@@ -4,7 +4,9 @@ import type { Exercise } from '../lib/exercises';
 import { personLabel, tenseLabel } from '../lib/exercises';
 import { checkAnswer, normalize, shuffle, wrongWords } from '../lib/text';
 import { speak } from '../lib/speech';
-import { getProgress, updateSettings } from '../lib/store';
+import { getProgress, recordLearning, updateSettings } from '../lib/store';
+import { WORD_MAP } from '../data/course';
+import { questionId, eligibleDelayedRecall } from '../lib/learning';
 import { VERB_MAP } from '../data/verbs';
 import { SpeakButton } from './SpeakButton';
 import { AccentKeys } from './AccentKeys';
@@ -40,7 +42,7 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
   const [queue, setQueue] = useState(exercises);
   const [index, setIndex] = useState(0);
   const [result, setResult] = useState<Result | null>(null);
-  const stats = useRef({ correct: 0, words: {} as Record<string, boolean>, retried: new Set<string>() });
+  const stats = useRef({ correct: 0, words: {} as Record<string, boolean>, retried: new Set<string>(), exposed: new Set<string>() });
   const ex = queue[index];
 
   const answer = (r: Result) => {
@@ -50,6 +52,25 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
     const s = stats.current;
     const firstTry = !s.retried.has(ex.key);
     if (r.ok && firstTry) s.correct++;
+    if (firstTry && ex.kind === 'match') for (const pair of ex.pairs) {
+      recordLearning({ prompt: pair.en, answer: pair.es, wordId: pair.wordId }, r.words?.[pair.wordId] !== false);
+      s.exposed.add(questionId(pair.en, pair.es));
+    }
+    if (firstTry && ex.kind !== 'study' && ex.kind !== 'match') {
+      const word = 'wordId' in ex && ex.wordId ? WORD_MAP[ex.wordId] : undefined;
+      const task = word ? { prompt: word.en, answer: word.es, wordId: word.id } :
+        ex.kind === 'build' ? { prompt: ex.en, answer: ex.es } :
+        ex.kind === 'conj' ? { prompt: `${personLabel(ex.tense, ex.person)} · ${ex.inf} · ${tenseLabel(ex.tense)}`, answer: ex.answer, why: ex.why } :
+        ex.kind === 'listen' ? { prompt: ex.en, answer: ex.answer } : { prompt: ex.prompt, answer: ex.answer, why: 'why' in ex ? ex.why : undefined };
+      const id = questionId(task.prompt, task.answer);
+      const seen = word ? getProgress().cards[word.id]?.seen : undefined;
+      const independent = !s.exposed.has(id);
+      recordLearning(task, r.ok, {
+        delayed: independent && ex.kind === 'type' && ex.assessment !== 'practice' && eligibleDelayedRecall(getProgress().learning, id, seen),
+        context: independent && ex.kind === 'type' && ex.assessment === 'context' && !getProgress().learning.practiced.includes(id),
+      });
+      s.exposed.add(id);
+    }
     for (const id of wordsOf(ex)) {
       const ok = r.words ? r.words[id] !== false : r.ok;
       s.words[id] = (s.words[id] ?? true) && ok;
@@ -89,16 +110,16 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
     <div className="session">
       <div className="session-top">
         <button className="icon-btn" onClick={onExit} aria-label="Exit">✕</button>
-        <div className="bar"><div style={{ width: `${progress}%` }} /></div>
+        <div className="bar" role="progressbar" aria-label="Session progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)}><div style={{ width: `${progress}%` }} /></div>
         {title && <span className="muted small">{title}</span>}
       </div>
       <div className="session-body" key={`${ex.key}-${index}`}>
         <ExerciseView ex={ex} onResult={answer} locked={!!result} />
       </div>
       {result && (
-        <div className={`feedback ${result.ok ? 'good' : 'bad'}`}>
+        <div role="status" className={`feedback ${result.ok ? 'good' : 'bad'}`}>
           <div>
-            <strong>{result.ok ? pick(['¡Muy bien!', '¡Perfecto!', '¡Genial!', '¡Correcto!']) : 'Not quite'}</strong>
+            <strong>{result.ok ? 'That’s right' : 'Let’s work on this'}</strong>
             {!result.ok && (
               <div className="feedback-answer">
                 Correct answer: <span lang={LANG}>{result.answer}</span> <SpeakButton text={result.answer} />
@@ -106,6 +127,7 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
             )}
             {result.note && <div className="small">{result.note}</div>}
             {result.typed && result.note && <Highlight typed={result.typed} expected={result.answer} />}
+            {!result.ok && <p className="small">Take a moment to recall the correction. We’ll try it again, and save it for a later review.</p>}
             {result.why && <div className="why">💡 {result.why}</div>}
           </div>
           <button className="btn primary" onClick={next} autoFocus>Continue</button>
@@ -115,7 +137,6 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
   );
 }
 
-const pick = <T,>(a: T[]) => a[Math.floor(Math.random() * a.length)];
 
 function ExerciseView(props: { ex: Exercise; onResult: (r: Result) => void; locked: boolean }) {
   const from = 'from' in props.ex ? props.ex.from : undefined;
@@ -270,7 +291,7 @@ function TypeView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'typ
     <>
       <p className="ex-label">{ex.label}</p>
       <div className="ex-prompt"><span lang="en">{ex.prompt}</span></div>
-      <TextAnswer locked={locked} onSubmit={(v) => onResult(feedbackFor(v, ex.answer, ex.accept))} />
+      <TextAnswer locked={locked} onSubmit={(v) => onResult({ ...feedbackFor(v, ex.answer, ex.accept), why: ex.why })} />
     </>
   );
 }

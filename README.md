@@ -17,6 +17,12 @@ A web app for learning Spanish that also installs on phones. It covers vocabular
 
 Progress is stored on the device in `localStorage`. You can export or import a backup in Settings. Signed-in accounts keep separate local progress copies. Signing out returns to guest progress; guest progress is only added to an account with the **Import guest progress** button in Settings. Existing unassigned progress from older versions stays in the guest copy, so import it only if it is yours. Backup imports are limited to 1 MB and validated before use.
 
+## Daily practice and learning insights
+
+Home now offers a finite daily session: a small batch of due reviews, due mistakes, one complete lesson step, and a sentence check when eligible. Review includes a mistake notebook; corrections return after 24 hours and clear on a later successful retrieval. Learning insights show first-attempt delayed word recall and first recorded sentence checks with sample counts, rather than treating XP as proficiency.
+
+The visual system uses warm white surfaces and teal actions, with matching dark mode. The measurement definitions, validation notes, pending real-learner study, and rollback checkpoint are documented in [the redesign guide](docs/learning-redesign.md).
+
 ## Run it
 
 ```bash

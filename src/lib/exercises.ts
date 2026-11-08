@@ -10,7 +10,7 @@ export type Exercise =
   | { kind: 'choice'; key: string; prompt: string; label: string; audio?: string; options: string[]; answer: string; wordId?: string; optionsSpanish: boolean; hint?: string; promptSpanish?: boolean; typed?: boolean; why?: string; accept?: string[] }
   /** from: set on review words from an earlier unit, shown as a tag so they never look like a mistake. */
   /** accept: other right answers (course words with the same English, e.g. el marido / el esposo). */
-  | { kind: 'type'; key: string; prompt: string; label: string; answer: string; wordId?: string; from?: string; accept?: string[] }
+  | { kind: 'type'; key: string; prompt: string; label: string; answer: string; wordId?: string; from?: string; accept?: string[]; why?: string; assessment?: 'context' | 'practice' }
   | { kind: 'listen'; key: string; answer: string; en: string; wordId: string; from?: string }
   | { kind: 'build'; key: string; en: string; es: string; tiles: string[] }
   | { kind: 'match'; key: string; pairs: { es: string; en: string; wordId: string }[] }

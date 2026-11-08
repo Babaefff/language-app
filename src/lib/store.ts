@@ -1,3 +1,4 @@
+import { emptyLearning, parseLearning, mergeLearning, learningOutcome, type Learning, type Mistake } from './learning';
 import { useSyncExternalStore } from 'react';
 import { review, type Card, type Grade } from './srs';
 
@@ -31,6 +32,7 @@ export interface ExamResult { at: number; scores: Record<string, number>; best: 
 
 export interface Progress {
   version: 1;
+  learning: Learning;
   cards: Record<string, Card>;
   units: Record<string, { completedAt: number; best: number }>;
   /** Best score (0–100) per unit step, keyed `${unitId}:${step}`. */
@@ -58,6 +60,7 @@ const storageKey = (lang: string, owner = progressOwner) => {
 
 const DEFAULT: Progress = {
   version: 1,
+  learning: emptyLearning(),
   cards: {},
   units: {},
   steps: {},
@@ -124,6 +127,7 @@ export function parseProgress(parsed: unknown): Progress {
     settings.rate = Math.min(1.3, Math.max(0.5, settings.rate));
     return {
       version: 1,
+      learning: parseLearning(parsed.learning),
       cards: record<Card>(parsed.cards, v => fields(v, ['interval', 'due', 'reps', 'lapses', 'seen']) &&
         ['stability', 'difficulty', 'ease'].every(k => !isObj(v) || v[k] === undefined || num(v[k]))),
       units: record(parsed.units, v => fields(v, ['completedAt', 'best'])),
@@ -248,7 +252,7 @@ export function applyTheme(theme: Settings['theme'] = state.settings.theme) {
   if (theme === 'system') delete root.dataset.theme;
   else root.dataset.theme = theme;
   const dark = theme === 'dark' || (theme === 'system' && window.matchMedia?.('(prefers-color-scheme: dark)').matches);
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#171412' : '#d6cfc4');
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#121e20' : '#f6f7f4');
 }
 
 /** Listens to every progress change (used by cloud sync). */
@@ -293,6 +297,7 @@ export function mergeProgress(a: Progress, b: Progress): Progress {
   }
   return {
     version: 1,
+    learning: mergeLearning(a.learning, b.learning),
     cards,
     units,
     steps: maxRec(a.steps, b.steps),
@@ -407,4 +412,13 @@ export function applyShields(): number {
   if (!gap.length || gap.length > shields(p) || !active(d)) return 0;
   set({ ...p, frozen: { ...p.frozen, ...Object.fromEntries(gap.map((k) => [k, 1])) } });
   return gap.length;
+}
+
+/** Called once per independently answered exercise, before scheduling changes. */
+export function recordLearning(task: Pick<Mistake, 'prompt' | 'answer' | 'wordId' | 'why'>, ok: boolean,
+  flags: { delayed?: boolean; context?: boolean } = {}) {
+  set({ ...state, learning: learningOutcome(state.learning, task, ok, flags) });
+}
+export function completeDailySession() {
+  set({ ...state, learning: { ...state.learning, daily: [...new Set([...state.learning.daily, today()])].slice(-90) } });
 }

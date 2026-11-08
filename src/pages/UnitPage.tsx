@@ -21,12 +21,12 @@ type Mode =
   | { name: 'quiz'; step: number; exercises: Exercise[] }
   | { name: 'done'; step: number; summary: SessionSummary; xp: number };
 
-export function UnitPage() {
+export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string; initialStep?: number; onComplete?: () => void } = {}) {
   const { id = '' } = useParams();
-  const unit = UNIT_MAP[id];
+  const unit = UNIT_MAP[unitId ?? id];
   const p = useProgress();
   const navigate = useNavigate();
-  const [mode, setMode] = useState<Mode>({ name: 'overview' });
+  const [mode, setMode] = useState<Mode>(() => initialStep === 0 ? { name: 'learn' } : initialStep === 2 ? { name: 'grammar' } : initialStep === 1 && unit ? { name: 'quiz', step: 1, exercises: stepExercises(unit, 1) } : { name: 'overview' });
 
   if (!unit) return <div className="page"><p>Unit not found. <Link to="/course">Back to the course</Link></p></div>;
 
@@ -60,8 +60,9 @@ export function UnitPage() {
           summary={mode.summary}
           xp={mode.xp}
           onRetry={() => start(mode.step)}
-          doneLabel={nextStep !== null ? `Next: ${STEPS[nextStep].title}` : nextUnit ? `Next unit: ${nextUnit.title}` : 'Back to course'}
+          doneLabel={onComplete ? 'Finish lesson step' : nextStep !== null ? `Next: ${STEPS[nextStep].title}` : nextUnit ? `Next unit: ${nextUnit.title}` : 'Back to course'}
           onDone={() => {
+            if (onComplete) return onComplete();
             if (nextStep !== null) start(nextStep);
             else if (nextUnit) { setMode({ name: 'overview' }); navigate(`/unit/${nextUnit.id}`); }
             else navigate('/course');
@@ -87,7 +88,7 @@ export function UnitPage() {
   }
 
   return (
-    <div className="page">
+    <div className="page lesson-page">
       <Link className="link" to="/course">← Course</Link>
       <header className="unit-head">
         <span className="unit-emoji big">{unit.emoji}</span>
@@ -98,6 +99,12 @@ export function UnitPage() {
         </div>
       </header>
 
+      <section className="lesson-intro card">
+        <span className="eyebrow">Your learning path</span>
+        <h2>Understand it. Recall it. Use it.</h2>
+        <p className="muted">Start with the words, practise without hints, then put them into sentences. One step is enough for today.</p>
+        <span className="small">{STEPS.filter((_, i) => p.steps[`${unit.id}:${i}`] !== undefined).length} of {STEPS.length} steps completed</span>
+      </section>
       <div className="steps">
         {STEPS.map((s, i) => {
           const score = p.steps[`${unit.id}:${i}`];

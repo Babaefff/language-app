@@ -1,3 +1,5 @@
+import { Daily } from './pages/Daily';
+import { Insights } from './pages/Insights';
 import { ExamList, ExamPage } from './pages/Exam';
 import { Speaking } from './pages/Speaking';
 import { Account } from './pages/Account';
@@ -20,18 +22,17 @@ import { Words } from './pages/Words';
 import { Readings, ReadingPage, Songs } from './pages/Reading';
 import { Settings } from './pages/Settings';
 import { GrammarLessonPage, GrammarList } from './pages/GrammarPage';
+import { useSync } from './lib/sync';
 import { WordTicker } from './components/WordTicker';
 import { streak, useProgress, applyShields } from './lib/store';
 import { LANG, LANGS, switchLanguage, type LangId } from './data/lang';
 
 const NAV = [
-  { to: '/', icon: '🏠', label: 'Home' },
-  { to: '/course', icon: '🗺️', label: 'Course' },
-  { to: '/grammar', icon: '📐', label: 'Grammar' },
-  { to: '/review', icon: '🧠', label: 'Review' },
-  { to: '/practice', icon: '🎯', label: 'Practice' },
-  { to: '/reading', icon: '📖', label: 'Reading' },
-  { to: '/songs', icon: '🎵', label: 'Songs' },
+  { to: '/', icon: '⌂', label: 'Home' },
+  { to: '/course', icon: '▤', label: 'Course' },
+  { to: '/review', icon: '↺', label: 'Review' },
+  { to: '/practice', icon: '◇', label: 'Practice' },
+  { to: '/reading', icon: '▥', label: 'Reading' },
 ];
 
 function ScrollTop() {
@@ -47,6 +48,7 @@ function Shell() {
   // Wait a moment so practice synced from another device is counted first.
   useEffect(() => { const t = setTimeout(applyShields, 5000); return () => clearTimeout(t); }, []);
   const p = useProgress();
+  const { user } = useSync();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const now = Date.now();
@@ -57,7 +59,7 @@ function Shell() {
       <ScrollTop />
       <header className="topbar">
         <Link to="/" className="brand">Hablo<span>.</span></Link>
-        <nav className="topnav">
+        <nav className="topnav" aria-label="Main navigation">
           {NAV.map((n) => (
             <NavLink key={n.to} to={n.to} end={n.to === '/'}>
               {n.label}
@@ -80,11 +82,13 @@ function Shell() {
           <AccountButton />
         </div>
       </header>
-      <WordTicker />
+      {pathname !== '/' && !/^\/(daily|review|unit)(\/|$)/.test(pathname) && <WordTicker />}
       <main>
-        <ErrorBoundary key={pathname} onReset={() => navigate('/')}>
+        <ErrorBoundary key={`${pathname}:${user?.id ?? 'guest'}`} onReset={() => navigate('/')}>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/daily" element={<Daily />} />
+          <Route path="/progress" element={<Insights />} />
           <Route path="/course" element={<Course />} />
           <Route path="/unit/:id" element={<UnitPage />} />
           <Route path="/review" element={<Review />} />
@@ -111,10 +115,10 @@ function Shell() {
         </Routes>
         </ErrorBoundary>
       </main>
-      <nav className="bottomnav">
+      <nav className="bottomnav" aria-label="Mobile navigation">
         {NAV.map((n) => (
           <NavLink key={n.to} to={n.to} end={n.to === '/'}>
-            <span className="nav-icon">{n.icon}</span>
+            <span className="nav-icon" aria-hidden="true">{n.icon}</span>
             {n.label}
             {n.to === '/review' && due > 0 && <span className="count">{due}</span>}
           </NavLink>

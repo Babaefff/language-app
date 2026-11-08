@@ -1,10 +1,11 @@
+import { MistakeNotebook } from '../components/MistakeNotebook';
 import { LANG } from '../data/lang';
 import { useEffect, useState } from 'react';
 import { Link } from '../components/Nav';
 import { WORD_MAP } from '../data/course';
 import type { Word } from '../data/types';
 import { reviewExercise, type Exercise } from '../lib/exercises';
-import { addXp, applyWordResults, getProgress, gradeWord, useProgress } from '../lib/store';
+import { addXp, applyWordResults, getProgress, gradeWord, recordLearning, useProgress } from '../lib/store';
 import { describeInterval, isLeech, recallChance, review, type Grade } from '../lib/srs';
 import { speak } from '../lib/speech';
 import { Session, type SessionSummary } from '../components/Session';
@@ -68,10 +69,9 @@ export function Review() {
 
   return (
     <div className="page narrow">
-      <h1>Review</h1>
+<header className="page-heading"><span className="eyebrow">Keep what you’ve learned</span><h1>A little recall goes a long way.</h1></header>
       <p className="muted">
-        Words come back just before you're likely to forget them. Get one right and you'll see it again in a few days, then weeks.
-        Miss it and it comes back soon.
+        Try to remember before you reveal the answer. Reviews are spaced using your previous results; mistakes are a useful signal, not a setback.
       </p>
       {total === 0 ? (
         <div className="card">
@@ -87,12 +87,12 @@ export function Review() {
           {due.length > 0 ? (
             <div className="grid-2">
               <button className="card action" onClick={() => setMode({ name: 'cards', words: due.slice(0, BATCH) })}>
-                <h2>🃏 Flashcards</h2>
-                <p className="muted">See the word, recall the meaning, rate yourself. Fast.</p>
+                <h2>Recall with flashcards</h2>
+                <p className="muted">See the word, recall the meaning, rate yourself. At your own pace.</p>
               </button>
               <button className="card action" onClick={() => quiz(due.slice(0, BATCH), true)}>
-                <h2>✍️ Quiz</h2>
-                <p className="muted">Type, listen and choose. Harder, sticks better.</p>
+                <h2>Check with a quiz</h2>
+                <p className="muted">Type, listen and choose. A mix of recognition and recall.</p>
               </button>
             </div>
           ) : (
@@ -104,6 +104,8 @@ export function Review() {
           <TrickyWords onPractise={(words) => quiz(words, false)} />
         </>
       )}
+      <MistakeNotebook onPractise={exercises => setMode({ name: 'quiz', grade: false, exercises })} />
+      <Link to="/progress" className="link small">See delayed recall and sentence checks →</Link>
     </div>
   );
 }
@@ -140,6 +142,7 @@ function Flashcards({ words, onDone, onExit }: { words: Word[]; onDone: (s: Sess
   }, [w]);
 
   const rate = (g: Grade) => {
+    if (g === 0) recordLearning({ prompt: w.en, answer: w.es, wordId: w.id }, false);
     gradeWord(w.id, g);
     const next = { ...results, [w.id]: g > 0 };
     setResults(next);
@@ -170,7 +173,7 @@ function Flashcards({ words, onDone, onExit }: { words: Word[]; onDone: (s: Sess
         <span className="muted small">{i + 1}/{words.length}</span>
       </div>
       <div className="session-body">
-        <button className="learn-card flip" onClick={() => setShown(true)} key={w.id}>
+        <div className="learn-card flip" key={w.id}>
           <div className="learn-es" lang={LANG}>{w.es}</div>
           <div className="row center"><SpeakButton text={w.es} /></div>
           {shown ? (
@@ -179,9 +182,9 @@ function Flashcards({ words, onDone, onExit }: { words: Word[]; onDone: (s: Sess
               {w.ex && <div className="learn-ex"><div lang={LANG}>{w.ex}</div><div className="muted">{w.exEn}</div></div>}
             </>
           ) : (
-            <div className="muted">Tap to reveal</div>
+            <button className="btn primary" onClick={() => setShown(true)}>Reveal meaning</button>
           )}
-        </button>
+        </div>
       </div>
       {shown && (
         <div className="grades">
