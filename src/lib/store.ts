@@ -66,15 +66,29 @@ const DEFAULT: Progress = {
   settings: { rate: 0.9, voiceURI: null, accent: 'es-ES', autoplay: true, ticker: true, natural: true, dailyGoal: 50, typeChoices: false, strictSpelling: false, theme: 'system', avatarGlyph: '', avatarShuffle: 0, avatarAt: 0, planTime: '', planCue: '', planMinutes: 10 },
 };
 
+/** The colour theme is one choice for the whole app, not per language. */
+const THEME_KEY = 'hablo:theme';
+function sharedTheme(): Settings['theme'] | null {
+  try {
+    const t = localStorage.getItem(THEME_KEY);
+    return t === 'light' || t === 'dark' || t === 'system' ? t : null;
+  } catch {
+    return null;
+  }
+}
+function saveTheme(t: Settings['theme']) {
+  try { localStorage.setItem(THEME_KEY, t); } catch { /* storage unavailable */ }
+}
+
 const isObj = (v: unknown): v is Record<string, never> => typeof v === 'object' && v !== null && !Array.isArray(v);
 
 /** Loads saved progress, falling back field by field to defaults if anything is malformed. */
 function load(): Progress {
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? parseProgress(JSON.parse(raw)) : DEFAULT;
+    return parseProgress(raw ? JSON.parse(raw) : {});
   } catch {
-    return DEFAULT;
+    return parseProgress({});
   }
 }
 
@@ -94,14 +108,21 @@ export function parseProgress(parsed: unknown): Progress {
       xp: pick('xp'),
       frozen: pick('frozen'),
       conj: { ...DEFAULT.conj, ...pick('conj') },
-      settings: { ...DEFAULT.settings, ...pick('settings') },
+      settings: { ...DEFAULT.settings, ...pick('settings'), ...withSharedTheme() },
     };
   } catch {
     return DEFAULT;
   }
 }
 
+const withSharedTheme = (): Partial<Settings> => {
+  const t = sharedTheme();
+  return t ? { theme: t } : {};
+};
+
 let state: Progress = load();
+// First run after this change: the language opened first decides the shared theme.
+if (!sharedTheme()) saveTheme(state.settings.theme);
 const listeners = new Set<() => void>();
 
 function set(next: Progress) {
@@ -172,7 +193,10 @@ export function recordConj(right: number, wrong: number) {
 export function updateSettings(patch: Partial<Settings>) {
   const avatarChanged = ('avatarGlyph' in patch || 'avatarShuffle' in patch) && !('avatarAt' in patch);
   set({ ...state, settings: { ...state.settings, ...patch, ...(avatarChanged ? { avatarAt: Date.now() } : {}) } });
-  if (patch.theme) applyTheme(patch.theme);
+  if (patch.theme) {
+    saveTheme(patch.theme);
+    applyTheme(patch.theme);
+  }
 }
 
 export function resetProgress() {
@@ -196,7 +220,7 @@ export function applyTheme(theme: Settings['theme'] = state.settings.theme) {
   if (theme === 'system') delete root.dataset.theme;
   else root.dataset.theme = theme;
   const dark = theme === 'dark' || (theme === 'system' && window.matchMedia?.('(prefers-color-scheme: dark)').matches);
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#171412' : '#fbf7f2');
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#171412' : '#d6cfc4');
 }
 
 /** Listens to every progress change (used by cloud sync). */

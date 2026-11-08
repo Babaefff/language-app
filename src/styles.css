@@ -1,19 +1,19 @@
 :root {
-  /* Light theme: soft stone and cream instead of pure white, so it doesn't glare. */
-  --bg: #e9e4dc;
-  --surface: #f6f2ec;
-  --surface-2: #e2dbd0;
-  --text: #241e1a;
-  --muted: #645a52;
-  --border: #d3c9bc;
-  --primary: #b50f2a;
+  /* Light theme: a muted, warm mid-tone (no white), so it's easy on the eyes. */
+  --bg: #d6cfc4;
+  --surface: #e3ddd3;
+  --surface-2: #cbc3b6;
+  --text: #211b17;
+  --muted: #564c44;
+  --border: #b8ad9e;
+  --primary: #a80d27;
   --primary-ink: #ffffff;
-  --primary-soft: #f1dcdd;
+  --primary-soft: #e3cccb;
   --accent: #f1bf00;
   --good: #1f8a4c;
-  --good-soft: #e3f5ea;
+  --good-soft: #cde3d3;
   --bad: #c62828;
-  --bad-soft: #fde7e7;
+  --bad-soft: #ecd0cd;
   --a1: #2e7d32;
   --a2: #1565c0;
   --b1: #8e24aa;
