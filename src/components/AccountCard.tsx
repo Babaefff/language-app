@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { accountsEnabled, deleteAccount, deleteCloudData, googleEnabled, signInWithEmail, signInWithGoogle, signOut, useSync } from '../lib/sync';
+import { accountsEnabled, configProblem, configSummary, deleteAccount, deleteCloudData, googleEnabled, signInWithEmail, signInWithGoogle, signOut, useSync } from '../lib/sync';
 
 /** Optional sign-in so progress is saved in the cloud and follows you to other devices. */
 export function AccountCard() {
@@ -9,11 +9,21 @@ export function AccountCard() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
   if (!accountsEnabled) return null;
+  if (configProblem) {
+    return (
+      <section className="card">
+        <h2>☁️ Account</h2>
+        <p className="warn">Accounts are not set up correctly: {configProblem}</p>
+        <p className="muted small">Fix it in Netlify → Environment variables, then redeploy.</p>
+      </section>
+    );
+  }
+  const help = (m: string) => (/invalid api key/i.test(m) ? `${m} — Supabase didn’t accept the key. Check that the publishable key in Netlify is copied completely from the same project as the URL (${configSummary}), then redeploy.` : m);
 
   const run = async (f: () => Promise<void>) => {
     setBusy(true);
     setMsg('');
-    try { await f(); } catch (e) { setMsg((e as Error).message); } finally { setBusy(false); }
+    try { await f(); } catch (e) { setMsg(help((e as Error).message)); } finally { setBusy(false); }
   };
 
   if (user) {
@@ -50,6 +60,7 @@ export function AccountCard() {
       {googleEnabled && <button className="btn" disabled={busy} onClick={() => run(signInWithGoogle)}>Continue with Google</button>}
       {msg && <p className="warn small">{msg}</p>}
       <p className="muted small">We store only your email and your learning progress — nothing else, and it is never shared.</p>
+      <p className="muted small">Server: {configSummary}</p>
     </section>
   );
 }

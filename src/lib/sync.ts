@@ -8,10 +8,31 @@ import { getProgress, mergeProgress, onProgressChange, parseProgress, replacePro
  * exactly as before, saving progress only in this browser. Signed in, progress for each language
  * is merged with the cloud copy and saved back a few seconds after every change.
  */
-const URL_ = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+/** Removes spaces and quotes that are easy to paste by accident. */
+const clean = (v: unknown) => (typeof v === 'string' ? v.trim().replace(/^["']|["']$/g, '').trim() : '') || undefined;
+const URL_ = clean(import.meta.env.VITE_SUPABASE_URL)?.replace(/\/+$/, '');
 // The publishable key (sb_publishable_…, formerly "anon") is public by design; never use a secret key here.
-const ANON = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? import.meta.env.VITE_SUPABASE_ANON_KEY) as string | undefined;
-export const accountsEnabled = !!(URL_ && ANON);
+const KEY = clean(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) ?? clean(import.meta.env.VITE_SUPABASE_ANON_KEY);
+
+/** Problems with the configured values, explained in plain words (shown on the Account card). */
+export const configProblem: string | null = (() => {
+  if (!URL_ || !KEY) return null;
+  if (KEY.startsWith('sb_secret_')) return 'The SECRET key was configured. Never put it in the app: replace it with the publishable key (sb_publishable_…) and delete/rotate the secret key in Supabase → API Keys.';
+  if (KEY.startsWith('eyJ')) {
+    try {
+      const role = (JSON.parse(atob(KEY.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))) as { role?: string }).role;
+      if (role === 'service_role') return 'The service_role key was configured. Never put it in the app: use the publishable (or anon) key, and rotate the service_role key in Supabase.';
+    } catch { /* not a readable token */ }
+  }
+  if (/x{6,}|your-project/i.test(KEY + URL_)) return 'The example placeholder text is still in the settings — paste your real Project URL and publishable key.';
+  if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(URL_)) return `The Project URL looks wrong: "${URL_}". It should look like https://abcdefgh.supabase.co`;
+  if (!KEY.startsWith('sb_publishable_') && !KEY.startsWith('eyJ')) return 'The key doesn’t look like a Supabase publishable key (it should start with sb_publishable_).';
+  return null;
+})();
+/** Safe-to-show summary of the configuration, to compare with the Supabase dashboard. */
+export const configSummary = URL_ && KEY ? `${URL_.replace('https://', '')} · ${KEY.slice(0, 18)}…` : '';
+const ANON = configProblem?.includes('secret') || configProblem?.includes('service_role') ? undefined : KEY;
+export const accountsEnabled = !!(URL_ && KEY);
 export const googleEnabled = import.meta.env.VITE_SUPABASE_GOOGLE === '1';
 
 type SyncState = { user: User | null; status: 'off' | 'idle' | 'syncing' | 'synced' | 'error'; lastSync: number | null; error?: string };
@@ -28,7 +49,7 @@ async function getClient() {
   if (!client) {
     const { createClient } = await import('@supabase/supabase-js');
     // PKCE puts the sign-in code in ?code=…, which doesn't clash with the app's #/routes.
-    client = createClient(URL_!, ANON!, { auth: { flowType: 'pkce', detectSessionInUrl: true, persistSession: true } });
+    client = createClient(URL_!, ANON ?? '', { auth: { flowType: 'pkce', detectSessionInUrl: true, persistSession: true } });
   }
   return client;
 }
