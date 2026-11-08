@@ -81,7 +81,7 @@ function Shell() {
               <option key={l.id} value={l.id}>{l.flag} {l.name}</option>
             ))}
           </select>
-          <span className="streak" title="Day streak"><Icon name="flame" size={16} /> {days}</span>
+          <span className="streak" title="Day streak" aria-label={`${days} day streak`}><span className="streak-fire" aria-hidden="true">🔥</span><span>{days}</span></span>
           <AccountButton />
         </div>
       </header>
