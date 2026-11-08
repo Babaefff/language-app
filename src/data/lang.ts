@@ -3,7 +3,7 @@
  * app so every module picks up the matching course (each language keeps its own progress).
  * Scripts and tests choose with the HABLO_LANG environment variable.
  */
-export type LangId = 'es' | 'de' | 'fr';
+export type LangId = 'es' | 'de' | 'fr' | 'ru';
 
 export interface LangInfo {
   id: LangId;
@@ -47,6 +47,15 @@ export const LANGS: Record<LangId, LangInfo> = {
       B1: 'Plans, advice, wishes and opinions: the future, the conditional and the subjunctive.',
     },
   },
+  ru: {
+    id: 'ru', name: 'Russian', native: 'Русский', flag: '🇷🇺', tts: 'ru-RU', hello: 'Привет!', wordOfDay: 'Слово дня',
+    keys: ['ё', 'й', 'ъ', 'ь', 'ы', 'э', 'щ'],
+    levels: {
+      A1: 'The Cyrillic alphabet, greetings, family, home, food, numbers, the present and past tense, and the cases you need first.',
+      A2: 'Shopping, health, travel, work and the past: verb aspect, verbs of motion and all six cases.',
+      B1: 'Plans, opinions, society and media: the conditional, participles, complex sentences.',
+    },
+  },
 };
 
 const STORAGE_KEY = 'hablo:lang';
@@ -56,7 +65,7 @@ function detect(): LangId {
     const env = typeof process !== 'undefined' ? process.env?.HABLO_LANG : undefined;
     const stored = typeof window !== 'undefined' ? window.localStorage.getItem(STORAGE_KEY) : null;
     const v = env ?? stored;
-    return v === 'de' || v === 'fr' ? v : 'es';
+    return v === 'de' || v === 'fr' || v === 'ru' ? v : 'es';
   } catch {
     return 'es';
   }

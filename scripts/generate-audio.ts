@@ -9,14 +9,18 @@
  * Existing clips are skipped, so re-running only generates what's new.
  */
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
-import { WORDS, SENTENCES } from '../src/data/course';
-import { READINGS, SONGS } from '../src/data/readings';
-import { GRAMMAR } from '../src/data/grammar';
-import { EXAMS } from '../src/data/exams';
+import { loadContent } from '../src/data/load';
 import { PRONUNCIATION } from '../src/data/pronunciation';
 import { VERBS } from '../src/data/verbs';
 import { conjugate, gerund, participle, TENSES } from '../src/lib/conjugate';
 import { audioFile, audioKey, speakable, chunks } from '../src/lib/audioKey';
+
+// Courses are separate downloads: load the one for HABLO_LANG before reading it.
+await loadContent();
+const { WORDS, SENTENCES } = await import('../src/data/course');
+const { READINGS, SONGS } = await import('../src/data/readings');
+const { GRAMMAR } = await import('../src/data/grammar');
+const { EXAMS } = await import('../src/data/exams');
 
 const args = process.argv.slice(2);
 const dry = args.includes('--dry');
@@ -34,10 +38,10 @@ try {
 }
 const key = process.env.GOOGLE_TTS_KEY;
 import { LANG } from '../src/data/lang';
-const voice = process.env.TTS_VOICE ?? (LANG === 'de' ? 'de-DE-Neural2-A' : LANG === 'fr' ? 'fr-FR-Neural2-A' : 'es-ES-Neural2-A');
+const voice = process.env.TTS_VOICE ?? (LANG === 'de' ? 'de-DE-Neural2-A' : LANG === 'fr' ? 'fr-FR-Neural2-A' : LANG === 'ru' ? 'ru-RU-Wavenet-A' : 'es-ES-Neural2-A');
 const lang = process.env.TTS_LANG ?? voice.slice(0, 5);
 /** Second speaker for dialogues ("– Hallo! – Hi!"), so conversations sound like two people. */
-const voice2 = process.env.TTS_VOICE_2 ?? (LANG === 'de' ? 'de-DE-Neural2-B' : LANG === 'fr' ? 'fr-FR-Neural2-B' : 'es-ES-Neural2-B');
+const voice2 = process.env.TTS_VOICE_2 ?? (LANG === 'de' ? 'de-DE-Neural2-B' : LANG === 'fr' ? 'fr-FR-Neural2-B' : LANG === 'ru' ? 'ru-RU-Wavenet-B' : 'es-ES-Neural2-B');
 /** --redo: make every clip again (after changing voice). --redo-dialogues: only the conversations. */
 const redoAll = args.includes('--redo');
 const redoDialogues = args.includes('--redo-dialogues');
@@ -155,7 +159,7 @@ process.on('SIGINT', () => {
 });
 
 if (sampleAt >= 0) {
-  const text = args[sampleAt + 1] ?? (LANG === 'de' ? '– Hallo, wie geht es dir? – Danke, gut! Und dir?' : LANG === 'fr' ? '– Bonjour, ça va ? – Très bien, merci ! Et toi ?' : '– Hola, ¿qué tal? – ¡Muy bien, gracias! ¿Y tú?');
+  const text = args[sampleAt + 1] ?? (LANG === 'de' ? '– Hallo, wie geht es dir? – Danke, gut! Und dir?' : LANG === 'fr' ? '– Bonjour, ça va ? – Très bien, merci ! Et toi ?' : LANG === 'ru' ? '– Привет, как дела? – Отлично, спасибо! А у тебя?' : '– Hola, ¿qué tal? – ¡Muy bien, gracias! ¿Y tú?');
   writeFileSync('sample.mp3', await synthAny(text));
   console.log(`Wrote sample.mp3 (${voice}${isDialogue(text) ? ` + ${voice2}` : ''}). Open it to listen.`);
   process.exit(0);

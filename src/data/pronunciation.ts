@@ -182,4 +182,74 @@ const FR: PronSection[] = [
   },
 ];
 
-export const PRONUNCIATION: PronSection[] = LANG === 'de' ? DE : LANG === 'fr' ? FR : ES;
+const RU: PronSection[] = [
+  {
+    title: 'Letters you already know',
+    intro: 'Five Cyrillic letters look and sound like English. Start reading with these.',
+    items: [
+      { spelling: 'А а', sound: 'like "a" in father', examples: [['мама', 'mum'], ['там', 'there'], ['так', 'so']] },
+      { spelling: 'К к', sound: 'like "k"', examples: [['кот', 'cat'], ['как', 'how'], ['кто', 'who']] },
+      { spelling: 'М м', sound: 'like "m"', examples: [['мама', 'mum'], ['мост', 'bridge'], ['дом', 'house']] },
+      { spelling: 'О о', sound: 'like "o" in "port", but only when stressed (see below)', examples: [['кот', 'cat'], ['дом', 'house'], ['он', 'he']] },
+      { spelling: 'Т т', sound: 'like "t"', examples: [['там', 'there'], ['так', 'so'], ['тут', 'here']] },
+    ],
+  },
+  {
+    title: 'False friends',
+    intro: 'These look like English letters but sound different. They are the main trap for beginners.',
+    items: [
+      { spelling: 'В в', sound: '"v"', examples: [['вот', 'here is'], ['вода', 'water'], ['Москва', 'Moscow']] },
+      { spelling: 'Н н', sound: '"n"', examples: [['нет', 'no'], ['она', 'she'], ['он', 'he']] },
+      { spelling: 'Р р', sound: 'a rolled "r"', examples: [['рот', 'mouth'], ['брат', 'brother'], ['река', 'river']] },
+      { spelling: 'С с', sound: '"s"', examples: [['сок', 'juice'], ['нос', 'nose'], ['сын', 'son']] },
+      { spelling: 'У у', sound: '"oo" as in food', examples: [['тут', 'here'], ['утро', 'morning'], ['суп', 'soup']] },
+      { spelling: 'Х х', sound: 'like "ch" in Scottish loch', examples: [['хорошо', 'good'], ['хлеб', 'bread'], ['муха', 'fly']] },
+      { spelling: 'Е е', sound: '"ye" as in yes', examples: [['нет', 'no'], ['ест', 'eats'], ['лес', 'forest']] },
+      { spelling: 'П п', sound: '"p" (not an n!)', examples: [['папа', 'dad'], ['парк', 'park'], ['спорт', 'sport']] },
+    ],
+  },
+  {
+    title: 'New shapes',
+    intro: 'Letters with no English look-alike. Most have a familiar sound.',
+    items: [
+      { spelling: 'Б б', sound: '"b"', examples: [['брат', 'brother'], ['банк', 'bank'], ['хлеб', 'bread']] },
+      { spelling: 'Г г', sound: '"g" as in go', examples: [['город', 'town'], ['год', 'year'], ['нога', 'leg']] },
+      { spelling: 'Д д', sound: '"d"', examples: [['дом', 'house'], ['да', 'yes'], ['вода', 'water']] },
+      { spelling: 'Ж ж', sound: 'like "s" in measure', examples: [['жена', 'wife'], ['журнал', 'magazine'], ['уже', 'already']] },
+      { spelling: 'З з', sound: '"z"', examples: [['зима', 'winter'], ['звук', 'sound'], ['завтра', 'tomorrow']] },
+      { spelling: 'И и', sound: '"ee" as in see', examples: [['и', 'and'], ['мир', 'world / peace'], ['кино', 'cinema']] },
+      { spelling: 'Й й', sound: '"y" as in boy (a short i)', examples: [['мой', 'my'], ['чай', 'tea'], ['музей', 'museum']] },
+      { spelling: 'Л л', sound: '"l"', examples: [['лампа', 'lamp'], ['стол', 'table'], ['молоко', 'milk']] },
+      { spelling: 'Ф ф', sound: '"f"', examples: [['фильм', 'film'], ['кафе', 'café'], ['футбол', 'football']] },
+      { spelling: 'Ц ц', sound: '"ts" as in cats', examples: [['цирк', 'circus'], ['центр', 'centre'], ['отец', 'father']] },
+      { spelling: 'Ч ч', sound: '"ch" as in chair', examples: [['чай', 'tea'], ['час', 'hour'], ['врач', 'doctor']] },
+      { spelling: 'Ш ш', sound: '"sh" (hard)', examples: [['школа', 'school'], ['шапка', 'hat'], ['наш', 'our']] },
+      { spelling: 'Щ щ', sound: 'a long soft "shsh"', examples: [['борщ', 'borscht'], ['ещё', 'still / more'], ['щи', 'cabbage soup']] },
+      { spelling: 'Ы ы', sound: 'say "i" with your tongue pulled back; no English equivalent', tip: 'Say "oo", then spread your lips without moving your tongue.', examples: [['ты', 'you'], ['мы', 'we'], ['сыр', 'cheese']] },
+      { spelling: 'Э э', sound: '"e" as in bed', examples: [['это', 'this'], ['этаж', 'floor'], ['эхо', 'echo']] },
+      { spelling: 'Ю ю', sound: '"yu" as in you', examples: [['юг', 'south'], ['люблю', 'I love'], ['юбка', 'skirt']] },
+      { spelling: 'Я я', sound: '"ya" as in yard', examples: [['я', 'I'], ['моя', 'my (f)'], ['семья', 'family']] },
+      { spelling: 'Ё ё', sound: '"yo"; always stressed', tip: 'Often printed without the dots (е), but always pronounced yo.', examples: [['ёлка', 'fir tree'], ['всё', 'everything'], ['живёт', 'lives']] },
+    ],
+  },
+  {
+    title: 'Hard and soft',
+    intro: 'Russian consonants come in hard and soft pairs. A soft consonant is said with the tongue raised, like a hint of "y".',
+    items: [
+      { spelling: 'Ь ь (soft sign)', sound: 'no sound: it makes the consonant before it soft', examples: [['мать', 'mother'], ['день', 'day'], ['соль', 'salt']] },
+      { spelling: 'Ъ ъ (hard sign)', sound: 'no sound: a tiny break before е, ё, ю, я', examples: [['подъезд', 'entrance'], ['объявление', 'announcement'], ['съесть', 'to eat up']] },
+      { spelling: 'е ё и ю я', sound: 'these vowels also make the consonant before them soft', examples: [['нет', 'no'], ['люди', 'people'], ['дядя', 'uncle']] },
+    ],
+  },
+  {
+    title: 'Stress changes everything',
+    intro: 'Russian stress is free and isn’t marked in normal texts; learn it with each word. Unstressed vowels are reduced.',
+    items: [
+      { spelling: 'unstressed о', sound: 'sounds like "a"', examples: [['молоко', 'milk (ma-la-KO)'], ['хорошо', 'good (kha-ra-SHO)'], ['Москва', 'Moscow (mas-KVA)']] },
+      { spelling: 'unstressed е, я', sound: 'sounds like a short "i"', examples: [['сестра', 'sister (si-STRA)'], ['язык', 'language (yi-ZYK)'], ['река', 'river (ri-KA)']] },
+      { spelling: 'final б, в, г, д, ж, з', sound: 'devoiced at the end of a word: p, f, k, t, sh, s', examples: [['хлеб', 'bread (khlep)'], ['город', 'town (go-rat)'], ['нож', 'knife (nosh)']] },
+    ],
+  },
+];
+
+export const PRONUNCIATION: PronSection[] = LANG === 'de' ? DE : LANG === 'fr' ? FR : LANG === 'ru' ? RU : ES;

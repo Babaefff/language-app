@@ -21,6 +21,7 @@ const PALETTES: Record<string, string[]> = {
   es: ['#c60b1e', '#ffc400', '#e8590c', '#f59f00'],
   de: ['#1f1f1f', '#dd0000', '#ffce00', '#7a0000'],
   fr: ['#0055a4', '#ef4135', '#3a7bd5', '#b8212c'],
+  ru: ['#0039a6', '#d52b1e', '#5b7fd1', '#a51f16'],
 };
 /** Streak laps of 30 days: 1–30 gold, 31–60 orange, 61–90 ruby, 91–120 violet, 121+ diamond. */
 export const STREAK_COLOURS = ['#ffb300', '#fb8c00', '#e53935', '#8e24aa', '#00bcd4'];

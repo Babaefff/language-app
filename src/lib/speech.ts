@@ -126,7 +126,7 @@ function playClip(url: string, rate: number): Promise<boolean> {
   });
 }
 
-const ARTICLE_PREFIXES = LANG === 'de' ? ['der ', 'die ', 'das '] : LANG === 'fr' ? ['le ', 'la ', 'les ', "l'"] : ['el ', 'la ', 'los ', 'las '];
+const ARTICLE_PREFIXES = LANG === 'ru' ? [] : LANG === 'de' ? ['der ', 'die ', 'das '] : LANG === 'fr' ? ['le ', 'la ', 'les ', "l'"] : ['el ', 'la ', 'los ', 'las '];
 
 /** Speaks text in the language being studied. Resolves when finished (or immediately if speech is unavailable). */
 export function speak(text: string, opts: { rate?: number; lang?: 'es' | 'en' } = {}): Promise<void> {

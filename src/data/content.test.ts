@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { SENTENCES, UNIT_LESSONS, UNITS, WORDS } from './course';
-import { GRAMMAR, GRAMMAR_MAP } from './grammar';
-import { READINGS, SONGS } from './readings';
 import { VERB_MAP, VERBS } from './verbs';
 import { conjugate, TENSES } from '../lib/conjugate';
-import { grammarExercises, stepExercises } from '../lib/exercises';
+import { loadContent } from './load';
+
+// The course is loaded on demand (one language per download), so load it before using it.
+await loadContent('es');
+const { SENTENCES, UNIT_LESSONS, UNITS, WORDS } = await import('./course');
+const { GRAMMAR, GRAMMAR_MAP } = await import('./grammar');
+const { READINGS, SONGS } = await import('./readings');
+const { grammarExercises, stepExercises } = await import('../lib/exercises');
 
 describe('course content', () => {
   it('has unique word ids', () => {

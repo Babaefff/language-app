@@ -65,7 +65,8 @@ export function withLevelledEssentials(base: Unit[], e: LevelledEssentials): Uni
       sets.push(units(level, [{
         id: `${e.prefix}${e.key}-${level.toLowerCase()}-${i + 1}`, title: `${level} words ${i + 1}`, titleEs: `${e.native} ${level} · ${i + 1}`, emoji: '📚',
         description: `More everyday ${e.langName} words for ${level}.`,
-        words, sentences: pool.slice(i * 4, i * 4 + 4).length >= 4 ? pool.slice(i * 4, i * 4 + 4) : pool.slice(0, 4), grammar: e.grammar,
+        // Each set takes the next four sentences, wrapping round if the pool runs out.
+        words, sentences: pool.length ? [0, 1, 2, 3].map((k) => pool[(i * 4 + k) % pool.length]) : [], grammar: e.grammar,
       }])[0]);
     }
     const last = out.map((u) => u.level).lastIndexOf(level);

@@ -1,23 +1,24 @@
 :root {
-  --bg: #fbf7f2;
-  --surface: #ffffff;
-  --surface-2: #f3ede5;
-  --text: #221c18;
-  --muted: #6f655d;
-  --border: #e6ddd2;
-  --primary: #c8102e;
+  /* Light theme: a muted, warm mid-tone (no white), so it's easy on the eyes. */
+  --bg: #d6cfc4;
+  --surface: #e3ddd3;
+  --surface-2: #cbc3b6;
+  --text: #211b17;
+  --muted: #564c44;
+  --border: #b8ad9e;
+  --primary: #a80d27;
   --primary-ink: #ffffff;
-  --primary-soft: #fde8eb;
+  --primary-soft: #e3cccb;
   --accent: #f1bf00;
   --good: #1f8a4c;
-  --good-soft: #e3f5ea;
+  --good-soft: #cde3d3;
   --bad: #c62828;
-  --bad-soft: #fde7e7;
+  --bad-soft: #ecd0cd;
   --a1: #2e7d32;
   --a2: #1565c0;
   --b1: #8e24aa;
   --radius: 16px;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 16px rgb(0 0 0 / 0.05);
+  --shadow: 0 1px 2px rgb(60 40 20 / 0.06), 0 4px 14px rgb(60 40 20 / 0.06);
   color-scheme: light;
 }
 
@@ -310,6 +311,14 @@ details summary { cursor: pointer; }
 .answer-form input { font-size: 1.2rem; padding: 0.85rem 1rem; }
 .answer-form .btn { align-self: flex-end; }
 .accent-keys { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+.ru-keys { flex-direction: column; align-items: stretch; }
+.ru-row { display: flex; gap: 0.2rem; justify-content: center; }
+.ru-row button { flex: 1 1 0; min-width: 0 !important; padding: 0.45rem 0 !important; }
+.ru-few { justify-content: flex-start; }
+.ru-row .ru-space { flex: 5 1 0; }
+.ru-row .ru-back { flex: 1.5 1 0; }
+.ru-few button { flex: 0 0 2.3rem; }
+.ru-toggle { align-self: flex-start; font-size: 0.85rem !important; }
 .accent-keys button { min-width: 2.3rem; padding: 0.3rem; border: 1.5px solid var(--border); background: var(--surface); border-radius: 8px; cursor: pointer; font-size: 1rem; }
 
 .build-line { min-height: 3.6rem; display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0.6rem 0; border-bottom: 2px solid var(--border); align-items: center; }

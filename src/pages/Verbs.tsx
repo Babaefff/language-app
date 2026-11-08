@@ -132,7 +132,7 @@ function Tables() {
           <span className="muted">{def.en}</span>
         </div>
         <p className="small">
-          {PARTICIPLE_NAME}: <strong lang={LANG}>{participle(def)}</strong>
+          {PARTICIPLE_NAME && <>{PARTICIPLE_NAME}: <strong lang={LANG}>{participle(def)}</strong></>}
           {HAS_GERUND && <> · Gerund: <strong lang={LANG}>{gerund(def)}</strong></>}
         </p>
         <div className="conj-grid">

@@ -140,7 +140,7 @@ export function ReadingPage() {
       {r.song && <GapGame r={r} />}
 
       <section className="card">
-        <h3>{LANG === 'de' ? 'Verständnis' : LANG === 'fr' ? 'Compréhension' : 'Comprensión'}</h3>
+        <h3>{LANG === 'de' ? 'Verständnis' : LANG === 'fr' ? 'Compréhension' : LANG === 'ru' ? 'Понимание текста' : 'Comprensión'}</h3>
         {r.questions.map((q, qi) => (
           <div key={qi} className="question">
             <p lang={LANG}><strong>{qi + 1}. {q.q}</strong></p>

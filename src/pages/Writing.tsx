@@ -29,6 +29,8 @@ function check(p: WritingPrompt, text: string) {
     // Nouns are capitalised in German: flag course nouns written in lower case.
     const lower = WORDS.filter((w) => /^(der|die|das) /.test(w.es)).map((w) => bareOf(w.es)).filter((n) => new RegExp(`(^|[^\\p{L}])${n.toLowerCase()}([^\\p{L}]|$)`, 'u').test(text));
     if (lower.length) tips.push(`Nouns start with a capital letter: ${[...new Set(lower)].slice(0, 4).join(', ')}.`);
+  } else if (LANG === 'ru') {
+    if (/[a-z]{3,}/i.test(text)) tips.push('Write in Cyrillic: switch your keyboard to Russian, or use the letters under the box.');
   } else if (LANG === 'fr') {
     if (/\S[?!:;]/.test(text)) tips.push('French puts a space before ? ! : and ; — Ça va ?');
   } else {
@@ -37,7 +39,7 @@ function check(p: WritingPrompt, text: string) {
   }
   if (text.trim() && !/^[\p{Lu}¿¡]/u.test(text.trim())) tips.push('Start your text with a capital letter.');
   const sentences = text.split(/[.!?]+/).filter((x) => x.trim());
-  if (sentences.length >= 3 && sentences.every((x) => x.trim().split(/\s+/).length < 5)) tips.push(`Try joining short sentences with ${LANG === 'de' ? 'und / aber / weil' : LANG === 'fr' ? 'et / mais / parce que' : 'y / pero / porque'}.`);
+  if (sentences.length >= 3 && sentences.every((x) => x.trim().split(/\s+/).length < 5)) tips.push(`Try joining short sentences with ${LANG === 'de' ? 'und / aber / weil' : LANG === 'fr' ? 'et / mais / parce que' : LANG === 'ru' ? 'и / но / потому что' : 'y / pero / porque'}.`);
   return { count, points, used, unused: suggest, tips };
 }
 
