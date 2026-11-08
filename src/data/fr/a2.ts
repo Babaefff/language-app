@@ -211,7 +211,7 @@ To avoid repeating a thing or person, use **le** (him / it, m), **la** (her / it
     words: [
       ["l'entreprise", 'the company'], ['le collègue', 'the colleague'], ['le patron', 'the boss'], ['le salaire', 'the salary'], ["l'emploi", 'the job'],
       ['le stage', 'the internship'], ["l'université", 'the university'], ["l'examen", 'the exam'], ['le diplôme', 'the degree'], ['les études', 'studies'],
-      ['réussir', 'to succeed / to pass'], ['depuis', 'since / for'], ['il y a … (ans)', 'ago', 'Je suis arrivé il y a deux ans.', 'I arrived two years ago.'], ['venir de', 'to have just'], ['bientôt', 'soon'],
+      ['réussir', 'to succeed / to pass'], ['depuis', 'since / for'], ['il y a deux ans', 'two years ago', 'Je suis arrivé il y a deux ans.', 'I arrived two years ago.'], ['venir de', 'to have just'], ['bientôt', 'soon'],
     ],
     sentences: [
       ["J'habite ici depuis deux ans.", 'I have lived here for two years.'],

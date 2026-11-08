@@ -7,9 +7,10 @@ import { sample, shuffle } from './text';
 import { L } from '../data/lang';
 
 export type Exercise =
-  | { kind: 'choice'; key: string; prompt: string; label: string; audio?: string; options: string[]; answer: string; wordId?: string; optionsSpanish: boolean; hint?: string; promptSpanish?: boolean; typed?: boolean; why?: string }
+  | { kind: 'choice'; key: string; prompt: string; label: string; audio?: string; options: string[]; answer: string; wordId?: string; optionsSpanish: boolean; hint?: string; promptSpanish?: boolean; typed?: boolean; why?: string; accept?: string[] }
   /** from: set on review words from an earlier unit, shown as a tag so they never look like a mistake. */
-  | { kind: 'type'; key: string; prompt: string; label: string; answer: string; wordId?: string; from?: string }
+  /** accept: other right answers (course words with the same English, e.g. el marido / el esposo). */
+  | { kind: 'type'; key: string; prompt: string; label: string; answer: string; wordId?: string; from?: string; accept?: string[] }
   | { kind: 'listen'; key: string; answer: string; en: string; wordId: string; from?: string }
   | { kind: 'build'; key: string; en: string; es: string; tiles: string[] }
   | { kind: 'match'; key: string; pairs: { es: string; en: string; wordId: string }[] }
@@ -21,11 +22,20 @@ export type Exercise =
 let seq = 0;
 const key = () => `x${++seq}`;
 
+const sameEn = (a: Word, b: Word) => a.en.trim().toLowerCase() === b.en.trim().toLowerCase();
+
+/** Other course words that mean exactly the same in English: both are right answers. */
+export function synonymsOf(word: Word): string[] {
+  return WORDS.filter((w) => w.id !== word.id && sameEn(w, word)).map((w) => w.es);
+}
+
 function distractors(word: Word, pool: Word[], field: 'es' | 'en', n = 3): string[] {
   const seen = new Set([word[field]]);
   const out: string[] = [];
   for (const w of shuffle(pool)) {
     if (out.length >= n) break;
+    // Never offer a synonym as a "wrong" option: it would also be right.
+    if (sameEn(w, word)) continue;
     if (!seen.has(w[field])) {
       seen.add(w[field]);
       out.push(w[field]);
@@ -51,12 +61,12 @@ export function choiceEsEn(word: Word): Exercise {
 export function choiceEnEs(word: Word): Exercise {
   return {
     kind: 'choice', key: key(), label: `Choose the ${L.name}`, prompt: word.en,
-    options: shuffle([word.es, ...distractors(word, poolFor(word), 'es')]), answer: word.es, wordId: word.id, optionsSpanish: true,
+    options: shuffle([word.es, ...distractors(word, poolFor(word), 'es')]), answer: word.es, wordId: word.id, optionsSpanish: true, accept: synonymsOf(word),
   };
 }
 
 export function typeEnEs(word: Word): Exercise {
-  return { kind: 'type', key: key(), label: `Write in ${L.name}`, prompt: word.en, answer: word.es, wordId: word.id };
+  return { kind: 'type', key: key(), label: `Write in ${L.name}`, prompt: word.en, answer: word.es, wordId: word.id, accept: synonymsOf(word) };
 }
 
 export function listen(word: Word): Exercise {

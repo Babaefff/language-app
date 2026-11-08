@@ -173,7 +173,7 @@ function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'c
           {ex.audio && <SpeakButton text={ex.audio} />}
         </div>
         {ex.hint && <p className="muted">{ex.hint}</p>}
-        <TextAnswer locked={locked} onSubmit={(v) => onResult({ ...feedbackFor(v, ex.answer), why: ex.why })} />
+        <TextAnswer locked={locked} onSubmit={(v) => onResult({ ...feedbackFor(v, ex.answer, ex.accept), why: ex.why })} />
         {!locked && !ex.typed && <button className="link small" onClick={toggle}>☰ Show options instead</button>}
       </>
     );
@@ -237,8 +237,15 @@ function TextAnswer({ onSubmit, locked, placeholder }: { onSubmit: (v: string) =
   );
 }
 
-function feedbackFor(input: string, expected: string): Result {
-  const c = checkAnswer(input, expected, getProgress().settings.strictSpelling);
+function feedbackFor(input: string, expected: string, accept: string[] = []): Result {
+  const strict = getProgress().settings.strictSpelling;
+  // Another word with the same meaning (a synonym in the course) is right too.
+  const alt = accept.find((a) => checkAnswer(input, a, strict).ok && !checkAnswer(input, a, strict).article);
+  if (alt && !checkAnswer(input, expected, strict).ok) {
+    speak(alt);
+    return { ok: true, answer: alt, note: `Also right: ${expected}.`, typed: input };
+  }
+  const c = checkAnswer(input, expected, strict);
   const notes = [
     c.accent && (LANG === 'de' ? 'Watch the special letters (ä ö ü ß).' : LANG === 'fr' ? 'Watch the accents (é è ê à ç ô…).' : 'Watch the accents (á é í ó ú ñ ü).'),
     c.letterCase && (LANG === 'de' ? 'Watch the capitals: nouns and Sie start with a capital letter.' : 'Watch the capital letters.'),
@@ -263,7 +270,7 @@ function TypeView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'typ
     <>
       <p className="ex-label">{ex.label}</p>
       <div className="ex-prompt"><span lang="en">{ex.prompt}</span></div>
-      <TextAnswer locked={locked} onSubmit={(v) => onResult(feedbackFor(v, ex.answer))} />
+      <TextAnswer locked={locked} onSubmit={(v) => onResult(feedbackFor(v, ex.answer, ex.accept))} />
     </>
   );
 }

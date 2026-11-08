@@ -2,6 +2,7 @@ import type { GrammarLesson } from './types';
 
 import { BIG_PICTURE_ES, DEEP_ES, deepen } from './grammar-deep-es';
 import { ORDER_ES, STEPS_ES, withSteps } from './grammar-steps';
+import { ES_B1_MORE, ES_PROGRESSIVE } from './grammar-es-more';
 
 const GRAMMAR_ES: GrammarLesson[] = [
   // ─── A1 ────────────────────────────────────────────────────────────────────
@@ -788,4 +789,10 @@ It usually appears after **que**, when the two parts of the sentence have **diff
 ];
 
 /** The Spanish grammar course, in teaching order. */
-export const GRAMMAR_ES_COURSE: GrammarLesson[] = withSteps([BIG_PICTURE_ES, ...deepen(GRAMMAR_ES, DEEP_ES)], STEPS_ES, ORDER_ES);
+/** Inserts lessons after the one with id `after`. */
+const insertAfter = (list: GrammarLesson[], after: string, add: GrammarLesson[]) => {
+  const i = list.findIndex((l) => l.id === after);
+  return [...list.slice(0, i + 1), ...add, ...list.slice(i + 1)];
+};
+const ALL_ES = insertAfter(insertAfter(GRAMMAR_ES, 'g-perfect', [ES_PROGRESSIVE]), 'g-comparisons', ES_B1_MORE);
+export const GRAMMAR_ES_COURSE: GrammarLesson[] = withSteps([BIG_PICTURE_ES, ...deepen(ALL_ES, DEEP_ES)], STEPS_ES, ORDER_ES);

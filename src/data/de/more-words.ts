@@ -107,7 +107,7 @@ export const MORE_DE: LevelledEssentials = {
     ["salzig", "salty"],
     ["scharf", "spicy"],
     ["bitter", "bitter"],
-    ["Lieblings-", "favourite"],
+    ["das Lieblingsessen", "favourite food"],
     ["gegenüber", "opposite"],
     ["hinter", "behind"],
     ["vor", "in front of"],
