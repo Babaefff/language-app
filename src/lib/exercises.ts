@@ -1,3 +1,4 @@
+import { whyFor } from '../data/grammar-why';
 import type { ChoiceQuestion, GrammarLesson, Sentence, Tense, Unit, Word } from '../data/types';
 import { WORDS } from '../data/course';
 import { VERB_MAP } from '../data/verbs';
@@ -6,7 +7,7 @@ import { sample, shuffle } from './text';
 import { L } from '../data/lang';
 
 export type Exercise =
-  | { kind: 'choice'; key: string; prompt: string; label: string; audio?: string; options: string[]; answer: string; wordId?: string; optionsSpanish: boolean; hint?: string; promptSpanish?: boolean; typed?: boolean }
+  | { kind: 'choice'; key: string; prompt: string; label: string; audio?: string; options: string[]; answer: string; wordId?: string; optionsSpanish: boolean; hint?: string; promptSpanish?: boolean; typed?: boolean; why?: string }
   | { kind: 'type'; key: string; prompt: string; label: string; answer: string; wordId?: string }
   | { kind: 'listen'; key: string; answer: string; en: string; wordId: string }
   | { kind: 'build'; key: string; en: string; es: string; tiles: string[] }
@@ -141,6 +142,7 @@ export function gapChoice(q: ChoiceQuestion, typed = false): Exercise {
     options: shuffle(q.options), answer: q.options[q.answer], optionsSpanish: q.q.includes('___'), promptSpanish: q.q.includes('___'),
     // Every other gap question must be typed: recall is stronger than recognition.
     typed: typed && q.q.includes('___'),
+    why: whyFor(q.q, q.options[q.answer]),
   };
 }
 

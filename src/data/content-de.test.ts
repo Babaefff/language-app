@@ -67,6 +67,19 @@ describe('German course', () => {
     for (const w of WRITING) for (const u of w.units) expect(m.course.UNITS.some((x) => x.id === u), `${w.id}: ${u}`).toBe(true);
   });
 
+  it('every grammar question explains its answer and every example sentence has English', async () => {
+    const { whyFor } = await import('./grammar-why');
+    const { exampleTranslation } = await import('./grammar-translations');
+    const lessons = m.grammar.GRAMMAR;
+    for (const l of lessons) for (const q of l.practice.choice ?? []) expect(whyFor(q.q, q.options[q.answer]), `${l.id}: ${q.q}`).toBeTruthy();
+    const re = /(\*\*[^*]+\*\*|\*(?:\*\*[^*]+\*\*|[^*])+\*)/g;
+    for (const l of lessons) for (const b of l.blocks) if (b.t === 'text' || b.t === 'tip' || b.t === 'logic') for (const m of b.md.matchAll(re)) {
+      if (m[0].startsWith('**') && !m[0].startsWith('***')) continue;
+      const s = m[0].slice(1, -1).replace(/\*\*/g, '').trim();
+      if (/[.!?]$/.test(s) && s.split(/\s+/).length >= 2) expect(exampleTranslation(s), `${l.id}: ${s}`).toBeTruthy();
+    }
+  });
+
   it('every grammar lesson has its logic box', async () => {
     const { DEEP_DE } = await import('./de/grammar-deep');
     const lessons = m.grammar.GRAMMAR;

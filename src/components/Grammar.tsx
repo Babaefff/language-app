@@ -1,9 +1,28 @@
 import type { ReactNode } from 'react';
+import { exampleTranslation } from '../data/grammar-translations';
+
+const BOLD = /^\*\*([^*]+)\*\*$/;
+/** Bold is tried first, so "***Son** las tres*" is read as italics containing bold. */
+const TOKENS = /(\*\*[^*]+\*\*|\*(?:\*\*[^*]+\*\*|[^*])+\*)/;
+
+function bold(text: string): ReactNode[] {
+  return text.split(/(\*\*[^*]+\*\*)/).map((p, i) => (BOLD.test(p) ? <strong key={i}>{p.slice(2, -2)}</strong> : p));
+}
 
 function inline(text: string): ReactNode[] {
-  return text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/).map((part, i) => {
-    if (part.startsWith('**')) return <strong key={i}>{part.slice(2, -2)}</strong>;
-    if (part.startsWith('*') && part.length > 1) return <em key={i}>{part.slice(1, -1)}</em>;
+  return text.split(TOKENS).map((part, i) => {
+    if (BOLD.test(part)) return <strong key={i}>{part.slice(2, -2)}</strong>;
+    if (part.length > 2 && part.startsWith('*') && part.endsWith('*')) {
+      const inner = part.slice(1, -1);
+      // Example sentences in the language being learned get their English right after them.
+      const en = exampleTranslation(inner);
+      return (
+        <span key={i} className="ex-pair">
+          <em>{bold(inner)}</em>
+          {en && <span className="ex-en"> ({en})</span>}
+        </span>
+      );
+    }
     return part;
   });
 }

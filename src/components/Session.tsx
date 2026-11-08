@@ -17,6 +17,8 @@ export interface Result {
   note?: string;
   /** What was typed, to highlight the words that need fixing. */
   typed?: string;
+  /** Why this is the answer (grammar practice). */
+  why?: string;
   /** Per-word outcome (for match exercises that cover several words). */
   words?: Record<string, boolean>;
 }
@@ -100,6 +102,7 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
             )}
             {result.note && <div className="small">{result.note}</div>}
             {result.typed && result.note && <Highlight typed={result.typed} expected={result.answer} />}
+            {result.why && <div className="why">💡 {result.why}</div>}
           </div>
           <button className="btn primary" onClick={next} autoFocus>Continue</button>
         </div>
@@ -139,7 +142,7 @@ function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'c
     setChosen(o);
     if (ex.promptSpanish) speak(ex.prompt.replace(/_{2,}/, ex.answer));
     else if (ex.optionsSpanish) speak(o);
-    onResult({ ok: o === ex.answer, answer: ex.answer });
+    onResult({ ok: o === ex.answer, answer: ex.answer, why: ex.why });
   };
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -159,7 +162,7 @@ function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'c
           {ex.audio && <SpeakButton text={ex.audio} />}
         </div>
         {ex.hint && <p className="muted">{ex.hint}</p>}
-        <TextAnswer locked={locked} onSubmit={(v) => onResult(feedbackFor(v, ex.answer))} />
+        <TextAnswer locked={locked} onSubmit={(v) => onResult({ ...feedbackFor(v, ex.answer), why: ex.why })} />
         {!locked && !ex.typed && <button className="link small" onClick={toggle}>☰ Show options instead</button>}
       </>
     );
