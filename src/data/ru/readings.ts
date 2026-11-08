@@ -1,5 +1,6 @@
 import type { Reading } from '../types';
 import { vary } from './registry';
+import { RU_READINGS_MORE, RU_SONGS_LIST } from './readings-more';
 
 /** Original texts built only from grammar taught at each level. */
 const RU_READINGS_A1: Reading[] = [
@@ -63,5 +64,5 @@ const RU_READINGS_A1: Reading[] = [
 ];
 
 const spread = (r: Reading): Reading => ({ ...r, questions: vary(r.questions) });
-export const READINGS_RU: Reading[] = [...RU_READINGS_A1].map(spread);
-export const SONGS_RU: Reading[] = [];
+export const READINGS_RU: Reading[] = [...RU_READINGS_A1, ...RU_READINGS_MORE].map(spread);
+export const SONGS_RU: Reading[] = RU_SONGS_LIST.map(spread);
