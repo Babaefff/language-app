@@ -2,7 +2,7 @@ import { whyFor } from '../data/grammar-why';
 import type { ChoiceQuestion, GrammarLesson, Sentence, Tense, Unit, Word } from '../data/types';
 import { UNIT_MAP, WORDS } from '../data/course';
 import { VERB_MAP } from '../data/verbs';
-import { conjugate, IMP_PERSONS, PERSONS, TENSE_MAP } from './conjugate';
+import { conjugate, personLabelsFor, TENSE_MAP } from './conjugate';
 import { sample, shuffle } from './text';
 import { L } from '../data/lang';
 
@@ -90,7 +90,7 @@ export function match(words: Word[]): Exercise {
 /** "yo hablo · tú hablas · …": every form of a verb, shown after a conjugation answer. */
 export function paradigm(inf: string, tense: Tense): string {
   const forms = conjugate(inf, tense);
-  const labels = tense === 'imperativo' ? IMP_PERSONS : PERSONS;
+  const labels = personLabelsFor(tense);
   return `${inf}: ` + forms.map((f, i) => (f ? `${labels[i]} ${f}` : null)).filter(Boolean).join(' · ');
 }
 
@@ -126,7 +126,7 @@ export function conjSet(inf: string, tense: Tense, typed = 2): Exercise[] {
   return out;
 }
 
-export const personLabel = (tense: Tense, person: number) => (tense === 'imperativo' ? IMP_PERSONS : PERSONS)[person];
+export const personLabel = (tense: Tense, person: number) => personLabelsFor(tense)[person];
 export const tenseLabel = (tense: Tense) => TENSE_MAP[tense].es;
 
 function chunks<T>(items: T[], size: number): T[][] {

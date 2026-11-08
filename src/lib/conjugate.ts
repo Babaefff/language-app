@@ -1,6 +1,7 @@
 import { VERB_MAP_ES as VERB_MAP, VERBS_ES as VERBS, type Forms, type StemChange, type VerbDef } from '../data/verbs';
 import { LANG } from '../data/lang';
 import { VERB_MAP_DE } from '../data/verbs-de';
+import { allFormsRu, conjugateRu, GENDER_ROWS_RU, IMP_PERSONS_RU, PERSONS_RU, splitFormsRu, TENSES_RU, usesGenderRows } from './conjugate-ru';
 import { allFormsFr, conjugateFr, IMP_PERSONS_FR, participleFr, PERSONS_FR, splitFormsFr, TENSES_FR } from './conjugate-fr';
 import { VERB_MAP_FR } from '../data/verbs-fr';
 import { allFormsDe, conjugateDe, IMP_PERSONS_DE, participleDe, PERSONS_DE, splitFormsDe, TENSES_DE } from './conjugate-de';
@@ -269,26 +270,29 @@ function splitFormsEs(inf: string, tense: Tense): (FormParts | null)[] {
 
 const DE = LANG === 'de';
 const FR = LANG === 'fr';
-export const PERSONS = DE ? PERSONS_DE : FR ? PERSONS_FR : PERSONS_ES;
-export const IMP_PERSONS = DE ? IMP_PERSONS_DE : FR ? IMP_PERSONS_FR : IMP_PERSONS_ES;
+const RU = LANG === 'ru';
+export const PERSONS = DE ? PERSONS_DE : FR ? PERSONS_FR : RU ? PERSONS_RU : PERSONS_ES;
+export const IMP_PERSONS = DE ? IMP_PERSONS_DE : FR ? IMP_PERSONS_FR : RU ? IMP_PERSONS_RU : IMP_PERSONS_ES;
+/** Row labels for a tense (Russian past and conditional go by gender, not person). */
+export const personLabelsFor = (tense: Tense): string[] => (RU && usesGenderRows(tense) ? GENDER_ROWS_RU : tense === 'imperativo' ? IMP_PERSONS : PERSONS);
 /** Tenses offered for this language. `es` holds the native name (Presente, Präsens…). */
-export const TENSES = DE ? TENSES_DE : FR ? TENSES_FR : TENSES_ES;
+export const TENSES = DE ? TENSES_DE : FR ? TENSES_FR : RU ? TENSES_RU : TENSES_ES;
 export const TENSE_MAP = Object.fromEntries(TENSES.map((t) => [t.id, t])) as Record<Tense, (typeof TENSES)[number]>;
 /** Label for the -ing form row in verb tables (only Spanish has one in this course). */
-export const HAS_GERUND = !DE && !FR;
+export const HAS_GERUND = !DE && !FR && !RU;
 /** Name of the past participle in the language being studied. */
-export const PARTICIPLE_NAME = DE ? 'Partizip II' : FR ? 'Participe passé' : 'Participle';
+export const PARTICIPLE_NAME = DE ? 'Partizip II' : FR ? 'Participe passé' : RU ? '' : 'Participle';
 
 export function conjugate(inf: string, tense: Tense): Forms {
-  return DE ? conjugateDe(inf, tense) : FR ? conjugateFr(inf, tense) : conjugateEs(inf, tense);
+  return DE ? conjugateDe(inf, tense) : FR ? conjugateFr(inf, tense) : RU ? conjugateRu(inf, tense) : conjugateEs(inf, tense);
 }
 
 export function splitForms(inf: string, tense: Tense): (FormParts | null)[] {
-  return DE ? splitFormsDe(inf, tense) : FR ? splitFormsFr(inf, tense) : splitFormsEs(inf, tense);
+  return DE ? splitFormsDe(inf, tense) : FR ? splitFormsFr(inf, tense) : RU ? splitFormsRu(inf, tense) : splitFormsEs(inf, tense);
 }
 
 export function participle(v: { inf: string }): string {
-  return DE ? participleDe(VERB_MAP_DE[v.inf]) : FR ? participleFr(VERB_MAP_FR[v.inf]) : participleEs(VERB_MAP[v.inf]);
+  return DE ? participleDe(VERB_MAP_DE[v.inf]) : FR ? participleFr(VERB_MAP_FR[v.inf]) : RU ? '' : participleEs(VERB_MAP[v.inf]);
 }
 
 export function gerund(v: { inf: string }): string {
@@ -297,16 +301,16 @@ export function gerund(v: { inf: string }): string {
 
 let deIndex: Map<string, FormInfo[]> | null = null;
 export function lookupForm(form: string): FormInfo[] {
-  if (!DE && !FR) return lookupFormEs(form);
+  if (!DE && !FR && !RU) return lookupFormEs(form);
   if (!deIndex) {
     deIndex = new Map();
-    for (const f of DE ? allFormsDe() : allFormsFr()) {
+    for (const f of DE ? allFormsDe() : RU ? allFormsRu() : allFormsFr()) {
       const k = f.form.toLowerCase();
       const list = deIndex.get(k) ?? [];
       if (!list.some((x) => x.inf === f.inf && x.tense === f.tense)) list.push({ inf: f.inf, tense: f.tense, person: f.person });
       deIndex.set(k, list);
     }
-    for (const v of Object.values(DE ? VERB_MAP_DE : VERB_MAP_FR)) {
+    for (const v of RU ? [] : Object.values(DE ? VERB_MAP_DE : VERB_MAP_FR)) {
       const k = (DE ? participleDe(v as never) : participleFr(v as never)).toLowerCase();
       deIndex.set(k, [...(deIndex.get(k) ?? []), { inf: v.inf, tense: 'participio', person: -1 }]);
     }

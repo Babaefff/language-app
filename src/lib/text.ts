@@ -12,12 +12,14 @@ export function normalize(s: string): string {
 }
 
 export function stripAccents(s: string): string {
-  // Keep ñ distinct from n: it is a different letter in Spanish.
+  // Keep ñ (Spanish) and й (Russian) distinct: they are separate letters, not accented ones.
   return s
     .replace(/ñ/g, '\u0000')
+    .replace(/й/g, '\u0001')
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
     .replace(/\u0000/g, 'ñ')
+    .replace(/\u0001/g, 'й')
     .replace(/ß/g, 'ss');
 }
 

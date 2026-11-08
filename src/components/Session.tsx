@@ -231,7 +231,7 @@ function TextAnswer({ onSubmit, locked, placeholder }: { onSubmit: (v: string) =
         placeholder={placeholder ?? `Type in ${L.name}…`}
         disabled={locked}
       />
-      <AccentKeys onKey={(ch) => { setValue((v) => v + ch); input.current?.focus(); }} disabled={locked} />
+      <AccentKeys onKey={(ch) => { setValue((v) => (ch === '\b' ? v.slice(0, -1) : v + ch)); input.current?.focus(); }} disabled={locked} />
       <button className="btn primary" disabled={locked || !value.trim()}>Check</button>
     </form>
   );
@@ -247,7 +247,7 @@ function feedbackFor(input: string, expected: string, accept: string[] = []): Re
   }
   const c = checkAnswer(input, expected, strict);
   const notes = [
-    c.accent && (LANG === 'de' ? 'Watch the special letters (ä ö ü ß).' : LANG === 'fr' ? 'Watch the accents (é è ê à ç ô…).' : 'Watch the accents (á é í ó ú ñ ü).'),
+    c.accent && (LANG === 'de' ? 'Watch the special letters (ä ö ü ß).' : LANG === 'fr' ? 'Watch the accents (é è ê à ç ô…).' : LANG === 'ru' ? 'Watch the letter ё (and the soft sign ь).' : 'Watch the accents (á é í ó ú ñ ü).'),
     c.letterCase && (LANG === 'de' ? 'Watch the capitals: nouns and Sie start with a capital letter.' : 'Watch the capital letters.'),
     c.article && 'Remember the article.',
   ].filter(Boolean);

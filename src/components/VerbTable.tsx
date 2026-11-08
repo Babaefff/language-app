@@ -9,12 +9,16 @@ import { speak } from '../lib/speech';
  * Teaching table: one column per verb, stems in plain text, endings coloured, and stems that
  * changed (pienso, tuve…) highlighted so patterns such as the "boot" shape jump out.
  */
-const PICK = <T,>(es: T, de: T, fr: T) => (LANG === 'de' ? de : LANG === 'fr' ? fr : es);
-const LABELS = PICK(['yo', 'tú', 'él / ella', 'nosotros', 'vosotros', 'ellos / ellas'], ['ich', 'du', 'er / sie / es', 'wir', 'ihr', 'sie / Sie'], ["je / j'", 'tu', 'il / elle / on', 'nous', 'vous', 'ils / elles']);
-const LABELS_IMP = PICK(['', 'tú', 'usted', 'nosotros', 'vosotros', 'ustedes'], ['', 'du', 'Sie', 'wir', 'ihr', ''], ['', 'tu', '', 'nous', 'vous', '']);
+const PICK = <T,>(es: T, de: T, fr: T, ru: T) => (LANG === 'de' ? de : LANG === 'fr' ? fr : LANG === 'ru' ? ru : es);
+const LABELS = PICK(['yo', 'tú', 'él / ella', 'nosotros', 'vosotros', 'ellos / ellas'], ['ich', 'du', 'er / sie / es', 'wir', 'ihr', 'sie / Sie'], ["je / j'", 'tu', 'il / elle / on', 'nous', 'vous', 'ils / elles'], ['я', 'ты', 'он / она', 'мы', 'вы', 'они']);
+const LABELS_IMP = PICK(['', 'tú', 'usted', 'nosotros', 'vosotros', 'ustedes'], ['', 'du', 'Sie', 'wir', 'ihr', ''], ['', 'tu', '', 'nous', 'vous', ''], ['', 'ты', '', '', 'вы', '']);
 /** Phone-width abbreviations so three verb columns fit without sideways scrolling. */
-const TINY = PICK(['yo', 'tú', 'él', 'nos.', 'vos.', 'ellos'], ['ich', 'du', 'er', 'wir', 'ihr', 'sie'], ['je', 'tu', 'il', 'nous', 'vous', 'ils']);
-const TINY_IMP = PICK(['', 'tú', 'Ud.', 'nos.', 'vos.', 'Uds.'], ['', 'du', 'Sie', 'wir', 'ihr', ''], ['', 'tu', '', 'nous', 'vous', '']);
+const TINY = PICK(['yo', 'tú', 'él', 'nos.', 'vos.', 'ellos'], ['ich', 'du', 'er', 'wir', 'ihr', 'sie'], ['je', 'tu', 'il', 'nous', 'vous', 'ils'], ['я', 'ты', 'он', 'мы', 'вы', 'они']);
+const TINY_IMP = PICK(['', 'tú', 'Ud.', 'nos.', 'vos.', 'Uds.'], ['', 'du', 'Sie', 'wir', 'ihr', ''], ['', 'tu', '', 'nous', 'vous', ''], ['', 'ты', '', '', 'вы', '']);
+/** Russian past and conditional change by gender and number, not person. */
+const GENDER = ['он (m)', 'она (f)', 'оно (n)', 'они (pl)', '', ''];
+const GENDER_TINY = ['он', 'она', 'оно', 'они', '', ''];
+const byGender = (t: Tense) => LANG === 'ru' && (t === 'preterito' || t === 'condicional');
 /** No space after an elided pronoun (m'appelle) or before a hyphenated one (lève-toi). */
 const gapAfter = (pre: string) => (pre.endsWith("'") ? '' : ' ');
 const gapBefore = (post: string) => (post.startsWith('-') ? '' : ' ');
@@ -41,8 +45,8 @@ export function VerbTable({ verbs, tense, caption }: { verbs: string[]; tense: T
               columns.every((c) => !c[i]) ? null : (
                 <tr key={i}>
                   <td className="muted vt-person">
-                    <span className="vt-long">{(tense === 'imperativo' ? LABELS_IMP : LABELS)[i]}</span>
-                    <span className="vt-short">{(tense === 'imperativo' ? TINY_IMP : TINY)[i]}</span>
+                    <span className="vt-long">{(byGender(tense) ? GENDER : tense === 'imperativo' ? LABELS_IMP : LABELS)[i]}</span>
+                    <span className="vt-short">{(byGender(tense) ? GENDER_TINY : tense === 'imperativo' ? TINY_IMP : TINY)[i]}</span>
                   </td>
                   {columns.map((c, ci) => {
                     const f = c[i];

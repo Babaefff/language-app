@@ -311,6 +311,14 @@ details summary { cursor: pointer; }
 .answer-form input { font-size: 1.2rem; padding: 0.85rem 1rem; }
 .answer-form .btn { align-self: flex-end; }
 .accent-keys { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+.ru-keys { flex-direction: column; align-items: stretch; }
+.ru-row { display: flex; gap: 0.2rem; justify-content: center; }
+.ru-row button { flex: 1 1 0; min-width: 0 !important; padding: 0.45rem 0 !important; }
+.ru-few { justify-content: flex-start; }
+.ru-row .ru-space { flex: 5 1 0; }
+.ru-row .ru-back { flex: 1.5 1 0; }
+.ru-few button { flex: 0 0 2.3rem; }
+.ru-toggle { align-self: flex-start; font-size: 0.85rem !important; }
 .accent-keys button { min-width: 2.3rem; padding: 0.3rem; border: 1.5px solid var(--border); background: var(--surface); border-radius: 8px; cursor: pointer; font-size: 1rem; }
 
 .build-line { min-height: 3.6rem; display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0.6rem 0; border-bottom: 2px solid var(--border); align-items: center; }

@@ -136,4 +136,25 @@ const FR: WritingPrompt[] = [
   },
 ];
 
-export const WRITING: WritingPrompt[] = LANG === 'de' ? DE : LANG === 'fr' ? FR : ES;
+const RU: WritingPrompt[] = [
+  {
+    id: 'ru-w-me', level: 'A1', title: 'Introduce yourself', prompt: 'Write a short text about yourself for a language-exchange website.',
+    points: [{ text: 'Your name', keys: ['меня зовут', 'зовут'] }, { text: 'Your age', keys: ['лет', 'год', 'года'] }, { text: 'Where you live and what you do', keys: ['живу', 'работаю', 'учусь'] }, { text: 'What you like', keys: ['люблю', 'нравится'] }],
+    words: [25, 50], units: ['ru-a1-01', 'ru-a1-02', 'ru-a1-09'],
+    model: 'Привет! Меня зовут Том. Мне двадцать восемь лет. Я англичанин, но живу в Москве. Я работаю в школе, я учитель. Я люблю читать и играть в футбол. Я учу русский язык, потому что моя жена русская.',
+  },
+  {
+    id: 'ru-w-family', level: 'A1', title: 'My family', prompt: 'Describe your family.',
+    points: [{ text: 'Who is in your family', keys: ['семья', 'мама', 'папа', 'брат', 'сестра', 'у меня есть'] }, { text: 'Names and ages', keys: ['зовут', 'лет'] }, { text: 'What they do', keys: ['работает', 'учится', 'врач', 'учитель'] }, { text: 'Where they live', keys: ['живёт', 'живут', 'в '] }],
+    words: [25, 50], units: ['ru-a1-03', 'ru-a1-12'],
+    model: 'У меня небольшая семья. Мою маму зовут Ольга, она врач. Мой папа инженер, он работает на заводе. У меня есть сестра. Ей пятнадцать лет, она учится в школе. Мои бабушка и дедушка живут в деревне.',
+  },
+  {
+    id: 'ru-w-yesterday', level: 'A1', title: 'My day yesterday', prompt: 'Describe what you did yesterday (use the past tense).',
+    points: [{ text: 'Morning', keys: ['утром', 'встал', 'встала'] }, { text: 'Work or study', keys: ['работал', 'работала', 'учился', 'училась'] }, { text: 'Evening', keys: ['вечером', 'смотрел', 'смотрела', 'читал', 'читала'] }, { text: 'Where you were', keys: ['был', 'была'] }],
+    words: [30, 60], units: ['ru-a1-07', 'ru-a1-14'],
+    model: 'Вчера я встала в семь часов. Утром я завтракала и пила кофе. Потом я работала в офисе. Вечером я была дома: я готовила ужин и смотрела фильм. Я легла спать поздно.',
+  },
+];
+
+export const WRITING: WritingPrompt[] = LANG === 'de' ? DE : LANG === 'fr' ? FR : LANG === 'ru' ? RU : ES;
