@@ -171,6 +171,8 @@ const ES: Record<string, string> = {
 
 const DE: Record<string, string> = {
   'Morgen fahre ich nach Berlin.': "I'm going to Berlin tomorrow.",
+  'Ich weiß es.': 'I know (it).',
+  'Ich kenne Berlin.': 'I know Berlin (I have been there).',
   'habe … gesehen': 'have … seen',
   'kann … schwimmen': 'can … swim',
   'rufe … an': 'call … (up)',

@@ -2,6 +2,7 @@ import { GRAMMAR_DE_MORE_A1, GRAMMAR_DE_MORE_A2, GRAMMAR_DE_MORE_B1 } from './gr
 import type { GrammarLesson } from '../types';
 import { BIG_PICTURE_DE, DEEP_DE } from './grammar-deep';
 import { deepen } from '../grammar-deep-es';
+import { ORDER_DE, STEPS_DE, withSteps } from '../grammar-steps';
 import { GRAMMAR_DE_A2 } from './grammar-a2';
 import { GRAMMAR_DE_B1 } from './grammar-b1';
 
@@ -260,4 +261,4 @@ Most verbs use **haben**. Use **sein** for **movement from A to B** or a **chang
   },
 ];
 
-export const GRAMMAR_DE: GrammarLesson[] = [BIG_PICTURE_DE, ...deepen([...GRAMMAR_DE_A1, ...GRAMMAR_DE_MORE_A1, ...GRAMMAR_DE_A2, ...GRAMMAR_DE_MORE_A2, ...GRAMMAR_DE_B1, ...GRAMMAR_DE_MORE_B1], DEEP_DE)];
+export const GRAMMAR_DE: GrammarLesson[] = withSteps([BIG_PICTURE_DE, ...deepen([...GRAMMAR_DE_A1, ...GRAMMAR_DE_MORE_A1, ...GRAMMAR_DE_A2, ...GRAMMAR_DE_MORE_A2, ...GRAMMAR_DE_B1, ...GRAMMAR_DE_MORE_B1], DEEP_DE)], STEPS_DE, ORDER_DE);
