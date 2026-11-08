@@ -25,7 +25,7 @@ import { Settings } from './pages/Settings';
 import { GrammarLessonPage, GrammarList } from './pages/GrammarPage';
 import { useSync } from './lib/sync';
 import { WordTicker } from './components/WordTicker';
-import { streak, useProgress, applyShields } from './lib/store';
+import { goalStreak, useProgress, applyShields } from './lib/store';
 import { LANG, LANGS, switchLanguage, type LangId } from './data/lang';
 
 const NAV: { to: string; icon: IconName; label: string }[] = [
@@ -56,7 +56,7 @@ function Shell() {
   const navigate = useNavigate();
   const now = Date.now();
   const due = Object.values(p.cards).filter((c) => c.due <= now).length;
-  const days = streak(p.xp, p.frozen);
+  const st = goalStreak(p);
   return (
     <>
       <ScrollTop />
@@ -81,7 +81,7 @@ function Shell() {
               <option key={l.id} value={l.id}>{l.flag} {l.name}</option>
             ))}
           </select>
-          <span className="streak" title="Day streak" aria-label={`${days} day streak`}><span className="streak-fire" aria-hidden="true">🔥</span><span>{days}</span></span>
+          <span className="streak" title={st.weekly ? 'Week streak' : 'Day streak'} aria-label={st.label}><span className="streak-fire" aria-hidden="true">🔥</span><span>{st.n}{st.weekly ? 'w' : ''}</span></span>
           <AccountButton />
         </div>
       </header>

@@ -1,5 +1,6 @@
 import { Icon } from '../components/Icon';
-import { LANG } from '../data/lang';
+import { L, LANG } from '../data/lang';
+import { canDoFor } from '../data/can-do';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Link } from '../components/Nav';
@@ -20,7 +21,7 @@ type Mode =
   | { name: 'learn' }
   | { name: 'grammar' }
   | { name: 'quiz'; step: number; exercises: Exercise[] }
-  | { name: 'done'; step: number; summary: SessionSummary; xp: number };
+  | { name: 'done'; step: number; summary: SessionSummary; xp: number; canDo?: string };
 
 export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string; initialStep?: number; onComplete?: () => void } = {}) {
   const { id = '' } = useParams();
@@ -41,9 +42,12 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
     const score = Math.round((summary.correct / Math.max(1, summary.total)) * 100);
     const xp = summary.correct + 10;
     applyWordResults(summary.words);
+    const wasDone = !!getProgress().units[unit.id];
     completeStep(unit.id, step, score, STEPS.length);
     addXp(xp);
-    setMode({ name: 'done', step, summary, xp });
+    // Finishing the whole lesson: name the new ability, not just the score.
+    const canDo = !wasDone && getProgress().units[unit.id] ? canDoFor(unit, L.name) : undefined;
+    setMode({ name: 'done', step, summary, xp, canDo });
   };
 
   if (mode.name === 'learn') {
@@ -60,6 +64,7 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
         <Summary
           summary={mode.summary}
           xp={mode.xp}
+          canDo={mode.canDo}
           onRetry={() => start(mode.step)}
           doneLabel={onComplete ? 'Finish lesson step' : nextStep !== null ? `Next: ${STEPS[nextStep].title}` : nextUnit ? `Next unit: ${nextUnit.title}` : 'Back to course'}
           onDone={() => {
@@ -103,6 +108,7 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
           <p className="muted" lang={LANG}>{unit.titleEs} · {unit.description}</p>
         </div>
       </header>
+      {p.units[unit.id] && <p className="can-do"><strong>You can now</strong> {canDoFor(unit, L.name)}.</p>}
 
       <div className="lesson-actions">
         <p className="small muted">{completedSteps}/{STEPS.length} steps completed</p>

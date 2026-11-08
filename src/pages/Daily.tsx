@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Link } from '../components/Nav';
 import { Session, type SessionSummary } from '../components/Session';
 import { UnitPage } from './UnitPage';
@@ -7,7 +8,9 @@ import { UNITS, WORD_MAP } from '../data/course';
 import { addXp, applyWordResults, completeDailySession, getProgress } from '../lib/store';
 
 export function Daily() {
-  const [plan] = useState(() => dailyPlan(getProgress(), UNITS, WORD_MAP));
+  const [params] = useSearchParams();
+  const catchup = params.get('catchup') === '1';
+  const [plan] = useState(() => dailyPlan(getProgress(), UNITS, WORD_MAP, Date.now(), catchup));
   const [index, setIndex] = useState(-1);
   const [finished, setFinished] = useState(false);
   const stages = [
@@ -33,7 +36,7 @@ export function Daily() {
   </div>;
   return <div className="page narrow">
     <Link className="link" to="/">← Home</Link>
-    <header className="page-heading"><h1>Daily session</h1></header>
+    <header className="page-heading"><h1>{catchup ? 'Welcome-back catch-up' : 'Daily session'}</h1>{catchup && <p className="muted">Just your most overdue words, about 5 minutes. The rest come back gradually over the next days.</p>}</header>
     <section className="card"><ol className="daily-agenda">{stages.map((s, i) => <li key={s.title}><span className="step-num">{i + 1}</span><div><strong>{s.title}</strong><p className="small muted">{'lesson' in s && s.lesson ? s.lesson.unit.title : `${s.exercises?.length} questions`}</p></div></li>)}</ol>
       {stages.length ? <button className="btn primary" onClick={() => setIndex(0)}>Begin daily session</button> : <p>You’re caught up. Return tomorrow, or explore a reading.</p>}
     </section>

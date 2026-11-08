@@ -811,7 +811,7 @@ body:has(.session) .ticker { display: none; }
 .week .dot { width: 1.6rem; height: 1.6rem; border-radius: 50%; display: grid; place-items: center; font-size: 0.75rem; font-weight: 800; background: var(--surface-2); color: var(--primary-ink); }
 .week .on .dot { background: var(--primary); }
 .week .shield .dot { background: var(--primary-soft); font-size: 0.8rem; }
-.week li:last-child:not(.on) .dot { box-shadow: inset 0 0 0 2px var(--primary); }
+.week li.today:not(.on) .dot { box-shadow: inset 0 0 0 2px var(--primary); }
 .week .day { font-size: 0.68rem; color: var(--muted); }
 
 /* Practice: grouped, compact tiles that scan quickly on a phone. */
@@ -826,3 +826,13 @@ body:has(.session) .ticker { display: none; }
 
 .summary-streak { margin: 0.25rem 0 0.4rem; font-weight: 600; }
 .summary-goal { flex: none; width: 100%; max-width: 320px; margin: 0 auto 0.75rem; }
+
+/* "You can now…": the new ability, highlighted. */
+.can-do { background: var(--primary-soft); border-left: 4px solid var(--primary); border-radius: 10px; padding: 0.7rem 0.9rem; margin: 0.5rem 0; text-align: left; }
+.can-do strong { color: var(--primary); }
+.can-do-list { list-style: none; padding: 0; margin: 0.5rem 0 0; display: grid; gap: 0.4rem; }
+.can-do-list li { display: flex; gap: 0.5rem; align-items: baseline; }
+.can-do-list li::before { content: '✓'; color: var(--primary); font-weight: 800; }
+
+.welcome-back { border: 1px solid var(--primary); background: color-mix(in srgb, var(--primary-soft) 70%, var(--surface)); }
+.welcome-back h2 { margin-top: 0; }

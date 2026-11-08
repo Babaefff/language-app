@@ -95,6 +95,14 @@ export function Settings() {
             <option value={200}>Intense — 200 XP</option>
           </select>
         </label>
+        <label className="field">
+          How often
+          <select value={settings.weeklyDays} onChange={(e) => updateSettings({ weeklyDays: Number(e.target.value) })}>
+            <option value={0}>Every day — daily streak</option>
+            {[2, 3, 4, 5, 6].map((n) => <option key={n} value={n}>{n} days a week — weekly streak</option>)}
+          </select>
+        </label>
+        <p className="small muted">Busy schedule? A weekly goal keeps your streak going as long as you practise enough days each week, whichever days they are.</p>
         <label className="toggle"><input type="checkbox" checked={settings.ticker} onChange={(e) => updateSettings({ ticker: e.target.checked })} /> Show the word ticker (keeps your words cycling at the top of every page)</label>
       </section>
 

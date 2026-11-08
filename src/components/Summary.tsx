@@ -1,22 +1,24 @@
 import { WORD_MAP } from '../data/course';
 import { LANG } from '../data/lang';
 import type { SessionSummary } from './Session';
-import { streak, today, useProgress } from '../lib/store';
+import { goalStreak, daysInWeek, today, useProgress } from '../lib/store';
 
-export function Summary({ summary, xp, onDone, onRetry, doneLabel = 'Continue' }: { summary: SessionSummary; xp: number; onDone: () => void; onRetry?: () => void; doneLabel?: string }) {
+export function Summary({ summary, xp, onDone, onRetry, doneLabel = 'Continue', canDo }: { summary: SessionSummary; xp: number; onDone: () => void; onRetry?: () => void; doneLabel?: string; canDo?: string }) {
   const pct = summary.total ? Math.round((summary.correct / summary.total) * 100) : 100;
   const missed = Object.entries(summary.words).filter(([, ok]) => !ok).map(([id]) => id);
   const p = useProgress();
   const xpToday = p.xp[today()] ?? 0;
   const goal = p.settings.dailyGoal;
-  const days = streak(p.xp, p.frozen);
+  const st = goalStreak(p);
+  const weekDays = daysInWeek(p.xp);
   // Specific, effort-focused feedback: what went well and what happens next, never a bare score.
   const headline = pct >= 90 ? 'Excellent work!' : pct >= 70 ? 'Nice progress!' : 'Good effort — this is how it sticks.';
   return (
     <div className="summary card">
       <div className="summary-emoji">{pct >= 90 ? '🏆' : pct >= 70 ? '🎉' : '💪'}</div>
-      <h2>{headline}</h2>
-      <p className="summary-streak"><span aria-hidden="true">🔥</span> {days > 0 ? `${days}-day streak` : 'Streak started'} · {xpToday >= goal ? 'daily goal reached' : `${goal - xpToday} XP to today’s goal`}</p>
+      <h2>{canDo ? 'Lesson complete!' : headline}</h2>
+      {canDo && <p className="can-do"><strong>You can now</strong> {canDo}.</p>}
+      <p className="summary-streak"><span aria-hidden="true">🔥</span> {st.n > 0 ? st.label : 'Streak started'}{st.weekly ? ` · ${Math.min(weekDays, p.settings.weeklyDays)} of ${p.settings.weeklyDays} days this week` : ''} · {xpToday >= goal ? 'daily goal reached' : `${goal - xpToday} XP to today’s goal`}</p>
       <div className="bar summary-goal" role="progressbar" aria-label="Today’s goal" aria-valuenow={Math.min(xpToday, goal)} aria-valuemin={0} aria-valuemax={goal}><div style={{ width: `${Math.min(100, xpToday / Math.max(1, goal) * 100)}%` }} /></div>
       <div className="stats">
         <div><strong>{pct}%</strong><span>accuracy</span></div>
