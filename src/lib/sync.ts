@@ -35,7 +35,7 @@ export const configProblem: string | null = (() => {
 export const configSummary = URL_ && KEY ? `${URL_.replace('https://', '')} · ${KEY.slice(0, 18)}…` : '';
 const ANON = configProblem?.includes('secret') || configProblem?.includes('service_role') ? undefined : KEY;
 export const accountsEnabled = !!(URL_ && KEY);
-export const googleEnabled = import.meta.env.VITE_SUPABASE_GOOGLE === '1';
+export const googleEnabled = clean(import.meta.env.VITE_SUPABASE_GOOGLE) === '1';
 
 type SyncState = { user: User | null; status: 'off' | 'idle' | 'syncing' | 'synced' | 'error'; lastSync: number | null; error?: string };
 let sync: SyncState = { user: null, status: accountsEnabled ? 'idle' : 'off', lastSync: null };
