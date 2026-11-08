@@ -49,7 +49,7 @@ export interface Progress {
   settings: Settings;
 }
 
-import { LANG } from '../data/lang';
+import { LANG, LANGS } from '../data/lang';
 
 /** Each language keeps its own progress (Spanish keeps the original key). */
 let progressOwner: string | null = null;
@@ -252,7 +252,7 @@ export function applyTheme(theme: Settings['theme'] = state.settings.theme) {
   if (theme === 'system') delete root.dataset.theme;
   else root.dataset.theme = theme;
   const dark = theme === 'dark' || (theme === 'system' && window.matchMedia?.('(prefers-color-scheme: dark)').matches);
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#121e20' : '#f6f7f4');
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#171a1c' : '#d6cfc4');
 }
 
 /** Listens to every progress change (used by cloud sync). */
@@ -315,19 +315,32 @@ export function mergeProgress(a: Progress, b: Progress): Progress {
 /** Where each language keeps its progress in this browser. */
 export const progressKeyFor = (lang: string) => storageKey(lang);
 
-/** Switch before syncing so one account can never inherit another account's device copy. */
+/**
+ * Switch before syncing so one account can never inherit another account's device copy.
+ * Progress made as a guest moves into the account that signs in next (every language), and the
+ * guest copy is then removed, so a later account on the same device starts clean.
+ */
 export function selectProgressAccount(userId: string | null) {
   if (progressOwner === userId) return;
   progressOwner = userId;
+  if (userId) moveGuestProgress(userId);
   state = load();
   listeners.forEach(l => l());
 }
 
-/** Guest progress is imported only after an explicit user choice. */
-export function importGuestProgress() {
-  if (!progressOwner) return;
-  const raw = localStorage.getItem(storageKey(LANG, null));
-  if (raw) set(mergeProgress(state, parseProgress(JSON.parse(raw))));
+function moveGuestProgress(userId: string) {
+  for (const lang of Object.keys(LANGS)) {
+    try {
+      const guest = localStorage.getItem(storageKey(lang, null));
+      if (!guest) continue;
+      const own = localStorage.getItem(storageKey(lang, userId));
+      const merged = mergeProgress(parseProgress(own ? JSON.parse(own) : {}), parseProgress(JSON.parse(guest)));
+      localStorage.setItem(storageKey(lang, userId), JSON.stringify(merged));
+      localStorage.removeItem(storageKey(lang, null));
+    } catch {
+      // Storage unavailable or a damaged guest copy: leave it where it is.
+    }
+  }
 }
 
 /** Progress of another language saved in this browser (the current one comes from useProgress). */

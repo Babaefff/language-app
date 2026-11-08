@@ -1,5 +1,4 @@
 import { useCallback, useState, type ReactNode } from 'react';
-import { importGuestProgress } from '../lib/store';
 import { GoogleButton } from './GoogleButton';
 import { accountsEnabled, configProblem, configSummary, deleteAccount, deleteCloudData, googleClientId, googleEnabled, signInWithEmail, signInWithGoogle, signOut, useSync } from '../lib/sync';
 
@@ -40,11 +39,6 @@ export function AccountCard({ bare = false }: { bare?: boolean } = {}) {
         <p className="muted small">Your progress in each language follows you to any device where you sign in.</p>
         <div className="row wrap">
           <button className="btn" disabled={busy} onClick={() => run(signOut)}>Sign out</button>
-          <button className="btn" disabled={busy || status === 'syncing'} onClick={() => {
-            if (confirm('Add this browser’s guest progress to your account for this language? Only do this if it is your own progress.')) {
-              void run(async () => { importGuestProgress(); setMsg('Guest progress added to your account.'); });
-            }
-          }}>Import guest progress</button>
           <button className="btn" disabled={busy} onClick={() => { if (confirm('Delete your saved progress from the cloud? Your account’s progress remains saved on this device.')) void run(deleteCloudData); }}>Delete cloud data</button>
           <button className="btn danger" disabled={busy} onClick={() => { if (confirm('Delete your account permanently? Your email and cloud progress are removed. Your account’s progress remains saved on this device.')) void run(deleteAccount); }}>Delete account</button>
         </div>

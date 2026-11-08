@@ -21,7 +21,7 @@ it('does not apply an old account response after a different account signs in', 
   vi.stubEnv('VITE_SUPABASE_PUBLISHABLE_KEY', 'sb_publishable_test');
   const memory = new Map<string, string>();
   vi.stubGlobal('localStorage', { getItem: (k: string) => memory.get(k) ?? null,
-    setItem: (k: string, v: string) => memory.set(k, v) });
+    setItem: (k: string, v: string) => memory.set(k, v), removeItem: (k: string) => memory.delete(k) });
   vi.stubGlobal('window', { location: { search: '' }, addEventListener: vi.fn() });
   vi.stubGlobal('document', { addEventListener: vi.fn() });
   let resolveAlice!: (value: unknown) => void;
@@ -30,7 +30,7 @@ it('does not apply an old account response after a different account signs in', 
   const { initSync } = await import('./sync');
   const store = await import('./store');
   await initSync();
-  store.addXp(77); // Guest activity must not be uploaded automatically.
+  store.addXp(77); // Guest activity moves into the first account only, never a later one.
   mock.emit('alice');
   await vi.waitFor(() => expect(mock.select).toHaveBeenCalledTimes(1));
   mock.emit('bob');
@@ -41,5 +41,7 @@ it('does not apply an old account response after a different account signs in', 
   expect(store.getProgress().xp).toEqual({});
   expect(mock.upsert).toHaveBeenCalledTimes(1);
   mock.emit(null);
-  expect(Object.values(store.getProgress().xp)).toEqual([77]);
+  expect(store.getProgress().xp).toEqual({});
+  const aliceKey = [...memory.keys()].find(k => k.endsWith(':user:alice'))!;
+  expect(Object.values(JSON.parse(memory.get(aliceKey)!).xp)).toEqual([77]);
 });

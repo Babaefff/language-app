@@ -1,19 +1,19 @@
 :root {
-  /* Neutral reading surfaces; teal identifies primary actions and selection. */
-  --bg: #f6f7f8;
-  --surface: #ffffff;
-  --surface-2: #eef1f3;
-  --text: #20272b;
-  --muted: #56636b;
-  --border: #d9dfe3;
-  --primary: #176452;
+  /* Muted, warm light theme (no pure white, easy on the eyes); teal marks primary actions and selection. */
+  --bg: #d6cfc4;
+  --surface: #e3ddd3;
+  --surface-2: #cbc3b6;
+  --text: #211b17;
+  --muted: #554b43;
+  --border: #b8ad9e;
+  --primary: #145a4a;
   --primary-ink: #ffffff;
-  --primary-soft: #e5f1eb;
-  --accent: #b38b42;
+  --primary-soft: #cbdbd1;
+  --accent: #9a7432;
   --good: #227447;
-  --good-soft: #e6f4e9;
+  --good-soft: #cde3d3;
   --bad: #ab3434;
-  --bad-soft: #fbecec;
+  --bad-soft: #ecd0cd;
   --a1: #2e7d32;
   --a2: #1565c0;
   --b1: #8e24aa;
@@ -788,4 +788,15 @@ body:has(.session) .ticker { display: none; }
 .streak { line-height: 1; font-variant-numeric: tabular-nums; }
 .streak-fire { font-size: 1.1rem; line-height: 1; }
 .icon-btn > .icon, .speak > .icon, .nav-icon > .icon { display: block; }
-@media (max-width: 420px) { .topbar .lang-switch { max-width: 112px; } }
+@media (max-width: 420px) { .topbar .lang-switch { padding-inline: 0.4rem; font-size: 0.85rem; } }
+
+/* Home: streak and goal card, daily-session note. */
+.dashboard-streak .streak-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+.dashboard-streak h2 { margin: 0 0 0.25rem; }
+.dashboard-streak p { margin: 0.15rem 0; }
+.dashboard-streak .ring { width: 76px; height: 76px; }
+.dashboard-streak .ring > div { width: 60px; height: 60px; }
+.dashboard-streak .ring strong { font-size: 1.1rem; }
+.dashboard-review .stats { margin: 0.5rem 0 0.25rem; }
+.daily-note { display: flex; align-items: center; gap: 0.35rem; margin: 0.25rem 0 0.5rem !important; }
+@media (max-width: 760px) { .dashboard-sidebar { grid-template-columns: 1fr !important; } }

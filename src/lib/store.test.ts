@@ -73,23 +73,25 @@ describe('backup safety and account separation', () => {
     Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: {
       getItem: (k: string) => memory.get(k) ?? null,
       setItem: (k: string, v: string) => memory.set(k, v),
+      removeItem: (k: string) => memory.delete(k),
     } });
     try {
       s.selectProgressAccount(null);
       s.resetProgress(); s.addXp(5);
+      // Signing in brings the guest's progress along, and the guest copy is cleared.
       s.selectProgressAccount('alice');
-      expect(s.getProgress().xp).toEqual({});
+      expect(Object.values(s.getProgress().xp)).toEqual([5]);
       s.addXp(20);
       memory.set(s.progressKeyFor('de'), JSON.stringify({ xp: { day: 99 } }));
       s.selectProgressAccount(null);
-      expect(Object.values(s.getProgress().xp)).toEqual([5]);
-      expect(s.readProgressFor('de').xp).toEqual({});
-      s.selectProgressAccount('bob');
       expect(s.getProgress().xp).toEqual({});
-      s.importGuestProgress();
-      expect(Object.values(s.getProgress().xp)).toEqual([5]);
+      expect(s.readProgressFor('de').xp).toEqual({});
+      // A second account on the same device never sees Alice's progress.
+      s.addXp(3);
+      s.selectProgressAccount('bob');
+      expect(Object.values(s.getProgress().xp)).toEqual([3]);
       s.selectProgressAccount('alice');
-      expect(Object.values(s.getProgress().xp)).toEqual([20]);
+      expect(Object.values(s.getProgress().xp)).toEqual([25]);
       expect(s.readProgressFor('de').xp).toEqual({ day: 99 });
     } finally {
       s.selectProgressAccount(null);
