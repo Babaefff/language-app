@@ -446,9 +446,10 @@ Spanish often splits one English idea in two, depending on how you see it:
       { q: 'Which ending means “we” in every tense?', options: ['-mos', '-n', '-s'], answer: 0 },
       { q: 'Why does poder become “puedo”?', options: ['The o is stressed', 'It is plural', 'It is a past form'], answer: 0 },
       { q: 'The present subjunctive is built from which form?', options: ['yo', 'él', 'the infinitive'], answer: 0 },
-      { q: 'Hoy ___ muy cansado.', options: ['estoy', 'soy', 'tengo'], answer: 0 },
+      { q: '“Hablo” means…', options: ['I speak', 'he speaks', 'to speak'], answer: 0 },
+      { q: 'estar describes…', options: ['how or where something is', 'what something is', 'a finished event'], answer: 0 },
       { q: 'Quiero ___ mañana. (to see it)', options: ['verlo', 'lo ver', 'ver le'], answer: 0 },
-      { q: 'Las casas son muy ___.', options: ['bonitas', 'bonita', 'bonitos'], answer: 0 },
+      { q: 'In “las casas blancas”, why does blancas end in -as?', options: ['It agrees with casas: feminine plural', 'blanco is irregular', 'It is a verb ending'], answer: 0 },
     ],
   },
 };

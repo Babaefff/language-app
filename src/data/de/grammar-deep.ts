@@ -429,10 +429,11 @@ The same verbs change their vowel in the present (fährt), the past (fuhr), the 
   practice: {
     choice: [
       { q: 'Morgen ___ ich nach Berlin.', options: ['fahre', 'fahren', 'fährt'], answer: 0 },
-      { q: 'Ich bleibe zu Hause, weil ich krank ___.', options: ['bin', 'sein', 'ist'], answer: 0 },
-      { q: 'Ich sehe ___ Hund.', options: ['den', 'der', 'dem'], answer: 0 },
-      { q: 'Ich fahre mit ___ Bus.', options: ['dem', 'den', 'der'], answer: 0 },
-      { q: 'Das ist ein ___ Mann.', options: ['alter', 'alte', 'alten'], answer: 0 },
+      { q: 'In “Ich habe Berlin gesehen”, where is the second verb part?', options: ['At the end', 'In position 2', 'At the start'], answer: 0 },
+      { q: 'After weil, dass or wenn, the conjugated verb goes…', options: ['to the end', 'to position 2', 'to the start'], answer: 0 },
+      { q: 'Which letter marks the accusative masculine (den, einen, ihn)?', options: ['-n', '-m', '-r'], answer: 0 },
+      { q: 'Which letter marks the dative masculine and neuter (dem, einem, ihm)?', options: ['-m', '-n', '-r'], answer: 0 },
+      { q: 'Why is it “ein alter Mann” but “der alte Mann”?', options: ['ein does not show the gender, so the adjective does', 'alt is irregular', 'Mann changes after ein'], answer: 0 },
       { q: 'Which article does “Türschlüssel” (die Tür + der Schlüssel) take?', options: ['der', 'die', 'das'], answer: 0 },
     ],
   },

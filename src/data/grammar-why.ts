@@ -2,6 +2,9 @@ import { LANG } from './lang';
 
 /** Why the answer to a grammar practice question is right — shown after answering. */
 const ES: Record<string, string> = {
+  '“Hablo” means…': 'The ending -o already says "I", so no pronoun is needed: hablo = I speak. He speaks is habla; to speak is hablar.',
+  'estar describes…': 'ser says what something is (a teacher, from Spain); estar says how or where it is (tired, in Madrid).',
+  'In “las casas blancas”, why does blancas end in -as?': 'The noun decides: casas is feminine plural, so the article (las) and the adjective (blancas) take the same form.',
   'Which ending means “we” in every tense?': '-mos is the "we" code in every tense: hablamos, hablábamos, hablaremos. -s is "you", -n is "they".',
   'Why does poder become “puedo”?': 'In "PUE-do" the stem vowel is stressed, so o grows into ue. In "po-DE-mos" the stress is on the ending, so it stays o.',
   'The present subjunctive is built from which form?': 'From the yo form: tengo → tenga, hago → haga. That is why an irregular yo makes an irregular subjunctive.',
@@ -94,6 +97,11 @@ const ES: Record<string, string> = {
 };
 
 const DE: Record<string, string> = {
+  'In “Ich habe Berlin gesehen”, where is the second verb part?': 'The verb bracket: habe sits in position 2 and the participle gesehen closes the sentence at the end.',
+  'After weil, dass or wenn, the conjugated verb goes…': 'Subordinate clauses close the bracket: all verbs go to the end, as in "…, weil ich arbeiten muss."',
+  'Which letter marks the accusative masculine (den, einen, ihn)?': '-n is the accusative masculine signal: der → den, ein → einen, er → ihn.',
+  'Which letter marks the dative masculine and neuter (dem, einem, ihm)?': '-m is the dative signal for masculine and neuter: dem, einem, ihm. -r marks dative feminine (der, ihr).',
+  'Why is it “ein alter Mann” but “der alte Mann”?': 'The signal appears once. der already shows masculine, so the adjective just takes -e; ein does not, so the adjective shows it: alter.',
   'Morgen ___ ich nach Berlin.': '"I\'m going to Berlin tomorrow." Morgen fills position 1, so the verb comes second and ich moves behind it.',
   'Ich bleibe zu Hause, weil ich krank ___.': '"I\'m staying at home because I\'m ill." weil sends the verb to the end, conjugated for ich: bin.',
   'Ich sehe ___ Hund.': '"I see the dog." Hund is the direct object and masculine → accusative den.',

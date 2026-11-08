@@ -37,6 +37,14 @@ const TOPICS = units('A1', [
 
 - **Wie heißt du?** — What's your name? · **Ich heiße …** — My name is …
 - **Ich komme aus …** — I come from …
+
+## Your first regular verb: kommen
+The stem **komm-** stays, the ending says who. Almost every verb works like this:
+| ich komm**e** | wir komm**en** |
+| du komm**st** | ihr komm**t** |
+| er / sie / es komm**t** | sie / Sie komm**en** |
+
+heißen and wohnen work the same way: *ich heiße, du heißt, er heißt* · *ich wohne, du wohnst, er wohnt*.
 `,
     conj: { verbs: ['sein', 'heißen', 'kommen'], tenses: ['presente'] },
   },
@@ -103,6 +111,8 @@ Always learn a noun **with its article** — and nouns are always written with a
 | ihr / ihre | her / their |
 
 **-e** for feminine and plural: *meine Mutter, meine Eltern* — but *mein Vater, mein Kind*.
+
+After **haben**, masculine **ein** becomes **einen**: *Ich habe **einen** Bruder* (but *eine Schwester, ein Kind*). This is the accusative; you'll see why in Food & drink.
 `,
     conj: { verbs: ['haben', 'wohnen'], tenses: ['presente'] },
   },
@@ -162,6 +172,8 @@ After *in, auf, unter, neben* (for location) the article changes:
 | das Bad | → neben **dem** Bad |
 
 **in + dem = im**: *im Wohnzimmer*.
+
+The same happens to **ein / eine**: *in **einem** Haus*, *in **einer** Wohnung*. An adjective in between then ends in **-en**: *in einer klein**en** Wohnung* (more on adjective endings in A2).
 `,
     conj: { verbs: ['wohnen', 'sein'], tenses: ['presente'] },
   },
@@ -222,6 +234,9 @@ Many verbs have a prefix that **jumps to the end** of the sentence:
 - **auf**stehen → *Ich stehe um 7 Uhr **auf**.*
 - **fern**sehen → *Wir sehen am Abend **fern**.*
 - **ein**kaufen → *Er kauft im Supermarkt **ein**.*
+## Word order: the verb is always second
+If a time word comes first, the subject moves **after** the verb:
+*Ich gehe am Samstag ins Kino.* → ***Am Samstag gehe ich** ins Kino.*
 
 ## Telling the time
 - **Wie spät ist es?** — **Es ist acht Uhr.**
@@ -316,9 +331,6 @@ To like a thing: **mögen** — *Ich mag Musik.*
 ## Weather uses es
 *Es regnet. Es schneit. Es ist kalt.* — just like English "it".
 
-## Word order: the verb is always second
-If a time word comes first, the subject moves **after** the verb:
-*Ich gehe am Samstag ins Kino.* → ***Am Samstag gehe ich** ins Kino.*
 `,
     conj: { verbs: ['gehen', 'sein', 'haben'], tenses: ['presente'] },
   },

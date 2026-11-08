@@ -15,6 +15,8 @@ export const GRAMMAR_DE_A2: GrammarLesson[] = [
 | neuter | das / ein | das / ein | **dem / einem** |
 | plural | die | die | **den** (+ -n on the noun) |
 
+Possessives (**mein, dein, sein, ihr, unser…**) take exactly the endings of **ein**, and in the plural they end like **den**: *mit **meinem** Bruder, bei **ihren** Eltern*.
+
 ## Always dative after
 - prepositions **aus, bei, mit, nach, seit, von, zu** (and **gegenüber**): *mit **dem** Bus, zu **der** Schule → zur Schule*
 - verbs **helfen, danken, gefallen, gehören, antworten, schmecken**: *Ich helfe **dir**. Das gefällt **mir**.*` },

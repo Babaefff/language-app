@@ -107,6 +107,8 @@ The relative pronoun takes its **gender** from the noun it refers to and its **c
 - perfect: **ist … worden**: *Das Haus **ist** 1900 **gebaut worden**.*
 - with a modal: **muss … werden**: *Das Auto **muss repariert werden**.*
 
+Strong verbs use their Perfekt participle, as usual: schreiben → **geschrieben**, finden → **gefunden**, erfinden → **erfunden** (er- verbs take no ge-).
+
 Who does it: **von** + dative — *von dem Koch → vom Koch*.
 
 ## Where you'll see it
@@ -206,6 +208,7 @@ Names just add **-s** (no apostrophe): *Annas Buch, Peters Auto*.
 For things (not people), replace the preposition + pronoun:
 - *Ich warte **auf den Bus**. → Ich warte **darauf**.* · ***Worauf** wartest du?*
 - **dar-** before a vowel: dar**auf**, dar**über**, dar**an**; otherwise **da-**: da**für**, da**von**, da**mit**.
+- Questions work the same with **wo(r)-**: wor**auf**, wor**über**, wo**für**, wo**von**: ***Wovon** träumst du?*
 
 For people: *Ich warte **auf ihn**. **Auf wen** wartest du?*` },
       { t: 'mistakes', items: [['Ich warte für den Bus.', 'Ich warte auf den Bus.', 'warten takes auf.'], ['Ich interessiere mich in Musik.', 'Ich interessiere mich für Musik.', 'sich interessieren für.']] },

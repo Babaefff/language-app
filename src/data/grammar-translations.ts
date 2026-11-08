@@ -551,6 +551,7 @@ const DE: Record<string, string> = {
   'Ich spare, damit ich ein Auto kaufen kann.': "I'm saving so that I can buy a car.",
   'Es regnet. Trotzdem gehe ich joggen.': "It's raining. I'm going jogging anyway.",
   'Ich bin krank. Deshalb bleibe ich zu Hause.': "I'm ill. That's why I'm staying at home.",
+  "Wovon träumst du?": "What do you dream of?",
   // Unit grammar notes
   "ich habe, du hast, er hat, wir haben, ihr habt, sie haben": "I have, you have, he has, we have, you all have, they have",
   "meine Mutter, meine Eltern": "my mother, my parents",

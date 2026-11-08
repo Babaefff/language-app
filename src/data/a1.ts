@@ -51,6 +51,7 @@ Spanish often **drops the pronoun** because the verb ending already shows who is
 
 - **¿Cómo te llamas?** — What's your name? (lit. How do you call yourself?)
 - **Me llamo…** — My name is…
+- **Se llama…** — His / her name is… (the whole verb *llamarse* comes in Daily routine)
 - **Soy de…** — I'm from…
 
 Questions and exclamations open with an upside-down mark: **¿…?** and **¡…!**
@@ -159,6 +160,14 @@ A masculine plural can mean a mixed group: **los padres** = the parents, **los h
 | nuestro/a | our |
 
 *mi hermano* → *mis hermanos*
+
+## One verb to start with: vivir (to live)
+Families live somewhere, so here is your first regular verb. The stem **viv-** stays, the ending says who:
+| yo vivo | nosotros vivimos |
+| tú vives | vosotros vivís |
+| él/ella/usted vive | ellos/ellas/ustedes viven |
+
+All regular -ir verbs work like this; the full pattern comes in Food & drink.
 `,
     conj: { verbs: ['tener', 'vivir'], tenses: ['presente'] },
   },
