@@ -75,7 +75,6 @@ function Shell() {
           </select>
           <span className="streak" title="Day streak">🔥 {days}</span>
           <AccountButton />
-          <Link to="/settings" className="icon-btn" aria-label="Settings">⚙️</Link>
         </div>
       </header>
       <WordTicker />

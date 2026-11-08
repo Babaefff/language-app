@@ -1,5 +1,4 @@
 import { AccountCard } from '../components/AccountCard';
-import { Link } from '../components/Nav';
 import { UNITS, WORDS } from '../data/course';
 import { EXAMS } from '../data/exams';
 import { LANG, LANGS, switchLanguage, type LangId } from '../data/lang';
@@ -104,12 +103,6 @@ export function Account() {
         </div>
       </section>
 
-      <section className="card menu-list">
-        <Link to="/settings">⚙️ Settings <span className="muted small">audio, answers, daily goal, backup</span></Link>
-        <a href="./privacy.html">🔒 Privacy policy</a>
-      </section>
-
-      {signedIn && <AccountCard bare />}
     </div>
   );
 }

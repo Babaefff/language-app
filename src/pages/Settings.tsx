@@ -1,7 +1,5 @@
 import { L, LANG } from '../data/lang';
 import { useEffect, useRef, useState } from 'react';
-import { Link } from '../components/Nav';
-import { accountsEnabled, configProblem, useSync } from '../lib/sync';
 import { AccountCard } from '../components/AccountCard';
 import { exportProgress, importProgress, resetProgress, updateSettings, useProgress } from '../lib/store';
 import { clipAccent, clipCount, onVoicesChanged, spanishVoices, speak, speechSupported } from '../lib/speech';
@@ -64,7 +62,7 @@ export function Settings() {
         <label className="toggle"><input type="checkbox" checked={settings.autoplay} onChange={(e) => updateSettings({ autoplay: e.target.checked })} /> Play audio automatically</label>
       </section>
 
-      <AccountLink />
+      <AccountCard />
 
       <section className="card">
         <h2>⌨️ Answers</h2>
@@ -124,15 +122,3 @@ export function Settings() {
   );
 }
 
-/** Settings only links to the profile page, where signing in and account actions live. */
-function AccountLink() {
-  const { user } = useSync();
-  if (!accountsEnabled) return null;
-  if (configProblem) return <AccountCard />;
-  return (
-    <Link to="/account" className="card action">
-      <h2>☁️ Account</h2>
-      <p className="muted small">{user ? `Signed in as ${user.email} — profile, stats and account options →` : 'Not signed in — sign in to save your progress →'}</p>
-    </Link>
-  );
-}
