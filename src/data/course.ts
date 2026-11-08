@@ -5,7 +5,10 @@ import { B1B } from './b1b';
 import { A1C, A2C, B1C } from './extra';
 import { CORE_UNITS } from './core';
 import { LANG } from './lang';
-import { withEssentials } from './essentials';
+import { withEssentials, withLevelledEssentials } from './essentials';
+import { MORE_ES } from './more-es';
+import { MORE_DE } from './de/more-words';
+import { MORE_FR } from './fr/more-words';
 import { ESSENTIALS_ES } from './essentials-es';
 import { ESSENTIALS_DE } from './de/essentials';
 import { ESSENTIALS_FR } from './fr/essentials';
@@ -22,7 +25,11 @@ const ES_UNITS: Unit[] = [
   ...B1, ...B1B, ...B1C, ...CORE_UNITS.filter((u) => u.level === 'B1'),
 ];
 /** Units of the language being studied. */
-export const UNITS: Unit[] = LANG === 'de' ? withEssentials(DE_UNITS, ESSENTIALS_DE) : LANG === 'fr' ? withEssentials(FR_UNITS, ESSENTIALS_FR) : withEssentials(ES_UNITS, ESSENTIALS_ES);
+export const UNITS: Unit[] = LANG === 'de'
+  ? withLevelledEssentials(withEssentials(DE_UNITS, ESSENTIALS_DE), MORE_DE)
+  : LANG === 'fr'
+    ? withLevelledEssentials(withEssentials(FR_UNITS, ESSENTIALS_FR), MORE_FR)
+    : withLevelledEssentials(withEssentials(ES_UNITS, ESSENTIALS_ES), MORE_ES);
 export const UNIT_MAP: Record<string, Unit> = Object.fromEntries(UNITS.map((u) => [u.id, u]));
 export const WORDS: Word[] = UNITS.flatMap((u) => u.words);
 export const WORD_MAP: Record<string, Word> = Object.fromEntries(WORDS.map((w) => [w.id, w]));

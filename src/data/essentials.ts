@@ -37,3 +37,39 @@ export function withEssentials(base: Unit[], e: EssentialsInput): Unit[] {
   }
   return out;
 }
+
+export interface LevelledEssentials {
+  prefix: string;
+  /** Distinguishes this batch's unit ids (e.g. "core" → de-core-a1-1). */
+  key: string;
+  langName: string;
+  native: string;
+  /** Candidate words per level, in priority order; any already in the course are skipped. */
+  words: Partial<Record<Level, WordRow[]>>;
+  /** Sentence pool per level: each set takes the next four. */
+  sentences: Partial<Record<Level, SentenceRow[]>>;
+  grammar: string;
+}
+
+/** Like withEssentials, but every word is tagged with its level, so sets never mix levels. */
+export function withLevelledEssentials(base: Unit[], e: LevelledEssentials): Unit[] {
+  const taught = new Set(base.flatMap((u) => u.words.map((w) => w.id)));
+  const out = [...base];
+  for (const level of Object.keys(e.words) as Level[]) {
+    const fresh = (e.words[level] ?? []).filter(([w]) => !taught.has(w) && taught.add(w));
+    const pool = e.sentences[level] ?? [];
+    const sets: Unit[] = [];
+    for (let i = 0; i * 25 < fresh.length; i++) {
+      const words = fresh.slice(i * 25, i * 25 + 25);
+      if (words.length < 12) break;
+      sets.push(units(level, [{
+        id: `${e.prefix}${e.key}-${level.toLowerCase()}-${i + 1}`, title: `${level} words ${i + 1}`, titleEs: `${e.native} ${level} · ${i + 1}`, emoji: '📚',
+        description: `More everyday ${e.langName} words for ${level}.`,
+        words, sentences: pool.slice(i * 4, i * 4 + 4).length >= 4 ? pool.slice(i * 4, i * 4 + 4) : pool.slice(0, 4), grammar: e.grammar,
+      }])[0]);
+    }
+    const last = out.map((u) => u.level).lastIndexOf(level);
+    out.splice(last + 1, 0, ...sets);
+  }
+  return out;
+}
