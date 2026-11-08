@@ -88,6 +88,10 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
     );
   }
 
+  const completedSteps = STEPS.filter((_, i) => p.steps[`${unit.id}:${i}`] !== undefined).length;
+  const nextStep = STEPS.findIndex((_, i) => p.steps[`${unit.id}:${i}`] === undefined);
+  const nextUnit = UNITS[UNITS.indexOf(unit) + 1];
+
   return (
     <div className="page lesson-page">
       <Link className="link" to="/course">← Course</Link>
@@ -100,15 +104,26 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
         </div>
       </header>
 
-      <p className="small muted">{STEPS.filter((_, i) => p.steps[`${unit.id}:${i}`] !== undefined).length}/{STEPS.length} steps completed</p>
+      <div className="lesson-actions">
+        <p className="small muted">{completedSteps}/{STEPS.length} steps completed</p>
+        {nextStep !== -1 ? (
+          <button className="btn primary" onClick={() => start(nextStep)}>
+            {completedSteps === 0 ? 'Start lesson' : 'Continue lesson'} <span aria-hidden="true">→</span>
+          </button>
+        ) : (
+          <Link className="btn primary" to={nextUnit ? `/unit/${nextUnit.id}` : '/course'}>
+            {nextUnit ? 'Next lesson' : 'Back to course'} <span aria-hidden="true">→</span>
+          </Link>
+        )}
+      </div>
       <div className="steps">
         {STEPS.map((s, i) => {
           const score = p.steps[`${unit.id}:${i}`];
           return (
-            <button key={i} className={`card step ${score !== undefined ? 'done' : ''}`} onClick={() => start(i)}>
+            <button key={i} className={`card step ${score !== undefined ? 'done' : ''} ${i === nextStep ? 'next' : ''}`} aria-current={i === nextStep ? 'step' : undefined} onClick={() => start(i)}>
               <span className="step-num">{score !== undefined ? '✓' : i + 1}</span>
               <div>
-                <strong>{s.title}</strong>
+                <strong>{s.title}{i === nextStep && <span className="step-next">Next</span>}</strong>
                 <span className="muted small">{s.description}</span>
               </div>
               {score !== undefined && <span className="small muted">{score}%</span>}
