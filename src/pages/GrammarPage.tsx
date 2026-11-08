@@ -137,11 +137,11 @@ export function GrammarLessonPage() {
         })}
       </article>
 
-      <div className="row between wrap">
+      <div className="page-actions">
         <span className="muted small">{grammar[lesson.id] !== undefined ? `Best score: ${grammar[lesson.id]}%` : 'Practice to complete this lesson'}</span>
-        <div className="row">
-          {next && <Link className="btn" to={`/grammar/${next.id}`}>Next lesson →</Link>}
+        <div className="row wrap">
           <button className="btn primary" onClick={start}>Practise</button>
+          {next && <Link className="btn" to={`/grammar/${next.id}`}>Next lesson →</Link>}
         </div>
       </div>
     </div>

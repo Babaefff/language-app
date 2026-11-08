@@ -81,7 +81,7 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
           <Grammar source={unit.grammar} />
         </div>
         <RelatedLessons unitId={unit.id} />
-        <div className="row end">
+        <div className="page-actions">
           <button className="btn primary" onClick={() => setMode({ name: 'quiz', step: 2, exercises: stepExercises(unit, 2) })}>Start exercises</button>
         </div>
       </div>
