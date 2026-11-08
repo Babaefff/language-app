@@ -36,17 +36,15 @@ export function WordTicker() {
   useEffect(() => {
     bag.current = shuffle(pool);
   }, [pool]);
-  useEffect(() => {
-    const t = setInterval(next, 9000);
-    return () => clearInterval(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pool]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(next, [pathname]);
+  // Each word runs its own clock: the translation appears after 3 s, then the word stays
+  // 5.5 s more before the next one. A page change restarts the clock, so the translation
+  // is always shown before the word changes.
   useEffect(() => {
-    if (reveal) return;
-    const t = setTimeout(() => setReveal(true), 3500);
+    const t = setTimeout(() => (reveal ? next() : setReveal(true)), reveal ? 5500 : 3000);
     return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reveal, word]);
 
   if (!settings.ticker || !word) return null;

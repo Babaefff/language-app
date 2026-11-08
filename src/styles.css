@@ -160,7 +160,7 @@ main { max-width: 980px; margin: 0 auto; padding: 1rem; }
 .ticker-content > .icon { align-self: center; }
 .ticker-es, .ticker-en { display: block; font-size: inherit; line-height: inherit; overflow-wrap: anywhere; text-align: left; }
 .ticker-es { font-weight: 600; }
-.ticker-en { color: var(--muted); opacity: 0; transition: opacity 0.6s; }
+.ticker-en { color: var(--muted); opacity: 0; transition: opacity 0.4s; }
 .ticker-en.show { opacity: 1; }
 @keyframes fade-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
 
