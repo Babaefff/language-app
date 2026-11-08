@@ -1,0 +1,106 @@
+import type { EssentialsInput } from './essentials';
+
+/** Everyday Spanish words in priority order (home, body, food, time, people, feelings, verbs). */
+export const ESSENTIALS_ES: EssentialsInput = {
+  prefix: '', langName: 'Spanish', native: 'Palabras esenciales',
+  levels: ['A1', 'A1', 'A2', 'A2', 'A2', 'B1', 'B1', 'B1'],
+  words: [
+    // A1: clothes, furniture, food, family, colours, weather
+    ['el abrigo', 'the coat'], ['la bufanda', 'the scarf'], ['el gorro', 'the hat (woolly)'], ['los calcetines', 'the socks'], ['los guantes', 'the gloves'],
+    ['las gafas', 'the glasses'], ['el bolso', 'the handbag'], ['el reloj', 'the watch / clock'], ['el jersey', 'the jumper'], ['las botas', 'the boots'],
+    ['la estantería', 'the bookshelf'], ['la alfombra', 'the rug'], ['la cortina', 'the curtain'], ['la almohada', 'the pillow'], ['la manta', 'the blanket'],
+    ['el yogur', 'the yoghurt'], ['el zumo', 'the juice'], ['la cerveza', 'the beer'], ['la galleta', 'the biscuit'], ['el chocolate', 'chocolate'],
+    ['el jamón', 'ham'], ['la pasta', 'pasta'], ['la pimienta', 'pepper'], ['el bocadillo', 'the sandwich'], ['la tortilla', 'the omelette'],
+    ['el bebé', 'the baby'], ['el nieto', 'the grandson'], ['la nieta', 'the granddaughter'], ['el sobrino', 'the nephew'], ['la sobrina', 'the niece'],
+    ['gris', 'grey'], ['marrón', 'brown'], ['rosa', 'pink'], ['morado', 'purple'], ['naranja', 'orange (colour)'],
+    ['el viento', 'the wind'], ['la nube', 'the cloud'], ['la lluvia', 'the rain'], ['la nieve', 'the snow'], ['la temperatura', 'the temperature'],
+    ['nublado', 'cloudy'], ['el minuto', 'the minute'], ['el mediodía', 'midday'], ['la medianoche', 'midnight'], ['pasado mañana', 'the day after tomorrow'],
+    ['encender', 'to switch on'], ['apagar', 'to switch off'], ['preparar', 'to prepare'], ['viajar', 'to travel'], ['saludar', 'to greet'],
+    // A2: places, animals, transport, emotions, actions
+    ['la biblioteca', 'the library'], ['la piscina', 'the swimming pool'], ['la panadería', 'the bakery'], ['la librería', 'the bookshop'], ['el centro comercial', 'the shopping centre'],
+    ['la peluquería', 'the hairdresser'], ['la gasolinera', 'the petrol station'], ['correos', 'the post office'], ['el ayuntamiento', 'the town hall'], ['el estadio', 'the stadium'],
+    ['el conejo', 'the rabbit'], ['la gallina', 'the hen'], ['el pato', 'the duck'], ['el león', 'the lion'], ['el elefante', 'the elephant'],
+    ['el mono', 'the monkey'], ['la serpiente', 'the snake'], ['el insecto', 'the insect'], ['la abeja', 'the bee'], ['la mosca', 'the fly'],
+    ['la moto', 'the motorbike'], ['el barco', 'the boat'], ['la gasolina', 'petrol'], ['el carné de conducir', 'the driving licence'], ['el atasco', 'the traffic jam'],
+    ['aparcar', 'to park'], ['la alegría', 'joy'], ['la tristeza', 'sadness'], ['el miedo', 'fear'], ['la vergüenza', 'embarrassment'],
+    ['la esperanza', 'hope'], ['asustado', 'scared'], ['emocionado', 'excited'], ['celoso', 'jealous'], ['cariñoso', 'affectionate'],
+    ['alegre', 'cheerful'], ['valiente', 'brave'], ['sincero', 'honest'], ['cómodo', 'comfortable'], ['incómodo', 'uncomfortable'],
+    ['oscuro', 'dark'], ['ancho', 'wide'], ['estrecho', 'narrow'], ['roto', 'broken'], ['mojado', 'wet'],
+    ['seco', 'dry'], ['ruidoso', 'noisy'], ['reír', 'to laugh'], ['gritar', 'to shout'], ['besar', 'to kiss'],
+    ['abrazar', 'to hug'], ['prometer', 'to promise'], ['perdonar', 'to forgive'], ['preferir', 'to prefer'], ['cuidar', 'to look after'],
+    ['alquilar', 'to rent'], ['bajar', 'to go down / to lower'], ['caer', 'to fall'], ['levantar', 'to lift'], ['sacar', 'to take out'],
+    ['meter', 'to put in'], ['quitar', 'to take off / away'], ['probarse', 'to try on'], ['despedirse', 'to say goodbye'], ['acordarse', 'to remember'],
+    // B1: life, work, abstract
+    ['equivocarse', 'to be wrong / make a mistake'], ['aburrirse', 'to get bored'], ['alegrarse', 'to be glad'], ['reunirse', 'to meet (a group)'], ['mentir', 'to lie'],
+    ['sugerir', 'to suggest'], ['odiar', 'to hate'], ['compartir piso', 'to share a flat'], ['el siglo', 'the century'], ['la década', 'the decade'],
+    ['la asignatura', 'the school subject'], ['la nota', 'the mark / note'], ['el título', 'the degree / title'], ['el empleado', 'the employee'], ['la jubilación', 'retirement'],
+    ['la huelga', 'the strike'], ['el sindicato', 'the trade union'], ['el impuesto', 'the tax'], ['el ciudadano', 'the citizen'], ['las elecciones', 'the elections'],
+    ['votar', 'to vote'], ['el político', 'the politician'], ['la democracia', 'democracy'], ['la vivienda', 'housing'], ['el alquiler', 'the rent'],
+    ['la inmigración', 'immigration'], ['la desigualdad', 'inequality'], ['la violencia', 'violence'], ['la seguridad', 'safety / security'], ['el peligro', 'danger'],
+    ['la tecnología', 'technology'], ['la inteligencia artificial', 'artificial intelligence'], ['el desarrollo', 'development'], ['el avance', 'the advance'], ['el riesgo', 'the risk'],
+    ['la ventaja competitiva', 'the competitive edge'], ['la calidad de vida', 'quality of life'], ['el bienestar', 'wellbeing'], ['la soledad', 'loneliness'], ['la juventud', 'youth'],
+    ['la vejez', 'old age'], ['el voluntario', 'the volunteer'], ['la asociación', 'the association'], ['la donación', 'the donation'], ['la igualdad de género', 'gender equality'],
+    ['convencer', 'to convince'], ['defender', 'to defend'], ['opinar', 'to think / give an opinion'], ['negar', 'to deny'], ['reconocer', 'to recognise / admit'],
+    ['influir', 'to influence'], ['depender de', 'to depend on'], ['tener en cuenta', 'to take into account'], ['llevar a cabo', 'to carry out'], ['hacer frente a', 'to face up to'],
+    ['actual', 'current'], ['grave', 'serious'], ['necesario', 'necessary'], ['imprescindible', 'essential'], ['justo', 'fair'],
+    ['injusto', 'unfair'], ['eficaz', 'effective'], ['sostenible', 'sustainable'], ['público', 'public'], ['social', 'social'],
+    // A1: home, objects, food, body, time
+    ['la llave', 'the key'], ['la puerta', 'the door'], ['la ventana', 'the window'], ['la mesa', 'the table'], ['la silla', 'the chair'],
+    ['la cama', 'the bed'], ['el espejo', 'the mirror'], ['la luz', 'the light'], ['el suelo', 'the floor'], ['la pared', 'the wall'],
+    ['el baño', 'the bathroom'], ['la ducha', 'the shower'], ['la toalla', 'the towel'], ['el jabón', 'the soap'], ['la basura', 'the rubbish'],
+    ['el vaso', 'the glass'], ['la taza', 'the cup'], ['el plato', 'the plate'], ['la cuchara', 'the spoon'], ['el tenedor', 'the fork'],
+    ['el cuchillo', 'the knife'], ['la nevera', 'the fridge'], ['el horno', 'the oven'], ['el arroz', 'the rice'], ['la sal', 'the salt'],
+    ['el azúcar', 'the sugar'], ['el aceite', 'the oil'], ['el huevo', 'the egg'], ['la mantequilla', 'the butter'], ['la sopa', 'the soup'],
+    ['la cabeza', 'the head'], ['el ojo', 'the eye'], ['la boca', 'the mouth'], ['la nariz', 'the nose'], ['la oreja', 'the ear'],
+    ['el pelo', 'the hair'], ['la cara', 'the face'], ['el brazo', 'the arm'], ['la pierna', 'the leg'], ['el pie', 'the foot'],
+    ['la mañana', 'the morning'], ['la tarde', 'the afternoon / evening'], ['la noche', 'the night'], ['el fin de semana', 'the weekend'], ['ahora', 'now'],
+    ['luego', 'later / then'], ['pronto', 'soon / early'], ['tarde', 'late'], ['temprano', 'early'], ['ya', 'already / now'],
+    ['caliente', 'hot'], ['frío', 'cold'], ['nuevo', 'new'], ['viejo', 'old'], ['barato', 'cheap'], ['caro', 'expensive'],
+    ['abrir', 'to open'], ['cerrar', 'to close'], ['llevar', 'to carry / to wear'], ['usar', 'to use'], ['ayudar', 'to help'],
+    // A2: people, city, feelings, actions
+    ['el vecino', 'the neighbour'], ['el compañero', 'the colleague / classmate'], ['el jefe', 'the boss'], ['el cliente', 'the customer'], ['el desconocido', 'the stranger'],
+    ['la cita', 'the appointment / date'], ['la reunión', 'the meeting'], ['el horario', 'the timetable'], ['el billete', 'the ticket / note'], ['la parada', 'the stop'],
+    ['el semáforo', 'the traffic light'], ['la esquina', 'the corner'], ['el puente', 'the bridge'], ['el edificio', 'the building'], ['el barrio', 'the neighbourhood'],
+    ['el ruido', 'the noise'], ['la cola', 'the queue'], ['el ascensor', 'the lift'], ['la escalera', 'the stairs'], ['el aparcamiento', 'the car park'],
+    ['cansado', 'tired'], ['preocupado', 'worried'], ['enfadado', 'angry'], ['nervioso', 'nervous'], ['sorprendido', 'surprised'],
+    ['aburrido', 'bored / boring'], ['orgulloso', 'proud'], ['tranquilo', 'calm'], ['solo', 'alone'], ['juntos', 'together'],
+    ['olvidar', 'to forget'], ['recordar', 'to remember'], ['perder', 'to lose'], ['ganar', 'to win / to earn'], ['romper', 'to break'],
+    ['arreglar', 'to fix'], ['limpiar', 'to clean'], ['lavar', 'to wash'], ['guardar', 'to keep / to save'], ['devolver', 'to give back'],
+    ['prestar', 'to lend'], ['pedir prestado', 'to borrow'], ['enviar', 'to send'], ['recibir', 'to receive'], ['contestar', 'to answer'],
+    ['intentar', 'to try'], ['decidir', 'to decide'], ['elegir', 'to choose'], ['cambiar', 'to change'], ['mejorar', 'to improve'],
+    ['casi', 'almost'], ['bastante', 'quite / enough'], ['demasiado', 'too / too much'], ['sobre todo', 'above all'], ['de repente', 'suddenly'],
+    ['por fin', 'finally'], ['a veces', 'sometimes'], ['otra vez', 'again'], ['todavía', 'still / yet'], ['enseguida', 'right away'],
+    // B1: society, work, ideas
+    ['la sociedad', 'society'], ['el gobierno', 'the government'], ['la ley', 'the law'], ['el derecho', 'the right'], ['la libertad', 'freedom'],
+    ['la igualdad', 'equality'], ['la paz', 'peace'], ['la guerra', 'war'], ['la crisis', 'the crisis'], ['la pobreza', 'poverty'],
+    ['el medio ambiente', 'the environment'], ['el cambio climático', 'climate change'], ['la energía', 'energy'], ['el reciclaje', 'recycling'], ['la contaminación', 'pollution'],
+    ['la empresa', 'the company'], ['el sueldo', 'the salary'], ['el paro', 'unemployment'], ['la entrevista', 'the interview'], ['el contrato', 'the contract'],
+    ['la experiencia', 'experience'], ['la habilidad', 'the skill'], ['el éxito', 'success'], ['el fracaso', 'failure'], ['la meta', 'the goal'],
+    ['la ventaja', 'the advantage'], ['la desventaja', 'the disadvantage'], ['la opinión', 'the opinion'], ['el argumento', 'the argument'], ['la solución', 'the solution'],
+    ['el problema', 'the problem'], ['la razón', 'the reason'], ['la causa', 'the cause'], ['la consecuencia', 'the consequence'], ['el resultado', 'the result'],
+    ['aumentar', 'to increase'], ['disminuir', 'to decrease'], ['proteger', 'to protect'], ['desarrollar', 'to develop'], ['conseguir', 'to achieve / to get'],
+    ['evitar', 'to avoid'], ['permitir', 'to allow'], ['prohibir', 'to ban'], ['apoyar', 'to support'], ['criticar', 'to criticise'],
+    ['sin embargo', 'however'], ['por lo tanto', 'therefore'], ['además', 'moreover'], ['aunque', 'although'], ['mientras', 'while'],
+    ['a pesar de', 'despite'], ['gracias a', 'thanks to'], ['según', 'according to'], ['en cambio', 'on the other hand'], ['es decir', 'that is to say'],
+    ['la investigación', 'research'], ['el conocimiento', 'knowledge'], ['la cultura', 'culture'], ['la costumbre', 'the custom'], ['el comportamiento', 'behaviour'],
+    ['la responsabilidad', 'responsibility'], ['la confianza', 'trust'], ['el respeto', 'respect'], ['la amistad', 'friendship'], ['la pareja', 'the partner / couple'],
+  ],
+  sentences: [
+    [['¿Dónde están mis llaves?', 'Where are my keys?'], ['La toalla está en el baño.', 'The towel is in the bathroom.'], ['Abre la ventana, por favor.', 'Open the window, please.'], ['El café está muy caliente.', 'The coffee is very hot.']],
+    [['Me duele la cabeza.', 'My head hurts.'], ['Por la mañana bebo un vaso de leche.', 'In the morning I drink a glass of milk.'], ['Tengo el pelo largo.', 'I have long hair.'], ['Ahora no puedo, luego te llamo.', "I can't now, I'll call you later."]],
+    [['Mi vecino es muy simpático.', 'My neighbour is very nice.'], ['Hay mucha cola en el banco.', "There's a long queue at the bank."], ['El ascensor no funciona.', "The lift isn't working."], ['Gira a la derecha en el semáforo.', 'Turn right at the traffic light.']],
+    [['Ayer perdí el autobús.', 'Yesterday I missed the bus.'], ['Estaba muy nervioso antes del examen.', 'I was very nervous before the exam.'], ['¿Me prestas tu bolígrafo?', 'Will you lend me your pen?'], ['De repente empezó a llover.', 'Suddenly it started to rain.']],
+    [['Todavía no he recibido el paquete.', "I still haven't received the parcel."], ['Intenté arreglar la bici, pero no pude.', "I tried to fix the bike, but I couldn't."], ['A veces olvido las palabras.', 'Sometimes I forget words.'], ['Por fin he terminado.', "I've finally finished."]],
+    [['Es importante que protejamos el medio ambiente.', "It's important that we protect the environment."], ['La contaminación ha aumentado mucho.', 'Pollution has increased a lot.'], ['Según el gobierno, el paro bajará.', 'According to the government, unemployment will fall.'], ['Todos tenemos los mismos derechos.', 'We all have the same rights.']],
+    [['Tengo una entrevista de trabajo mañana.', 'I have a job interview tomorrow.'], ['Aunque gana poco, le gusta su trabajo.', 'Although he earns little, he likes his job.'], ['El éxito depende del esfuerzo.', 'Success depends on effort.'], ['¿Cuál es la ventaja de este plan?', 'What is the advantage of this plan?']],
+    [['Sin embargo, no estoy de acuerdo.', "However, I don't agree."], ['La confianza es la base de la amistad.', 'Trust is the basis of friendship.'], ['Es decir, tenemos que cambiar.', 'That is to say, we have to change.'], ['Gracias a tu ayuda, lo conseguí.', 'Thanks to your help, I managed it.']],
+  ],
+  grammar: `
+## Why these words?
+These are everyday words that complete the course: things around the house, the body, the city, feelings, and the words you need to give opinions. With them, the course covers about 1,200 of the most useful Spanish words.
+
+- Learn nouns **with their article**: *la llave, el problema* (an exception: -ma words from Greek are often masculine).
+- Many feelings use **estar**: *estoy cansado, estoy preocupada*.
+- Linking words like **sin embargo, aunque, además** make your speaking and writing sound much more natural.
+`,
+};

@@ -53,6 +53,9 @@ describe('French course', () => {
     }
     for (const [u, ls] of Object.entries(m.course.UNIT_LESSONS)) for (const l of ls) expect(m.grammar.GRAMMAR_MAP[l], `${u}: ${l}`).toBeDefined();
     for (const r of [...m.readings.READINGS, ...m.readings.SONGS]) expect(r.translation.length, r.id).toBe(r.paragraphs.length);
+    expect(m.readings.SONGS.length).toBeGreaterThanOrEqual(5);
+    expect(m.readings.READINGS.length).toBeGreaterThanOrEqual(12);
+    for (const r of m.readings.READINGS) for (const q of r.questions) expect(q.answer, `${r.id}: ${q.q}`).toBeLessThan(q.options.length);
     for (const r of m.readings.SONGS) if (r.timings) {
       expect(r.timings.length, `${r.id} timings`).toBe(r.paragraphs.join('\n').split('\n').length);
       expect([...r.timings].sort((x, y) => x - y), `${r.id} timings in order`).toEqual(r.timings);
@@ -62,7 +65,7 @@ describe('French course', () => {
 
   it('writing tasks point at real units', async () => {
     const { WRITING } = await import('./writing');
-    expect(WRITING.length).toBeGreaterThanOrEqual(3);
+    expect(WRITING.length).toBeGreaterThanOrEqual(6);
     for (const w of WRITING) for (const u of w.units) expect(m.course.UNITS.some((x) => x.id === u), `${w.id}: ${u}`).toBe(true);
   });
 
@@ -91,6 +94,30 @@ describe('French course', () => {
 
   it('every grammar lesson has its logic box', () => {
     for (const l of m.grammar.GRAMMAR) expect(l.blocks.some((b) => b.t === 'logic') || l.id.endsWith('big-picture'), `${l.id} has no logic box`).toBe(true);
+  });
+
+  it('mock exams are well-formed, with answers in varied positions', async () => {
+    const { EXAMS } = await import('./exams');
+    expect(EXAMS.map((e) => e.level)).toEqual(['A1', 'A2', 'B1']);
+    const positions = new Set<number>();
+    for (const e of EXAMS) {
+      for (const mod of e.modules) for (const p of mod.parts) {
+        expect(p.items.length, `${e.id} ${p.title}`).toBeGreaterThan(0);
+        for (const it of p.items) {
+          expect(it.answer, `${e.id}: ${it.q}`).toBeLessThan(it.options.length);
+          positions.add(it.answer);
+          if (mod.id === 'hoeren') expect(!!(it.audio ?? p.audio), `${e.id}: ${it.q} has audio`).toBe(true);
+        }
+      }
+      expect(e.writing.length).toBeGreaterThan(0);
+    }
+    expect(positions.size).toBeGreaterThanOrEqual(3);
+  });
+
+  it('has the Top words sets', () => {
+    const core = m.course.UNITS.filter((u) => u.id.startsWith('fr-core-'));
+    expect(core.length).toBe(9);
+    for (const u of core) expect(u.words.length, u.id).toBe(25);
   });
 
   it('conjugates every verb, with elision and the -cer / -ger spellings', () => {

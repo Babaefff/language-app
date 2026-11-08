@@ -21,7 +21,7 @@ import { Readings, ReadingPage, Songs } from './pages/Reading';
 import { Settings } from './pages/Settings';
 import { GrammarLessonPage, GrammarList } from './pages/GrammarPage';
 import { WordTicker } from './components/WordTicker';
-import { streak, useProgress } from './lib/store';
+import { streak, useProgress, applyShields } from './lib/store';
 import { LANG, LANGS, switchLanguage, type LangId } from './data/lang';
 
 const NAV = [
@@ -43,12 +43,15 @@ function ScrollTop() {
 }
 
 function Shell() {
+  // A missed day is covered by a streak shield, if there is one.
+  // Wait a moment so practice synced from another device is counted first.
+  useEffect(() => { const t = setTimeout(applyShields, 5000); return () => clearTimeout(t); }, []);
   const p = useProgress();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const now = Date.now();
   const due = Object.values(p.cards).filter((c) => c.due <= now).length;
-  const days = streak(p.xp);
+  const days = streak(p.xp, p.frozen);
   return (
     <>
       <ScrollTop />

@@ -1,6 +1,7 @@
 import { L, LANG } from '../data/lang';
 import { useEffect, useRef, useState } from 'react';
 import { AccountCard } from '../components/AccountCard';
+import { PracticePlan } from '../components/PracticePlan';
 import { exportProgress, importProgress, resetProgress, updateSettings, useProgress } from '../lib/store';
 import { clipAccent, clipCount, onVoicesChanged, spanishVoices, speak, speechSupported } from '../lib/speech';
 
@@ -24,6 +25,8 @@ export function Settings() {
   return (
     <div className="page narrow">
       <h1>Settings</h1>
+
+      <PracticePlan />
 
       <section className="card">
         <h3>🎨 Appearance</h3>

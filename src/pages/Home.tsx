@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { L, LANG } from '../data/lang';
+import { PracticePlan } from '../components/PracticePlan';
 import { Link } from '../components/Nav';
 import { UNITS, WORDS } from '../data/course';
 import { LEVELS } from '../data/types';
-import { useProgress, streak, today } from '../lib/store';
+import { useProgress, streak, today, shields, MAX_SHIELDS } from '../lib/store';
 import { strength } from '../lib/srs';
 import { STEPS } from '../lib/exercises';
 import { SpeakButton } from '../components/SpeakButton';
@@ -34,7 +35,12 @@ export function Home() {
   const step = next ? Math.max(0, STEPS.findIndex((_, i) => !stepDone(i))) : 0;
   const started = !!next && STEPS.some((_, i) => stepDone(i));
   const xpToday = p.xp[today()] ?? 0;
-  const days = streak(p.xp);
+  const days = streak(p.xp, p.frozen);
+  const shieldCount = shields(p);
+  const y = new Date(); y.setDate(y.getDate() - 1);
+  const savedYesterday = !!p.frozen[today(y)];
+  // Spacing beats cramming: after a big day, encourage coming back tomorrow rather than more today.
+  const unitsToday = Object.values(p.units).filter((u) => today(new Date(u.completedAt)) === today()).length;
   const counts = { learning: 0, familiar: 0, known: 0 };
   for (const c of Object.values(p.cards)) {
     const s = strength(c);
@@ -62,9 +68,15 @@ export function Home() {
           <h1>{L.hello} 👋</h1>
           <p className="muted">{days > 0 ? `🔥 ${days}-day streak — keep it going!` : 'Start a streak today: a few minutes a day is all it takes.'}</p>
           <p className="small muted">{xpToday >= p.settings.dailyGoal ? '🎉 Daily goal reached!' : `${p.settings.dailyGoal - xpToday} XP to today’s goal — about one lesson step.`}</p>
+          <p className="small muted" title="Every 7 days of practice earns a shield. A shield keeps your streak alive on a day you miss.">
+            🛡️ {shieldCount} of {MAX_SHIELDS} streak shields{shieldCount === 0 ? ' — practise 7 days to earn one' : ''}
+          </p>
+          {savedYesterday && <p className="small">🛡️ A shield kept your streak alive yesterday. Welcome back!</p>}
+          {unitsToday >= 3 && <p className="small">💪 Great work today! Your memory sorts new words while you sleep, so tomorrow's review will make them stick.</p>}
         </div>
         <GoalRing value={xpToday} goal={p.settings.dailyGoal} />
       </section>
+
 
       {next ? (
         <Link to={`/unit/${next.id}`} className="card lesson-cta">
@@ -92,6 +104,7 @@ export function Home() {
         </Link>
       )}
 
+      {!p.settings.planTime && Object.keys(p.units).length > 0 && days < 30 && <PracticePlan />}
       <section className="card">
         <div className="row between"><h3>Your course</h3><Link to="/course" className="link small">All lessons →</Link></div>
         {LEVELS.map((lv) => {

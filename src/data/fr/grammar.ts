@@ -1,6 +1,7 @@
 import type { GrammarLesson } from '../types';
 import { ex, q } from './registry';
 import { GRAMMAR_FR_A2 } from './grammar-a2';
+import { GRAMMAR_FR_B1 } from './grammar-b1';
 
 /**
  * French grammar, in teaching order: every lesson uses only forms taught in it or before it.
@@ -437,4 +438,4 @@ ${ex('Je mets un pull.', "I'm putting on a jumper.")} · ${ex('Qu\'est-ce que tu
   },
 ];
 
-export const GRAMMAR_FR: GrammarLesson[] = [...GRAMMAR_FR_A1, ...GRAMMAR_FR_A2];
+export const GRAMMAR_FR: GrammarLesson[] = [...GRAMMAR_FR_A1, ...GRAMMAR_FR_A2, ...GRAMMAR_FR_B1];

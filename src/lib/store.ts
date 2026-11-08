@@ -21,6 +21,10 @@ export interface Settings {
   avatarShuffle: number;
   /** When the avatar was last changed (the newest choice wins when syncing devices). */
   avatarAt: number;
+  /** Practice plan (implementation intention): daily time, the cue it follows, and minutes. */
+  planTime: string;
+  planCue: string;
+  planMinutes: number;
 }
 
 export interface ExamResult { at: number; scores: Record<string, number>; best: number }
@@ -37,6 +41,8 @@ export interface Progress {
   /** Mock exams: latest and best result per exam, as percentages per module. */
   exams: Record<string, ExamResult>;
   xp: Record<string, number>;
+  /** Days kept alive by a streak shield (date → 1). */
+  frozen: Record<string, number>;
   conj: { right: number; wrong: number };
   settings: Settings;
 }
@@ -55,8 +61,9 @@ const DEFAULT: Progress = {
   grammar: {},
   exams: {},
   xp: {},
+  frozen: {},
   conj: { right: 0, wrong: 0 },
-  settings: { rate: 0.9, voiceURI: null, accent: 'es-ES', autoplay: true, ticker: true, natural: true, dailyGoal: 50, typeChoices: false, strictSpelling: false, theme: 'system', avatarGlyph: '', avatarShuffle: 0, avatarAt: 0 },
+  settings: { rate: 0.9, voiceURI: null, accent: 'es-ES', autoplay: true, ticker: true, natural: true, dailyGoal: 50, typeChoices: false, strictSpelling: false, theme: 'system', avatarGlyph: '', avatarShuffle: 0, avatarAt: 0, planTime: '', planCue: '', planMinutes: 10 },
 };
 
 const isObj = (v: unknown): v is Record<string, never> => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -85,6 +92,7 @@ export function parseProgress(parsed: unknown): Progress {
       grammar: pick('grammar'),
       exams: pick('exams'),
       xp: pick('xp'),
+      frozen: pick('frozen'),
       conj: { ...DEFAULT.conj, ...pick('conj') },
       settings: { ...DEFAULT.settings, ...pick('settings') },
     };
@@ -241,6 +249,7 @@ export function mergeProgress(a: Progress, b: Progress): Progress {
     exams,
     // XP per day: the larger count wins, so syncing twice never doubles it.
     xp: maxRec(a.xp, b.xp),
+    frozen: maxRec(a.frozen ?? {}, b.frozen ?? {}),
     conj: { right: Math.max(a.conj.right, b.conj.right), wrong: Math.max(a.conj.wrong, b.conj.wrong) },
     settings: a.settings,
   };
@@ -275,11 +284,12 @@ export function bestStreak(xp: Record<string, number>): number {
 }
 
 /** Consecutive days (ending today, or yesterday if today has no XP yet) with any XP. */
-export function streak(xp: Record<string, number>): number {
+export function streak(xp: Record<string, number>, frozen: Record<string, number> = {}): number {
+  const active = (d: Date) => !!xp[today(d)] || !!frozen[today(d)];
   const d = new Date();
-  if (!xp[today(d)]) d.setDate(d.getDate() - 1);
+  if (!active(d)) d.setDate(d.getDate() - 1);
   let n = 0;
-  while (xp[today(d)]) {
+  while (active(d)) {
     n++;
     d.setDate(d.getDate() - 1);
   }
@@ -300,4 +310,34 @@ export function applyWordResults(words: Record<string, boolean>) {
     else if (!ok) cards[id] = review(c, 0, now);
   }
   set({ ...state, cards });
+}
+
+/** Most streak shields you can hold at once. */
+export const MAX_SHIELDS = 2;
+
+/**
+ * Streak shields: every 7 days you practise earns one (hold up to 2). A missed day is covered
+ * automatically, so one busy day doesn't wipe out weeks of work; the habit, not perfection, counts.
+ * Derived from the practice days, so it syncs between devices like the rest of the progress.
+ */
+export function shields(p: Pick<Progress, 'xp' | 'frozen'>): number {
+  const earned = Math.floor(Object.values(p.xp).filter((v) => v > 0).length / 7);
+  return Math.max(0, Math.min(MAX_SHIELDS, earned - Object.keys(p.frozen ?? {}).length));
+}
+
+/** Uses shields for the days missed since the last practice, if that keeps the streak alive. */
+export function applyShields(): number {
+  const p = getProgress();
+  const active = (d: Date) => !!p.xp[today(d)] || !!p.frozen[today(d)];
+  const gap: string[] = [];
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  while (!active(d) && gap.length <= MAX_SHIELDS) {
+    gap.push(today(d));
+    d.setDate(d.getDate() - 1);
+  }
+  // Only a short gap right after an existing streak, and only if there are enough shields.
+  if (!gap.length || gap.length > shields(p) || !active(d)) return 0;
+  set({ ...p, frozen: { ...p.frozen, ...Object.fromEntries(gap.map((k) => [k, 1])) } });
+  return gap.length;
 }

@@ -1,6 +1,6 @@
 import { whyFor } from '../data/grammar-why';
 import type { ChoiceQuestion, GrammarLesson, Sentence, Tense, Unit, Word } from '../data/types';
-import { WORDS } from '../data/course';
+import { UNIT_MAP, WORDS } from '../data/course';
 import { VERB_MAP } from '../data/verbs';
 import { conjugate, IMP_PERSONS, PERSONS, TENSE_MAP } from './conjugate';
 import { sample, shuffle } from './text';
@@ -8,8 +8,9 @@ import { L } from '../data/lang';
 
 export type Exercise =
   | { kind: 'choice'; key: string; prompt: string; label: string; audio?: string; options: string[]; answer: string; wordId?: string; optionsSpanish: boolean; hint?: string; promptSpanish?: boolean; typed?: boolean; why?: string }
-  | { kind: 'type'; key: string; prompt: string; label: string; answer: string; wordId?: string }
-  | { kind: 'listen'; key: string; answer: string; en: string; wordId: string }
+  /** from: set on review words from an earlier unit, shown as a tag so they never look like a mistake. */
+  | { kind: 'type'; key: string; prompt: string; label: string; answer: string; wordId?: string; from?: string }
+  | { kind: 'listen'; key: string; answer: string; en: string; wordId: string; from?: string }
   | { kind: 'build'; key: string; en: string; es: string; tiles: string[] }
   | { kind: 'match'; key: string; pairs: { es: string; en: string; wordId: string }[] }
   /** options: choose the form (recognition) instead of typing it; why: all forms, shown after answering. */
@@ -142,7 +143,7 @@ export function stepExercises(unit: Unit, step: number, review: Word[] = []): Ex
   if (step === 1) {
     const practice = words.map((w, i) => (i % 3 === 0 ? typeEnEs(w) : i % 3 === 1 ? listen(w) : choiceEnEs(w)));
     // Interleaving: mix in a few older words that are due, so earlier units stay fresh.
-    const old = shuffle(review).slice(0, 4).map((w) => (Math.random() < 0.5 ? typeEnEs(w) : listen(w)));
+    const old = shuffle(review).slice(0, 4).map((w) => ({ ...(Math.random() < 0.5 ? typeEnEs(w) : listen(w)), from: UNIT_MAP[w.unitId]?.title ?? 'an earlier lesson' }));
     return shuffle([...practice, ...old]);
   }
   // Sentences: build every sentence from tiles first, then write two of them yourself.

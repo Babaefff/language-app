@@ -110,6 +110,30 @@ const FR: WritingPrompt[] = [
     words: [30, 60], units: ['fr-a1-07', 'fr-a1-12'],
     model: "Je me réveille à sept heures et je me lève tout de suite. Je prends un café et je vais au bureau en bus. Je travaille de neuf heures à cinq heures. Le soir, je prépare le dîner et je regarde un film. Je me couche à onze heures.",
   },
+  {
+    id: 'fr-w-weekend', level: 'A2', title: 'My last weekend', prompt: 'Write an email to a friend about what you did last weekend (use the passé composé).',
+    points: [{ text: 'Where you went', keys: ['suis allé', 'suis allée', 'sommes allés', 'sommes allées', 'suis parti', 'suis partie'] }, { text: 'What you did', keys: ['ai visité', 'avons visité', 'ai mangé', 'avons mangé', 'ai vu', 'avons vu', 'ai fait', 'avons fait'] }, { text: 'Who you were with', keys: ['avec'] }, { text: 'What it was like', keys: ["c'était", 'génial', 'super', 'beau', 'ennuyeux', 'faisait'] }],
+    words: [50, 80], units: ['fr-a2-02', 'fr-a2-04'],
+    model: "Salut Léa ! Le week-end dernier, je suis allé à Marseille avec mon frère. Samedi, nous avons visité le Vieux-Port et nous avons mangé une bouillabaisse. Il faisait très beau, alors nous sommes allés à la plage l'après-midi. Le soir, nous avons vu un concert en plein air. C'était génial ! Dimanche, nous sommes rentrés en train. Et toi, qu'est-ce que tu as fait ? Bises, Tom",
+  },
+  {
+    id: 'fr-w-child', level: 'A2', title: 'When I was a child', prompt: 'Describe your childhood (use the imparfait).',
+    points: [{ text: 'Where you lived', keys: ['habitais', 'vivais', 'habitions'] }, { text: 'What you were like', keys: ['étais', 'avais'] }, { text: 'What you used to do', keys: ['jouais', 'allais', 'faisais', 'regardais', 'lisais', 'allions', 'jouions'] }, { text: 'How it compares with now', keys: ["aujourd'hui", 'maintenant', 'encore', 'ne … plus', 'plus'] }],
+    words: [50, 80], units: ['fr-a2-05'],
+    model: "Quand j'étais petite, j'habitais dans un village près de Toulouse. J'étais très timide, mais j'avais deux bonnes amies. Tous les étés, nous allions à la rivière et nous jouions jusqu'au soir. Ma grand-mère nous faisait souvent des crêpes. Aujourd'hui, j'habite à Paris et je ne vois plus mes amies, mais j'adore encore retourner au village.",
+  },
+  {
+    id: 'fr-w-city', level: 'B1', title: 'City or countryside?', prompt: 'Write a forum post: is it better to live in the city or in the countryside?',
+    points: [{ text: 'Your opinion', keys: ['à mon avis', 'je pense', 'je trouve', 'je crois'] }, { text: 'Advantages, with reasons', keys: ['avantage', 'parce que', 'car', 'donc'] }, { text: 'Disadvantages', keys: ['inconvénient', 'pourtant', 'mais', 'cependant', 'bien que'] }, { text: 'A hypothesis', keys: ['si ', 'serait', 'aurais', 'pourrais', 'habiterais'] }],
+    words: [100, 140], units: ['fr-b1-05', 'fr-b1-03'],
+    model: "À mon avis, vivre en ville est plus pratique, mais pas forcément meilleur. D'un côté, tout est proche : les médecins, les magasins, les cinémas. De plus, il y a plus de travail. De l'autre côté, les loyers sont très chers et il y a beaucoup de bruit. J'ai habité dix ans dans un village et la tranquillité me manque parfois. Si j'avais un travail à distance, j'habiterais sûrement à la campagne. Pourtant, je ne pense pas que je quitte la ville bientôt, parce que j'adore mon travail ici.",
+  },
+  {
+    id: 'fr-w-future', level: 'B1', title: 'My plans for the future', prompt: 'Describe your plans and dreams for the next five years.',
+    points: [{ text: 'Work or study plans', keys: ['je vais', 'finirai', 'travaillerai', 'étudierai', 'je veux'] }, { text: 'Where you want to live', keys: ['habiterai', 'vivrai', 'déménager', 'déménagerai'] }, { text: 'A dream (conditionnel)', keys: ["j'aimerais", 'je voudrais', 'serait', 'si '] }, { text: 'Reasons', keys: ['parce que', 'pour', 'car'] }],
+    words: [100, 140], units: ['fr-b1-01', 'fr-b1-02'],
+    model: "Dans les cinq prochaines années, j'ai beaucoup de projets. D'abord, je vais finir mes études de commerce. Ensuite, je travaillerai un an à l'étranger pour améliorer mon anglais. Plus tard, je déménagerai à Lyon, parce que c'est une ville dynamique et qu'il y a du travail dans mon secteur. Mon grand rêve serait d'ouvrir mon propre café. Si j'avais assez d'argent, j'aimerais aussi faire le tour de l'Amérique du Sud. J'espère que tout se passera bien !",
+  },
 ];
 
 export const WRITING: WritingPrompt[] = LANG === 'de' ? DE : LANG === 'fr' ? FR : ES;
