@@ -492,3 +492,6 @@ body:has(.session) .feedback { bottom: 1rem; }
 .avatar-error { background: var(--bad); }
 .benefits { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.4rem; }
 @media (max-width: 420px) { .topbar .streak { display: none; } .topbar { gap: 0.5rem; padding-left: 0.75rem; padding-right: 0.75rem; } }
+
+.google-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; width: 100%; background: #fff; color: #1f1f1f; border: 1px solid #747775; font-weight: 600; }
+.or-line { text-align: center; margin: 0.25rem 0; }
