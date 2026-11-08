@@ -8,6 +8,7 @@ import { getProgress, updateSettings } from '../lib/store';
 import { VERB_MAP } from '../data/verbs';
 import { SpeakButton } from './SpeakButton';
 import { AccentKeys } from './AccentKeys';
+import { VerbTable } from './VerbTable';
 import { gloss } from '../lib/gloss';
 
 export interface Result {
@@ -19,6 +20,8 @@ export interface Result {
   typed?: string;
   /** Why this is the answer (grammar practice). */
   why?: string;
+  /** A study card was read: move on without feedback or score. */
+  study?: boolean;
   /** Per-word outcome (for match exercises that cover several words). */
   words?: Record<string, boolean>;
 }
@@ -42,6 +45,7 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
 
   const answer = (r: Result) => {
     if (result) return;
+    if (r.study) return next();
     setResult(r);
     const s = stats.current;
     const firstTry = !s.retried.has(ex.key);
@@ -58,7 +62,7 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
 
   const next = () => {
     setResult(null);
-    if (index + 1 >= queue.length) onFinish({ correct: stats.current.correct, total: exercises.length, words: stats.current.words });
+    if (index + 1 >= queue.length) onFinish({ correct: stats.current.correct, total: exercises.filter((e) => e.kind !== 'study').length, words: stats.current.words });
     else setIndex(index + 1);
   };
 
@@ -121,6 +125,7 @@ function ExerciseView({ ex, onResult, locked }: { ex: Exercise; onResult: (r: Re
     case 'build': return <BuildView ex={ex} onResult={onResult} locked={locked} />;
     case 'match': return <MatchView ex={ex} onResult={onResult} />;
     case 'conj': return <ConjView ex={ex} onResult={onResult} locked={locked} />;
+    case 'study': return <StudyView ex={ex} onResult={onResult} />;
   }
 }
 
@@ -359,7 +364,33 @@ function ConjView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'con
         <span lang={LANG}>{ex.inf}</span>
         <span className="muted small">{VERB_MAP[ex.inf]?.en}</span>
       </div>
-      <TextAnswer locked={locked} placeholder="Conjugated form…" onSubmit={(v) => onResult(feedbackFor(v, ex.answer))} />
+      {ex.options ? (
+        <div className="options">
+          {ex.options.map((o, i) => (
+            <button key={o} lang={LANG} disabled={locked} className="option" onClick={() => { speak(o); onResult({ ok: o === ex.answer, answer: ex.answer, why: ex.why }); }}>
+              <span className="key">{i + 1}</span>{o}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <TextAnswer locked={locked} placeholder="Conjugated form…" onSubmit={(v) => onResult({ ...feedbackFor(v, ex.answer), why: ex.why })} />
+      )}
+    </>
+  );
+}
+
+/** Before practising a verb: its full table, to read and listen to. */
+function StudyView({ ex, onResult }: { ex: Extract<Exercise, { kind: 'study' }>; onResult: (r: Result) => void }) {
+  return (
+    <>
+      <p className="ex-label">New forms · {tenseLabel(ex.tense)}</p>
+      <div className="ex-prompt conj">
+        <span lang={LANG}>{ex.inf}</span>
+        <span className="muted small">{VERB_MAP[ex.inf]?.en}</span>
+      </div>
+      <p className="muted small">Read the forms first: tap any form to hear it. Look at what changes from row to row, then practise.</p>
+      <VerbTable verbs={[ex.inf]} tense={ex.tense} />
+      <button className="btn primary" autoFocus onClick={() => onResult({ ok: true, answer: '', study: true })}>Got it, let's practise →</button>
     </>
   );
 }

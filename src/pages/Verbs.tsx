@@ -42,7 +42,8 @@ function Drill() {
     while (items.length < count && guard++ < count * 10) {
       const v = verbs[Math.floor(Math.random() * verbs.length)];
       const t = tenses[Math.floor(Math.random() * tenses.length)];
-      const ex = conjItem(v.inf, t);
+      // First half: choose the form (recognition); second half: type it.
+      const ex = conjItem(v.inf, t, items.length < count / 2 ? 'choose' : 'type');
       if (ex) items.push(ex);
     }
     setDone(null);

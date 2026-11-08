@@ -12,7 +12,10 @@ export type Exercise =
   | { kind: 'listen'; key: string; answer: string; en: string; wordId: string }
   | { kind: 'build'; key: string; en: string; es: string; tiles: string[] }
   | { kind: 'match'; key: string; pairs: { es: string; en: string; wordId: string }[] }
-  | { kind: 'conj'; key: string; inf: string; tense: Tense; person: number; answer: string };
+  /** options: choose the form (recognition) instead of typing it; why: all forms, shown after answering. */
+  | { kind: 'conj'; key: string; inf: string; tense: Tense; person: number; answer: string; options?: string[]; why?: string }
+  /** A study card: the full table of a verb before it is practised. Not scored. */
+  | { kind: 'study'; key: string; inf: string; tense: Tense };
 
 let seq = 0;
 const key = () => `x${++seq}`;
@@ -73,13 +76,43 @@ export function match(words: Word[]): Exercise {
   return { kind: 'match', key: key(), pairs: words.map((w) => ({ es: w.es, en: w.en, wordId: w.id })) };
 }
 
-export function conjItem(inf: string, tense: Tense): Exercise | null {
+/** "yo hablo · tú hablas · …": every form of a verb, shown after a conjugation answer. */
+export function paradigm(inf: string, tense: Tense): string {
+  const forms = conjugate(inf, tense);
+  const labels = tense === 'imperativo' ? IMP_PERSONS : PERSONS;
+  return `${inf}: ` + forms.map((f, i) => (f ? `${labels[i]} ${f}` : null)).filter(Boolean).join(' · ');
+}
+
+/** One conjugation question. "choose" shows three forms of the same verb to pick from; "type" asks for it. */
+export function conjItem(inf: string, tense: Tense, mode: 'choose' | 'type' = 'type', avoid: number[] = []): Exercise | null {
   if (!VERB_MAP[inf]) return null;
   const forms = conjugate(inf, tense);
   const persons = forms.map((f, i) => (f ? i : -1)).filter((i) => i >= 0);
   if (!persons.length) return null;
-  const person = persons[Math.floor(Math.random() * persons.length)];
-  return { kind: 'conj', key: key(), inf, tense, person, answer: forms[person]! };
+  const fresh = persons.filter((i) => !avoid.includes(i));
+  const pool = fresh.length ? fresh : persons;
+  const person = pool[Math.floor(Math.random() * pool.length)];
+  const answer = forms[person]!;
+  const why = paradigm(inf, tense);
+  if (mode === 'choose') {
+    const others = shuffle([...new Set(forms.filter((f): f is string => !!f && f !== answer))]).slice(0, 2);
+    if (others.length) return { kind: 'conj', key: key(), inf, tense, person, answer, options: shuffle([answer, ...others]), why };
+  }
+  return { kind: 'conj', key: key(), inf, tense, person, answer, why };
+}
+
+/** See it, recognise it, then produce it: a study card, two "choose" questions, then typing. */
+export function conjSet(inf: string, tense: Tense, typed = 2): Exercise[] {
+  if (!VERB_MAP[inf]) return [];
+  const out: Exercise[] = [{ kind: 'study', key: key(), inf, tense }];
+  const used: number[] = [];
+  const add = (mode: 'choose' | 'type') => {
+    const ex = conjItem(inf, tense, mode, used);
+    if (ex && ex.kind === 'conj') { used.push(ex.person); out.push(ex); }
+  };
+  add('choose'); add('choose');
+  for (let i = 0; i < typed; i++) add('type');
+  return out;
 }
 
 export const personLabel = (tense: Tense, person: number) => (tense === 'imperativo' ? IMP_PERSONS : PERSONS)[person];
@@ -112,19 +145,23 @@ export function stepExercises(unit: Unit, step: number, review: Word[] = []): Ex
     const old = shuffle(review).slice(0, 4).map((w) => (Math.random() < 0.5 ? typeEnEs(w) : listen(w)));
     return shuffle([...practice, ...old]);
   }
-  // Most sentences are built from tiles; every third one is written out in full.
-  const builds = shuffle(unit.sentences).map((s, i): Exercise =>
-    i % 3 === 2 ? { kind: 'type', key: key(), label: `Write the sentence in ${L.name}`, prompt: s.en, answer: s.es } : build(s, unit.words));
-  const conj: Exercise[] = [];
-  if (unit.conj) {
-    for (let i = 0; i < 6; i++) {
-      const inf = unit.conj.verbs[i % unit.conj.verbs.length];
-      const tense = unit.conj.tenses[i % unit.conj.tenses.length];
-      const ex = conjItem(inf, tense);
-      if (ex) conj.push(ex);
-    }
+  // Sentences: build every sentence from tiles first, then write two of them yourself.
+  const sentences = shuffle(unit.sentences);
+  const builds = sentences.map((s) => build(s, unit.words));
+  const writeAgain = sentences.slice(0, 2).map((s): Exercise => ({ kind: 'type', key: key(), label: `Now write it yourself in ${L.name}`, prompt: s.en, answer: s.es }));
+  // Verbs: for each verb, first the table, then choosing forms, then typing one.
+  const conj = unit.conj;
+  const verbBlocks = conj ? conj.verbs.slice(0, 3).map((v, i) => conjSet(v, conj.tenses[i % conj.tenses.length], 1)).filter((b) => b.length) : [];
+  // Alternate a verb block with a few sentence builds; written sentences come last.
+  const out: Exercise[] = [];
+  const per = Math.ceil(builds.length / (verbBlocks.length + 1));
+  let at = 0;
+  for (const block of verbBlocks) {
+    out.push(...block, ...builds.slice(at, at + per));
+    at += per;
   }
-  return shuffle([...builds, ...shuffle(conj)]);
+  out.push(...builds.slice(at), ...writeAgain);
+  return out;
 }
 
 /** One exercise for a word in review, harder as the card gets stronger. */
@@ -146,14 +183,13 @@ export function gapChoice(q: ChoiceQuestion, typed = false): Exercise {
   };
 }
 
+/** Grammar practice: choose first, then the verbs (table → choose → type), and only then type gap answers. */
 export function grammarExercises(lesson: GrammarLesson): Exercise[] {
-  const out: Exercise[] = (lesson.practice.choice ?? []).map((q, i) => gapChoice(q, i % 2 === 1));
+  const qs = shuffle(lesson.practice.choice ?? []);
+  const half = Math.ceil(qs.length / 2);
+  const chosen = qs.slice(0, half).map((q) => gapChoice(q));
+  const typed = qs.slice(half).map((q) => gapChoice(q, true));
   const c = lesson.practice.conj;
-  if (c) {
-    for (let i = 0, guard = 0; out.length < (lesson.practice.choice?.length ?? 0) + c.count && guard < c.count * 10; guard++, i++) {
-      const ex = conjItem(c.verbs[i % c.verbs.length], c.tenses[Math.floor(Math.random() * c.tenses.length)]);
-      if (ex) out.push(ex);
-    }
-  }
-  return shuffle(out);
+  const verbs = c ? c.verbs.slice(0, 2).flatMap((v, i) => conjSet(v, c.tenses[i % c.tenses.length], 1)) : [];
+  return [...chosen, ...verbs, ...typed];
 }
