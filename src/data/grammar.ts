@@ -1,6 +1,7 @@
 import type { GrammarLesson } from './types';
 
 import { LANG } from './lang';
+import { GRAMMAR_FR } from './fr/grammar';
 import { GRAMMAR_DE } from './de/grammar';
 import { BIG_PICTURE_ES, DEEP_ES, deepen } from './grammar-deep-es';
 import { ORDER_ES, STEPS_ES, withSteps } from './grammar-steps';
@@ -789,5 +790,5 @@ It usually appears after **que**, when the two parts of the sentence have **diff
   },
 ];
 
-export const GRAMMAR: GrammarLesson[] = LANG === 'de' ? GRAMMAR_DE : withSteps([BIG_PICTURE_ES, ...deepen(GRAMMAR_ES, DEEP_ES)], STEPS_ES, ORDER_ES);
+export const GRAMMAR: GrammarLesson[] = LANG === 'de' ? GRAMMAR_DE : LANG === 'fr' ? GRAMMAR_FR : withSteps([BIG_PICTURE_ES, ...deepen(GRAMMAR_ES, DEEP_ES)], STEPS_ES, ORDER_ES);
 export const GRAMMAR_MAP: Record<string, GrammarLesson> = Object.fromEntries(GRAMMAR.map((g) => [g.id, g]));

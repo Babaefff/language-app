@@ -1,4 +1,4 @@
-import { LANG } from '../data/lang';
+import { L, LANG } from '../data/lang';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Link } from '../components/Nav';
@@ -28,6 +28,7 @@ export function Songs() {
     <div className="page">
       <h1>🎵 Songs</h1>
       <p className="muted">Traditional songs and carols sung by real singers. The lyrics light up line by line with the English underneath — tap any word for its meaning, repeat a line, then play the gap game.</p>
+      {SONGS.length === 0 && <p className="card">Songs for {L.name} are coming soon.</p>}
       <ReadingGrid items={SONGS} />
     </div>
   );
@@ -139,7 +140,7 @@ export function ReadingPage() {
       {r.song && <GapGame r={r} />}
 
       <section className="card">
-        <h3>{LANG === 'de' ? 'Verständnis' : 'Comprensión'}</h3>
+        <h3>{LANG === 'de' ? 'Verständnis' : LANG === 'fr' ? 'Compréhension' : 'Comprensión'}</h3>
         {r.questions.map((q, qi) => (
           <div key={qi} className="question">
             <p lang={LANG}><strong>{qi + 1}. {q.q}</strong></p>

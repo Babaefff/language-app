@@ -1,5 +1,6 @@
 import type { Level, Tense } from './types';
 import { LANG } from './lang';
+import { VERBS_FR } from './verbs-fr';
 import { VERBS_DE } from './verbs-de';
 
 export type StemChange = 'ie' | 'ue' | 'i' | 'u-ue';
@@ -207,5 +208,5 @@ export const VERB_MAP_ES: Record<string, VerbDef> = Object.fromEntries(VERBS_ES.
 export interface VerbInfo { inf: string; en: string; level: Level }
 
 /** Verbs of the language being studied. */
-export const VERBS: VerbInfo[] = LANG === 'de' ? VERBS_DE : VERBS_ES;
+export const VERBS: VerbInfo[] = LANG === 'de' ? VERBS_DE : LANG === 'fr' ? VERBS_FR : VERBS_ES;
 export const VERB_MAP: Record<string, VerbInfo> = Object.fromEntries(VERBS.map((v) => [v.inf, v]));

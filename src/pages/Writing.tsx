@@ -18,7 +18,7 @@ function check(p: WritingPrompt, text: string) {
   const count = text.trim() ? text.trim().split(/\s+/).length : 0;
   const points = p.points.map((pt) => ({ ...pt, ok: pt.keys.some((k) => t.includes(` ${stripAccents(k.toLowerCase())} `)) }));
   const words = UNITS.filter((u) => p.units.includes(u.id)).flatMap((u) => u.words);
-  const bareOf = (es: string) => es.replace(/^(der|die|das|el|la|los|las)\s+/i, '');
+  const bareOf = (es: string) => es.replace(/^(?:(?:der|die|das|el|la|los|las|le|les)\s+|l')/i, '');
   const used = words.filter((w) => t.includes(` ${stripAccents(normalize(bareOf(w.es)))} `));
   // Suggest single words (not set phrases), in a different order each time the text changes length.
   const unused = words.filter((w) => !used.includes(w) && !/[?!]/.test(w.es) && bareOf(w.es).split(' ').length === 1);
@@ -29,13 +29,15 @@ function check(p: WritingPrompt, text: string) {
     // Nouns are capitalised in German: flag course nouns written in lower case.
     const lower = WORDS.filter((w) => /^(der|die|das) /.test(w.es)).map((w) => bareOf(w.es)).filter((n) => new RegExp(`(^|[^\\p{L}])${n.toLowerCase()}([^\\p{L}]|$)`, 'u').test(text));
     if (lower.length) tips.push(`Nouns start with a capital letter: ${[...new Set(lower)].slice(0, 4).join(', ')}.`);
+  } else if (LANG === 'fr') {
+    if (/\S[?!:;]/.test(text)) tips.push('French puts a space before ? ! : and ; — Ça va ?');
   } else {
     if (/[^¿]*\?/.test(text) && !text.includes('¿')) tips.push('Spanish questions open with ¿ — ¿Qué tal?');
     if (text.includes('!') && !text.includes('¡')) tips.push('Exclamations open with ¡ — ¡Hola!');
   }
   if (text.trim() && !/^[\p{Lu}¿¡]/u.test(text.trim())) tips.push('Start your text with a capital letter.');
   const sentences = text.split(/[.!?]+/).filter((x) => x.trim());
-  if (sentences.length >= 3 && sentences.every((x) => x.trim().split(/\s+/).length < 5)) tips.push('Try joining short sentences with und / aber / weil (y / pero / porque).');
+  if (sentences.length >= 3 && sentences.every((x) => x.trim().split(/\s+/).length < 5)) tips.push(`Try joining short sentences with ${LANG === 'de' ? 'und / aber / weil' : LANG === 'fr' ? 'et / mais / parce que' : 'y / pero / porque'}.`);
   return { count, points, used, unused: suggest, tips };
 }
 

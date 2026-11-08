@@ -234,7 +234,7 @@ function TextAnswer({ onSubmit, locked, placeholder }: { onSubmit: (v: string) =
 function feedbackFor(input: string, expected: string): Result {
   const c = checkAnswer(input, expected, getProgress().settings.strictSpelling);
   const notes = [
-    c.accent && (LANG === 'de' ? 'Watch the special letters (ä ö ü ß).' : 'Watch the accents (á é í ó ú ñ ü).'),
+    c.accent && (LANG === 'de' ? 'Watch the special letters (ä ö ü ß).' : LANG === 'fr' ? 'Watch the accents (é è ê à ç ô…).' : 'Watch the accents (á é í ó ú ñ ü).'),
     c.letterCase && (LANG === 'de' ? 'Watch the capitals: nouns and Sie start with a capital letter.' : 'Watch the capital letters.'),
     c.article && 'Remember the article.',
   ].filter(Boolean);

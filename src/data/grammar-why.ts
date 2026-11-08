@@ -1,4 +1,8 @@
 import { LANG } from './lang';
+import { FR_WHY } from './fr/registry';
+// French entries are registered next to their examples as these modules load.
+import './fr/units';
+import './fr/grammar';
 
 /** Why the answer to a grammar practice question is right — shown after answering. */
 const ES: Record<string, string> = {
@@ -238,9 +242,11 @@ const DE: Record<string, string> = {
   'Ich lerne viel, ___ ich die Prüfung bestehe.': '"I study a lot so that I pass the exam." Purpose with the verb at the end → damit.',
 };
 
-const MAP = LANG === 'de' ? DE : ES;
+const MAP = LANG === 'de' ? DE : LANG === 'fr' ? FR_WHY : ES;
 const norm = (s: string) => s.replace(/\s+/g, ' ').trim();
-const INDEX: Record<string, string> = Object.fromEntries(Object.entries(MAP).map(([k, v]) => [norm(k), v]));
+let index: Record<string, string> | null = null;
+/** Built on first use, after the French modules have registered their entries. */
+const INDEX = () => (index ??= Object.fromEntries(Object.entries(MAP).map(([k, v]) => [norm(k), v])));
 
 /** The explanation for a grammar practice question (keys may add "|answer" when a question repeats). */
-export const whyFor = (q: string, answer?: string): string | undefined => INDEX[`${norm(q)}|${answer}`] ?? INDEX[norm(q)];
+export const whyFor = (q: string, answer?: string): string | undefined => INDEX()[`${norm(q)}|${answer}`] ?? INDEX()[norm(q)];

@@ -91,4 +91,25 @@ const ES: WritingPrompt[] = [
   },
 ];
 
-export const WRITING: WritingPrompt[] = LANG === 'de' ? DE : ES;
+const FR: WritingPrompt[] = [
+  {
+    id: 'fr-w-me', level: 'A1', title: 'Introduce yourself', prompt: 'Write a short text about yourself for a language-exchange website.',
+    points: [{ text: 'Your name', keys: ["m'appelle", 'nom'] }, { text: 'Your age', keys: ['ans'] }, { text: 'Where you come from and live', keys: ['viens', 'habite', 'suis'] }, { text: 'What you like doing', keys: ['aime', 'adore', 'fais', 'joue'] }],
+    words: [25, 50], units: ['fr-a1-01', 'fr-a1-02', 'fr-a1-09'],
+    model: "Bonjour ! Je m'appelle Tom et j'ai vingt-huit ans. Je suis anglais, mais j'habite à Lyon. Je suis cuisinier. Le week-end, j'aime jouer au football et lire. J'apprends le français parce que ma copine est française.",
+  },
+  {
+    id: 'fr-w-family', level: 'A1', title: 'My family', prompt: 'Describe your family.',
+    points: [{ text: 'Who is in your family', keys: ['famille', 'mère', 'père', 'frère', 'sœur', 'parents'] }, { text: 'Names and ages', keys: ["s'appelle", 'ans'] }, { text: 'What they are like or do', keys: ['est', 'sont', 'travaille', 'sympa', 'grand', 'grande'] }, { text: 'Something you do together', keys: ['ensemble', 'nous', 'on'] }],
+    words: [25, 50], units: ['fr-a1-03', 'fr-a1-04'],
+    model: "Ma famille n'est pas très grande. Ma mère s'appelle Anne et elle est médecin. Mon père s'appelle Luc et il travaille dans une banque. J'ai une sœur. Elle a seize ans et elle est très drôle. Le dimanche, nous mangeons ensemble dans le jardin.",
+  },
+  {
+    id: 'fr-w-day', level: 'A1', title: 'My day', prompt: 'Describe a normal day: when you get up, what you do and when you go to bed.',
+    points: [{ text: 'Your morning', keys: ['me lève', 'me réveille', 'matin'] }, { text: 'Work or study', keys: ['travaille', 'étudie', 'cours', 'bureau'] }, { text: 'Your evening', keys: ['soir', 'regarde', 'dîner'] }, { text: 'Times', keys: ['heures', 'heure', 'midi'] }],
+    words: [30, 60], units: ['fr-a1-07', 'fr-a1-12'],
+    model: "Je me réveille à sept heures et je me lève tout de suite. Je prends un café et je vais au bureau en bus. Je travaille de neuf heures à cinq heures. Le soir, je prépare le dîner et je regarde un film. Je me couche à onze heures.",
+  },
+];
+
+export const WRITING: WritingPrompt[] = LANG === 'de' ? DE : LANG === 'fr' ? FR : ES;

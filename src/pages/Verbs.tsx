@@ -2,7 +2,7 @@ import { L, LANG } from '../data/lang';
 import { useMemo, useState } from 'react';
 import { VERBS, VERB_MAP } from '../data/verbs';
 import { LEVELS, type Level, type Tense } from '../data/types';
-import { conjugate, gerund, HAS_GERUND, participle, TENSES } from '../lib/conjugate';
+import { conjugate, gerund, HAS_GERUND, PARTICIPLE_NAME, participle, TENSES } from '../lib/conjugate';
 import { conjItem, personLabel, type Exercise } from '../lib/exercises';
 import { addXp, recordConj, useProgress } from '../lib/store';
 import { Session, type SessionSummary } from '../components/Session';
@@ -132,7 +132,7 @@ function Tables() {
           <span className="muted">{def.en}</span>
         </div>
         <p className="small">
-          {HAS_GERUND ? 'Participle' : 'Partizip II'}: <strong lang={LANG}>{participle(def)}</strong>
+          {PARTICIPLE_NAME}: <strong lang={LANG}>{participle(def)}</strong>
           {HAS_GERUND && <> · Gerund: <strong lang={LANG}>{gerund(def)}</strong></>}
         </p>
         <div className="conj-grid">

@@ -1,10 +1,11 @@
 import { LANG } from '../data/lang';
-const ARTICLES = /^(el|la|los|las|un|una|unos|unas|der|die|das|ein|eine)\s+/;
+const ARTICLES = /^(?:(?:el|la|los|las|un|una|unos|unas|der|die|das|ein|eine|le|les|une|des)\s+|l['’])/;
 
 /** Lower-case, trim, drop punctuation, collapse spaces. Keeps accents. */
 export function normalize(s: string): string {
   return s
     .toLowerCase()
+    .replace(/’/g, "'")
     .replace(/[¿?¡!.,;:"“”«»()…]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
@@ -37,7 +38,7 @@ export interface Check {
 
 const ARTICLES_I = new RegExp(ARTICLES.source, 'i');
 /** Drops punctuation but keeps letter case. */
-const clean = (s: string) => s.replace(/[¿?¡!.,;:"“”«»()…]/g, ' ').replace(/\s+/g, ' ').trim();
+const clean = (s: string) => s.replace(/’/g, "'").replace(/[¿?¡!.,;:"“”«»()…]/g, ' ').replace(/\s+/g, ' ').trim();
 /** Lower case without accents; in German, ae/oe/ue typed for ä/ö/ü count as the same letter. */
 function fold(s: string) {
   const f = stripAccents(s.toLowerCase());

@@ -1,6 +1,7 @@
 import type { Reading } from './types';
 
 import { LANG } from './lang';
+import { READINGS_FR, SONGS_FR } from './fr/readings';
 import { READINGS_DE } from './de/readings';
 import { SONGS_DE } from './de/songs';
 import { SONGS_ES } from './songs-es';
@@ -451,5 +452,5 @@ const READINGS_ES: Reading[] = [
   },
 ];
 
-export const READINGS: Reading[] = LANG === 'de' ? READINGS_DE : READINGS_ES;
-export const SONGS: Reading[] = LANG === 'de' ? SONGS_DE : SONGS_ES;
+export const READINGS: Reading[] = LANG === 'de' ? READINGS_DE : LANG === 'fr' ? READINGS_FR : READINGS_ES;
+export const SONGS: Reading[] = LANG === 'de' ? SONGS_DE : LANG === 'fr' ? SONGS_FR : SONGS_ES;

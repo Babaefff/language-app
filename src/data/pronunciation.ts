@@ -125,4 +125,61 @@ const ES: PronSection[] = [
   },
 ];
 
-export const PRONUNCIATION: PronSection[] = LANG === 'de' ? DE : ES;
+const FR: PronSection[] = [
+  {
+    title: 'Silent letters',
+    intro: 'French writes many letters it no longer says. The good news: the rules are regular.',
+    items: [
+      { spelling: 'final consonant', sound: 'usually silent', tip: 'Except c, r, f, l (think of "CaReFuL"): avec, bonjour, neuf, avril.', examples: [['petit', 'small'], ['vous', 'you'], ['grand', 'big']] },
+      { spelling: 'final -e', sound: 'silent, but it makes the consonant before it heard', tip: 'That is why you hear the feminine: petit (pti) / petite (ptit).', examples: [['petite', 'small (f)'], ['verte', 'green (f)'], ['grande', 'big (f)']] },
+      { spelling: '-ent (verbs)', sound: 'completely silent in ils / elles forms', examples: [['ils parlent', 'they speak'], ['elles aiment', 'they like'], ['ils mangent', 'they eat']] },
+      { spelling: 'h', sound: 'always silent', examples: [['hôtel', 'hotel'], ['homme', 'man'], ['heure', 'hour']] },
+    ],
+  },
+  {
+    title: 'Vowels',
+    intro: 'French vowels are short, tense and pure, with no glide at the end.',
+    items: [
+      { spelling: 'u', sound: 'say "ee" and round your lips as for "oo"', tip: 'The sound of German ü. Keep your tongue at "ee".', examples: [['tu', 'you'], ['rue', 'street'], ['salut', 'hi']] },
+      { spelling: 'ou', sound: 'like "oo" in food', examples: [['vous', 'you'], ['rouge', 'red'], ['jour', 'day']] },
+      { spelling: 'é / -er / -ez', sound: 'a closed "ay", without the y-glide', examples: [['café', 'coffee'], ['parler', 'to speak'], ['vous avez', 'you have']] },
+      { spelling: 'è / ê / ai', sound: 'an open "e", as in "bed"', examples: [['mère', 'mother'], ['fête', 'party'], ['lait', 'milk']] },
+      { spelling: 'au / eau / o', sound: 'a pure "oh"', examples: [['eau', 'water'], ['beau', 'beautiful'], ['chaud', 'hot']] },
+      { spelling: 'oi', sound: 'like "wa"', examples: [['moi', 'me'], ['trois', 'three'], ['soir', 'evening']] },
+      { spelling: 'eu', sound: 'say "ay" with rounded lips', examples: [['deux', 'two'], ['bleu', 'blue'], ['peu', 'little']] },
+    ],
+  },
+  {
+    title: 'Nasal vowels',
+    intro: 'A vowel + n or m at the end of a syllable becomes a vowel through the nose; the n itself is not pronounced.',
+    items: [
+      { spelling: 'an / en / am / em', sound: 'a nasal "ah"', examples: [['enfant', 'child'], ['France', 'France'], ['temps', 'time']] },
+      { spelling: 'on / om', sound: 'a nasal "oh"', examples: [['bonjour', 'hello'], ['nom', 'name'], ['maison', 'house']] },
+      { spelling: 'in / ain / ein / un', sound: 'a nasal "a" as in "cat"', examples: [['vin', 'wine'], ['pain', 'bread'], ['un', 'one']] },
+      { spelling: 'n + vowel', sound: 'no nasal: the n is a normal n', tip: 'bon (nasal) / bonne (bonn): the feminine undoes the nasal.', examples: [['bonne', 'good (f)'], ['ami', 'friend'], ['fine', 'thin (f)']] },
+    ],
+  },
+  {
+    title: 'Consonants',
+    intro: 'Most consonants are like English; these are the ones to watch.',
+    items: [
+      { spelling: 'r', sound: 'at the back of the throat, like a soft gargle', examples: [['rouge', 'red'], ['Paris', 'Paris'], ['merci', 'thank you']] },
+      { spelling: 'ç / c + e, i', sound: '"s"', examples: [['ça', 'that'], ['garçon', 'boy'], ['merci', 'thank you']] },
+      { spelling: 'g + e, i / j', sound: 'like "s" in measure', examples: [['rouge', 'red'], ['je', 'I'], ['manger', 'to eat']] },
+      { spelling: 'ch', sound: 'like "sh"', examples: [['chat', 'cat'], ['chocolat', 'chocolate'], ['chambre', 'bedroom']] },
+      { spelling: 'gn', sound: 'like "ny" in canyon', examples: [['montagne', 'mountain'], ['Espagne', 'Spain'], ['champagne', 'champagne']] },
+      { spelling: '-ill-', sound: 'usually "y"', tip: 'Except ville, mille, tranquille: there it is "l".', examples: [['fille', 'girl'], ['famille', 'family'], ['travailler', 'to work']] },
+    ],
+  },
+  {
+    title: 'Linking words: liaison',
+    intro: 'A silent final consonant comes back to life when the next word starts with a vowel.',
+    items: [
+      { spelling: 's / x + vowel', sound: 'linked as "z"', examples: [['les amis', 'the friends'], ['vous avez', 'you have'], ['deux enfants', 'two children']] },
+      { spelling: 'n + vowel', sound: 'linked as "n"', examples: [['un ami', 'a friend'], ['on a', 'we have'], ['mon école', 'my school']] },
+      { spelling: 't / d + vowel', sound: 'linked as "t"', examples: [['petit ami', 'boyfriend'], ['c\'est un', 'it is a'], ['quand il', 'when he']] },
+    ],
+  },
+];
+
+export const PRONUNCIATION: PronSection[] = LANG === 'de' ? DE : LANG === 'fr' ? FR : ES;

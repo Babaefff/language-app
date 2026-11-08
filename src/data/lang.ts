@@ -3,7 +3,7 @@
  * app so every module picks up the matching course (each language keeps its own progress).
  * Scripts and tests choose with the HABLO_LANG environment variable.
  */
-export type LangId = 'es' | 'de';
+export type LangId = 'es' | 'de' | 'fr';
 
 export interface LangInfo {
   id: LangId;
@@ -38,6 +38,15 @@ export const LANGS: Record<LangId, LangInfo> = {
       B1: 'Plans, advice, work, the environment, feelings, media — Konjunktiv II, relative clauses and the passive.',
     },
   },
+  fr: {
+    id: 'fr', name: 'French', native: 'Français', flag: '🇫🇷', tts: 'fr-FR', hello: 'Bonjour !', wordOfDay: 'Mot du jour',
+    keys: ['é', 'è', 'ê', 'à', 'â', 'ç', 'ù', 'û', 'î', 'ï', 'ô', 'ë', 'œ'],
+    levels: {
+      A1: 'Greetings, numbers, family, home, food, daily routine, le/la, être and avoir and the present tense.',
+      A2: 'Shopping, health, travel and talking about the past: passé composé and imparfait.',
+      B1: 'Plans, advice, wishes and opinions: the future, the conditional and the subjunctive.',
+    },
+  },
 };
 
 const STORAGE_KEY = 'hablo:lang';
@@ -47,7 +56,7 @@ function detect(): LangId {
     const env = typeof process !== 'undefined' ? process.env?.HABLO_LANG : undefined;
     const stored = typeof window !== 'undefined' ? window.localStorage.getItem(STORAGE_KEY) : null;
     const v = env ?? stored;
-    return v === 'de' ? 'de' : 'es';
+    return v === 'de' || v === 'fr' ? v : 'es';
   } catch {
     return 'es';
   }

@@ -15,7 +15,7 @@ export function grade(pct: number) {
   if (pct >= 60) return { label: 'ausreichend — pass', pass: true };
   return { label: 'not passed yet', pass: false };
 }
-const verdict = (pct: number) => (LANG === 'de' ? grade(pct).label : grade(pct).pass ? 'apto — pass' : 'not passed yet');
+const verdict = (pct: number) => (LANG === 'de' ? grade(pct).label : grade(pct).pass ? (LANG === 'fr' ? 'réussi — pass' : 'apto — pass') : 'not passed yet');
 
 export function ExamList() {
   const { exams } = useProgress();
@@ -147,7 +147,7 @@ function Writing({ exam }: { exam: Exam }) {
   const [shown, setShown] = useState<boolean[]>(() => exam.writing.map(() => false));
   return (
     <section className="card exam-module">
-      <h2>{LANG === 'de' ? 'Schreiben' : 'Expresión escrita'} <span className="muted small">· Writing</span></h2>
+      <h2>{LANG === 'de' ? 'Schreiben' : LANG === 'fr' ? 'Production écrite' : 'Expresión escrita'} <span className="muted small">· Writing</span></h2>
       <p className="muted small">Writing can't be marked automatically. Write your answer, then compare it with the model answer and tick the checklist honestly. In the real exam this module also needs 60%.</p>
       {exam.writing.map((w, wi) => {
         const words = texts[wi].trim() ? texts[wi].trim().split(/\s+/).length : 0;

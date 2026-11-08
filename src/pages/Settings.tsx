@@ -64,7 +64,7 @@ export function Settings() {
           Speed: {settings.rate.toFixed(2)}×
           <input type="range" min={0.5} max={1.3} step={0.05} value={settings.rate} onChange={(e) => updateSettings({ rate: Number(e.target.value) })} />
         </label>
-        <button className="btn" onClick={() => speak(LANG === 'de' ? 'Hallo, wie geht’s? Ich heiße Lena und ich lerne Deutsch.' : 'Hola, ¿qué tal? Me llamo Lucía y aprendo español.')}>▶ Test voice</button>
+        <button className="btn" onClick={() => speak(LANG === 'de' ? 'Hallo, wie geht’s? Ich heiße Lena und ich lerne Deutsch.' : LANG === 'fr' ? 'Bonjour, ça va ? Je m’appelle Claire et j’apprends le français.' : 'Hola, ¿qué tal? Me llamo Lucía y aprendo español.')}>▶ Test voice</button>
         <label className="toggle">
           <input type="checkbox" checked={settings.natural} onChange={(e) => updateSettings({ natural: e.target.checked })} />
           Use natural recorded voice ({clipCount() ? `${clipCount()} clips, ${LANG !== 'es' ? L.native : clipAccent() === 'es-US' ? 'Latin American accent' : 'Spain accent'}` : 'not generated yet — see README'})
@@ -77,7 +77,7 @@ export function Settings() {
       <section className="card">
         <h2>⌨️ Answers</h2>
         <label className="toggle"><input type="checkbox" checked={settings.typeChoices} onChange={(e) => updateSettings({ typeChoices: e.target.checked })} /> Type answers instead of choosing from options</label>
-        <label className="toggle"><input type="checkbox" checked={settings.strictSpelling} onChange={(e) => updateSettings({ strictSpelling: e.target.checked })} /> Strict spelling: {LANG === 'de' ? 'ä ö ü ß and capital letters (nouns, Sie)' : 'accents, ñ and capital letters'} must be exactly right</label>
+        <label className="toggle"><input type="checkbox" checked={settings.strictSpelling} onChange={(e) => updateSettings({ strictSpelling: e.target.checked })} /> Strict spelling: {LANG === 'de' ? 'ä ö ü ß and capital letters (nouns, Sie)' : LANG === 'fr' ? 'accents (é è ê à ç…) and capital letters' : 'accents, ñ and capital letters'} must be exactly right</label>
         <p className="muted small">Without strict spelling, small slips are accepted but the exact spelling is shown. {LANG === 'de' ? 'Typing ae, oe, ue or ss for ä, ö, ü, ß always counts as a slip.' : ''}</p>
       </section>
 

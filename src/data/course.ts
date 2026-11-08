@@ -6,6 +6,7 @@ import { A1C, A2C, B1C } from './extra';
 import { CORE_UNITS } from './core';
 import { LANG } from './lang';
 import { DE_UNITS, DE_UNIT_LESSONS } from './de/units';
+import { FR_UNITS, FR_UNIT_LESSONS } from './fr/units';
 import { A2 } from './a2';
 import { B1 } from './b1';
 import type { Level, Sentence, Unit, Word } from './types';
@@ -17,7 +18,7 @@ const ES_UNITS: Unit[] = [
   ...B1, ...B1B, ...B1C, ...CORE_UNITS.filter((u) => u.level === 'B1'),
 ];
 /** Units of the language being studied. */
-export const UNITS: Unit[] = LANG === 'de' ? DE_UNITS : ES_UNITS;
+export const UNITS: Unit[] = LANG === 'de' ? DE_UNITS : LANG === 'fr' ? FR_UNITS : ES_UNITS;
 export const UNIT_MAP: Record<string, Unit> = Object.fromEntries(UNITS.map((u) => [u.id, u]));
 export const WORDS: Word[] = UNITS.flatMap((u) => u.words);
 export const WORD_MAP: Record<string, Word> = Object.fromEntries(WORDS.map((w) => [w.id, w]));
@@ -101,4 +102,4 @@ const ES_UNIT_LESSONS: Record<string, string[]> = {
   'b1-13': ['g-perfect', 'g-subj-use'],
 };
 
-export const UNIT_LESSONS: Record<string, string[]> = LANG === 'de' ? DE_UNIT_LESSONS : ES_UNIT_LESSONS;
+export const UNIT_LESSONS: Record<string, string[]> = LANG === 'de' ? DE_UNIT_LESSONS : LANG === 'fr' ? FR_UNIT_LESSONS : ES_UNIT_LESSONS;

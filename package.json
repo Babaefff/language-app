@@ -10,7 +10,7 @@
     "test": "vitest run",
     "typecheck": "tsc",
     "audio": "tsx scripts/generate-audio.ts",
-    "audio:deploy": "tsx scripts/generate-audio.ts --verbs --optional && HABLO_LANG=de tsx scripts/generate-audio.ts --verbs --optional"
+    "audio:deploy": "tsx scripts/generate-audio.ts --verbs --optional && HABLO_LANG=de tsx scripts/generate-audio.ts --verbs --optional && HABLO_LANG=fr tsx scripts/generate-audio.ts --verbs --optional"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",

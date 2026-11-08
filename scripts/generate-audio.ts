@@ -34,10 +34,10 @@ try {
 }
 const key = process.env.GOOGLE_TTS_KEY;
 import { LANG } from '../src/data/lang';
-const voice = process.env.TTS_VOICE ?? (LANG === 'de' ? 'de-DE-Neural2-A' : 'es-ES-Neural2-A');
+const voice = process.env.TTS_VOICE ?? (LANG === 'de' ? 'de-DE-Neural2-A' : LANG === 'fr' ? 'fr-FR-Neural2-A' : 'es-ES-Neural2-A');
 const lang = process.env.TTS_LANG ?? voice.slice(0, 5);
 /** Second speaker for dialogues ("– Hallo! – Hi!"), so conversations sound like two people. */
-const voice2 = process.env.TTS_VOICE_2 ?? (LANG === 'de' ? 'de-DE-Neural2-B' : 'es-ES-Neural2-B');
+const voice2 = process.env.TTS_VOICE_2 ?? (LANG === 'de' ? 'de-DE-Neural2-B' : LANG === 'fr' ? 'fr-FR-Neural2-B' : 'es-ES-Neural2-B');
 /** --redo: make every clip again (after changing voice). --redo-dialogues: only the conversations. */
 const redoAll = args.includes('--redo');
 const redoDialogues = args.includes('--redo-dialogues');
@@ -155,7 +155,7 @@ process.on('SIGINT', () => {
 });
 
 if (sampleAt >= 0) {
-  const text = args[sampleAt + 1] ?? (LANG === 'de' ? '– Hallo, wie geht es dir? – Danke, gut! Und dir?' : '– Hola, ¿qué tal? – ¡Muy bien, gracias! ¿Y tú?');
+  const text = args[sampleAt + 1] ?? (LANG === 'de' ? '– Hallo, wie geht es dir? – Danke, gut! Und dir?' : LANG === 'fr' ? '– Bonjour, ça va ? – Très bien, merci ! Et toi ?' : '– Hola, ¿qué tal? – ¡Muy bien, gracias! ¿Y tú?');
   writeFileSync('sample.mp3', await synthAny(text));
   console.log(`Wrote sample.mp3 (${voice}${isDialogue(text) ? ` + ${voice2}` : ''}). Open it to listen.`);
   process.exit(0);

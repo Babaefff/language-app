@@ -160,7 +160,7 @@ export const SongPlayer = forwardRef<SongPlayerHandle, { r: Reading; lines: stri
     };
 
     const code = `youtube: '${video}', timings: [${(timings ?? []).join(', ')}],`;
-    const search = `https://www.youtube.com/results?search_query=${encodeURIComponent(`${r.title} ${LANG === 'de' ? 'Lied' : 'canción'}`)}`;
+    const search = `https://www.youtube.com/results?search_query=${encodeURIComponent(`${r.title} ${LANG === 'de' ? 'Lied' : LANG === 'fr' ? 'chanson' : 'canción'}`)}`;
 
     if (!video) {
       return (

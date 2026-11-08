@@ -2,13 +2,17 @@
 -- Run this once in Supabase: SQL Editor → New query → paste → Run.
 create table if not exists public.progress (
   user_id uuid not null references auth.users (id) on delete cascade,
-  lang text not null check (lang in ('es', 'de')),
+  lang text not null check (lang in ('es', 'de', 'fr')),
   data jsonb not null,
   updated_at timestamptz not null default now(),
   primary key (user_id, lang)
 );
 
 -- Row Level Security: every user can read and change only their own rows.
+-- Re-runnable: lets existing tables accept new course languages.
+alter table public.progress drop constraint if exists progress_lang_check;
+alter table public.progress add constraint progress_lang_check check (lang in ('es', 'de', 'fr'));
+
 alter table public.progress enable row level security;
 
 drop policy if exists "own progress: read" on public.progress;

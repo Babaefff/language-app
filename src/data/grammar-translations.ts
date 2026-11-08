@@ -1,4 +1,8 @@
 import { LANG } from './lang';
+import { FR_TRANSLATIONS } from './fr/registry';
+// French entries are registered next to their examples as these modules load.
+import './fr/units';
+import './fr/grammar';
 
 /** English for the example sentences inside grammar lessons (shown in brackets right after them). */
 const ES: Record<string, string> = {
@@ -692,10 +696,12 @@ const DE: Record<string, string> = {
   "Mit freundlichen Grüßen": "Yours sincerely",
 };
 
-const MAP = LANG === 'de' ? DE : ES;
+const MAP = LANG === 'de' ? DE : LANG === 'fr' ? FR_TRANSLATIONS : ES;
 const norm = (s: string) => s.replace(/\*\*/g, '').replace(/\s+/g, ' ').trim();
-const INDEX: Record<string, string> = Object.fromEntries(Object.entries(MAP).map(([k, v]) => [norm(k), v]));
+let index: Record<string, string> | null = null;
+/** Built on first use, after the French modules have registered their entries. */
+const INDEX = () => (index ??= Object.fromEntries(Object.entries(MAP).map(([k, v]) => [norm(k), v])));
 
 /** English for an example from a grammar lesson, if it has one. */
-export const exampleTranslation = (text: string): string | undefined => INDEX[norm(text)];
-export const translatedExamples = () => Object.keys(INDEX);
+export const exampleTranslation = (text: string): string | undefined => INDEX()[norm(text)];
+export const translatedExamples = () => Object.keys(INDEX());
