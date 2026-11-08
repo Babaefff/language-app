@@ -18,8 +18,16 @@ export function Readings() {
       <h1>Reading</h1>
       <p className="muted">Short graded texts. Tap any word for its meaning, listen to the whole text read aloud, then check your understanding.</p>
       <ReadingGrid items={READINGS} />
-      <h2 className="section-title">🎵 Songs</h2>
-      <p className="muted">Traditional songs and carols. Follow the lyrics line by line, then play the gap game: listen and pick the missing word.</p>
+      <Link to="/songs" className="card action"><h2>🎵 Songs</h2><p className="muted small">Sing along with real singers, line by line.</p></Link>
+    </div>
+  );
+}
+
+export function Songs() {
+  return (
+    <div className="page">
+      <h1>🎵 Songs</h1>
+      <p className="muted">Traditional songs and carols sung by real singers. The lyrics light up line by line with the English underneath — tap any word for its meaning, repeat a line, then play the gap game.</p>
       <ReadingGrid items={SONGS} />
     </div>
   );
@@ -30,7 +38,7 @@ function ReadingGrid({ items }: { items: Reading[] }) {
   return (
       <div className="grid-2">
         {items.map((r) => (
-          <Link key={r.id} to={`/reading/${r.id}`} className="card action">
+          <Link key={r.id} to={`/${r.song ? 'songs' : 'reading'}/${r.id}`} className="card action">
             <span className={`badge ${r.level.replace('+', 'plus')}`}>{r.level}</span>
             <h2 lang={LANG}>{r.title}</h2>
             <p className="muted small">{r.source ?? r.paragraphs[0].slice(0, 90) + '…'}</p>
@@ -78,7 +86,7 @@ export function ReadingPage() {
 
   return (
     <div className="page narrow">
-      <Link className="link" to="/reading">← Reading</Link>
+      <Link className="link" to={r.song ? '/songs' : '/reading'}>← {r.song ? 'Songs' : 'Reading'}</Link>
       <div className="row wrap between">
         <div>
           <span className={`badge ${r.level.replace('+', 'plus')}`}>{r.level}</span>

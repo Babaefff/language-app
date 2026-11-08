@@ -1,5 +1,7 @@
 import { ExamList, ExamPage } from './pages/Exam';
 import { Speaking } from './pages/Speaking';
+import { Account } from './pages/Account';
+import { AccountButton } from './components/AccountButton';
 import { Pronunciation } from './pages/Pronunciation';
 import { WritingList, WritingPage } from './pages/Writing';
 import { HashRouter, MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
@@ -15,7 +17,7 @@ import { Verbs } from './pages/Verbs';
 import { Sentences } from './pages/Sentences';
 import { Listen } from './pages/Listen';
 import { Words } from './pages/Words';
-import { Readings, ReadingPage } from './pages/Reading';
+import { Readings, ReadingPage, Songs } from './pages/Reading';
 import { Settings } from './pages/Settings';
 import { GrammarLessonPage, GrammarList } from './pages/GrammarPage';
 import { WordTicker } from './components/WordTicker';
@@ -29,6 +31,7 @@ const NAV = [
   { to: '/review', icon: '🧠', label: 'Review' },
   { to: '/practice', icon: '🎯', label: 'Practice' },
   { to: '/reading', icon: '📖', label: 'Reading' },
+  { to: '/songs', icon: '🎵', label: 'Songs' },
 ];
 
 function ScrollTop() {
@@ -71,6 +74,7 @@ function Shell() {
             ))}
           </select>
           <span className="streak" title="Day streak">🔥 {days}</span>
+          <AccountButton />
           <Link to="/settings" className="icon-btn" aria-label="Settings">⚙️</Link>
         </div>
       </header>
@@ -89,6 +93,9 @@ function Shell() {
           <Route path="/practice/words" element={<Words />} />
           <Route path="/reading" element={<Readings />} />
           <Route path="/reading/:id" element={<ReadingPage />} />
+          <Route path="/songs" element={<Songs />} />
+          <Route path="/songs/:id" element={<ReadingPage />} />
+          <Route path="/account" element={<Account />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/practice/speaking" element={<Speaking />} />
           <Route path="/pronunciation" element={<Pronunciation />} />
