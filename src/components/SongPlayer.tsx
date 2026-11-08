@@ -165,7 +165,7 @@ export const SongPlayer = forwardRef<SongPlayerHandle, { r: Reading; lines: stri
     if (!video) {
       return (
         <div className="card">
-          <h3>🎵 Hear it sung</h3>
+          <h3>Hear it sung</h3>
           <p className="muted small">Pick a performance on YouTube, paste its link here, and the song plays inside the app with the lyrics following along.</p>
           <form className="row wrap" onSubmit={(e) => { e.preventDefault(); chooseVideo(); }}>
             <input className="account-email" placeholder="https://www.youtube.com/watch?v=…" value={link} onChange={(e) => setLink(e.target.value)} />

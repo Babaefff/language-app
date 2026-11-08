@@ -18,7 +18,7 @@ export function Readings() {
       <h1>Reading</h1>
       <p className="muted">Short graded texts. Tap any word for its meaning, listen to the whole text read aloud, then check your understanding.</p>
       <ReadingGrid items={READINGS} />
-      <Link to="/songs" className="card action"><h2>🎵 Songs</h2><p className="muted small">Sing along with real singers, line by line.</p></Link>
+      <Link to="/songs" className="card action"><h2>Songs</h2><p className="muted small">Sing along with real singers, line by line.</p></Link>
     </div>
   );
 }
@@ -26,7 +26,7 @@ export function Readings() {
 export function Songs() {
   return (
     <div className="page">
-      <h1>🎵 Songs</h1>
+      <h1>Songs</h1>
       <p className="muted">Traditional songs and carols sung by real singers. The lyrics light up line by line with the English underneath — tap any word for its meaning, repeat a line, then play the gap game.</p>
       {SONGS.length === 0 && <p className="card">Songs for {L.name} are coming soon.</p>}
       <ReadingGrid items={SONGS} />
@@ -206,7 +206,7 @@ function GapGame({ r }: { r: Reading }) {
   if (!g) {
     return (
       <section className="card">
-        <h3>🎧 Listen &amp; fill the gap</h3>
+        <h3>Listen &amp; fill the gap</h3>
         <p><strong>{score}/{gaps.length} correct.</strong> {score === gaps.length ? '🎉' : 'Listen to the lyrics again and retry.'}</p>
         <button className="btn" onClick={restart}>↻ Play again</button>
       </section>
@@ -220,7 +220,7 @@ function GapGame({ r }: { r: Reading }) {
   return (
     <section className="card gap-game">
       <div className="row between">
-        <h3>🎧 Listen &amp; fill the gap</h3>
+        <h3>Listen &amp; fill the gap</h3>
         <span className="muted small">{i + 1}/{gaps.length}</span>
       </div>
       <p className="gap-line" lang={LANG}>

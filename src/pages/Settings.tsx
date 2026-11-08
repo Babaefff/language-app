@@ -29,7 +29,7 @@ export function Settings() {
       <PracticePlan />
 
       <section className="card">
-        <h3>🎨 Appearance</h3>
+        <h3>Appearance</h3>
         <div className="segmented" role="radiogroup" aria-label="Colour theme">
           {([['light', '☀️ Light'], ['dark', '🌙 Dark'], ['system', '💻 System']] as const).map(([v, label]) => (
             <button key={v} role="radio" aria-checked={settings.theme === v} className={settings.theme === v ? 'on' : ''} onClick={() => updateSettings({ theme: v })}>{label}</button>
@@ -39,7 +39,7 @@ export function Settings() {
       </section>
 
       <section className="card">
-        <h3>🔊 Audio</h3>
+        <h3>Audio</h3>
         {!speechSupported() && <p className="warn">Your browser doesn't support speech. Try Chrome, Edge or Safari.</p>}
         {speechSupported() && voices.length === 0 && (
           <p className="warn">No {L.name} voice found on this device. On Android install one in Settings → Text-to-speech; on iPhone go to Settings → Accessibility → Spoken Content → Voices → {L.name}; on Windows add {L.name} under Time & Language → Speech.</p>
@@ -78,14 +78,14 @@ export function Settings() {
       <AccountCard />
 
       <section className="card">
-        <h2>⌨️ Answers</h2>
+        <h2>Answers</h2>
         <label className="toggle"><input type="checkbox" checked={settings.typeChoices} onChange={(e) => updateSettings({ typeChoices: e.target.checked })} /> Type answers instead of choosing from options</label>
         <label className="toggle"><input type="checkbox" checked={settings.strictSpelling} onChange={(e) => updateSettings({ strictSpelling: e.target.checked })} /> Strict spelling: {LANG === 'de' ? 'ä ö ü ß and capital letters (nouns, Sie)' : LANG === 'fr' ? 'accents (é è ê à ç…) and capital letters' : LANG === 'ru' ? 'ё and й, and capital letters' : 'accents, ñ and capital letters'} must be exactly right</label>
         <p className="muted small">Without strict spelling, small slips are accepted but the exact spelling is shown. {LANG === 'de' ? 'Typing ae, oe, ue or ss for ä, ö, ü, ß always counts as a slip.' : ''}</p>
       </section>
 
       <section className="card">
-        <h3>🎯 Learning</h3>
+        <h3>Learning</h3>
         <label className="field">
           Daily goal
           <select value={settings.dailyGoal} onChange={(e) => updateSettings({ dailyGoal: Number(e.target.value) })}>
@@ -99,7 +99,7 @@ export function Settings() {
       </section>
 
       <section className="card">
-        <h3>📱 Install on your phone</h3>
+        <h3>Install on your phone</h3>
         <p className="small">Hablo works like an app and keeps working offline once installed.</p>
         <ul className="small">
           <li><strong>iPhone / iPad (Safari):</strong> tap Share → “Add to Home Screen”.</li>
@@ -109,7 +109,7 @@ export function Settings() {
       </section>
 
       <section className="card">
-        <h3>💾 Your data</h3>
+        <h3>Your data</h3>
         <p className="small muted">Progress is saved on this device only. Export a backup to move it to another device.</p>
         <div className="row wrap">
           <button className="btn" onClick={download}>Export backup</button>

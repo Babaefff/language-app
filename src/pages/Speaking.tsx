@@ -50,7 +50,7 @@ export function Speaking() {
     return (
       <div className="page narrow">
         <Link className="link" to="/practice">← Practice</Link>
-        <h1>🎤 Speaking</h1>
+        <h1>Speaking</h1>
         <p className="card">{RECOGNITION_ERRORS.unsupported}</p>
       </div>
     );
@@ -59,7 +59,7 @@ export function Speaking() {
   if (items && !s) {
     return (
       <div className="page narrow">
-        <h1>🎤 Speaking</h1>
+        <h1>Speaking</h1>
         <div className="card">
           <h2>{passed}/{items.length} understood</h2>
           <p className="muted">{passed >= 8 ? 'Excellent — you are clearly understood.' : 'Listen to each sentence again and copy the rhythm, then retry.'}</p>
@@ -111,7 +111,7 @@ export function Speaking() {
   return (
     <div className="page narrow">
       <Link className="link" to="/practice">← Practice</Link>
-      <h1>🎤 Speaking</h1>
+      <h1>Speaking</h1>
       <p className="muted">Speak into the microphone and see which words were understood. Green means the word was recognised; red means try it again. This checks whether you are understood — it can’t grade every detail of your accent.</p>
       <div className="card">
         <h3>Mode</h3>

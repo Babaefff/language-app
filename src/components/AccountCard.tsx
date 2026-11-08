@@ -14,7 +14,7 @@ export function AccountCard({ bare = false }: { bare?: boolean } = {}) {
   if (configProblem) {
     return (
       <section className="card">
-        <h2>☁️ Account</h2>
+        <h2>Account</h2>
         <p className="warn">Accounts are not set up correctly: {configProblem}</p>
         <p className="muted small">Fix it in Netlify → Environment variables, then redeploy.</p>
       </section>
@@ -31,7 +31,7 @@ export function AccountCard({ bare = false }: { bare?: boolean } = {}) {
   if (user) {
     return (
       <section className="card">
-        <h2>☁️ Account</h2>
+        <h2>Account</h2>
         {!bare && <p>Signed in as <strong>{user.email}</strong></p>}
         <p className="muted small">
           {status === 'syncing' ? 'Saving…' : status === 'error' ? `⚠️ Sync problem: ${error}` : lastSync ? `✓ Progress saved to your account at ${new Date(lastSync).toLocaleTimeString()}` : '✓ Synced'}
@@ -79,5 +79,5 @@ export function AccountCard({ bare = false }: { bare?: boolean } = {}) {
 }
 
 function Wrap({ bare, children }: { bare: boolean; children: ReactNode }) {
-  return bare ? <div className="account-form">{children}</div> : <section className="card"><h2>☁️ Account</h2>{children}</section>;
+  return bare ? <div className="account-form">{children}</div> : <section className="card"><h2>Account</h2>{children}</section>;
 }

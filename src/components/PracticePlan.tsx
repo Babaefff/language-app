@@ -52,7 +52,7 @@ export function PracticePlan({ compact = false }: { compact?: boolean }) {
   if (!editing && settings.planTime) {
     return (
       <div className={compact ? '' : 'card'}>
-        {!compact && <h3>📅 Your practice plan</h3>}
+        {!compact && <h3>Your practice plan</h3>}
         <p><strong>{settings.planCue} ({settings.planTime})</strong>, I practise {L.name} for {settings.planMinutes} minutes.</p>
         <button className="link small" onClick={() => setEditing(true)}>Change plan</button>
       </div>
@@ -60,7 +60,7 @@ export function PracticePlan({ compact = false }: { compact?: boolean }) {
   }
   return (
     <div className={compact ? '' : 'card'}>
-      <h3>📅 Make a practice plan</h3>
+      <h3>Make a practice plan</h3>
       <p className="muted small">People who decide <em>when</em> and <em>after what</em> they'll practise are far more likely to keep going. Pick a moment that already happens every day.</p>
       <div className="plan-form">
         <label>When<select value={cue} onChange={(e) => setCue(e.target.value)}>{CUES.map((c) => <option key={c}>{c}</option>)}</select></label>

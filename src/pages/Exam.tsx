@@ -22,7 +22,7 @@ export function ExamList() {
   return (
     <div className="page">
       <Link className="link" to="/practice">← Practice</Link>
-      <h1>📝 Mock exams</h1>
+      <h1>Mock exams</h1>
       <p className="muted">
         Full practice exams that follow the format of the official {L.name} certificates: the same parts, task types,
         number of listening plays and the 60 % pass mark per module. The tasks are original, not official exam papers, so a pass

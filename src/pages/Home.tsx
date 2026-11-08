@@ -55,6 +55,15 @@ export function Home() {
   const unitsToday = Object.values(p.units).filter(u => today(new Date(u.completedAt)) === today()).length;
   const counts = { learning: 0, familiar: 0, known: 0 };
   for (const c of Object.values(p.cards)) { const st = strength(c); if (st !== 'new') counts[st]++; }
+  // The last 7 days: practised, saved by a shield, or missed. Seeing the chain is what keeps it going.
+  const week = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(); d.setDate(d.getDate() - 6 + i);
+    const key = today(d);
+    return { key, label: d.toLocaleDateString('en', { weekday: 'narrow' }), state: (p.xp[key] ?? 0) > 0 ? 'on' : p.frozen[key] ? 'shield' : '' };
+  });
+  // Goal gradient: the next milestone is the end of the current level, always in sight.
+  const levelUnits = next ? UNITS.filter(u => u.level === next.level) : [];
+  const levelDone = levelUnits.filter(u => p.units[u.id]).length;
   const showBanner = accountsEnabled && !configProblem && !user && !hideBanner;
   const plan = [due ? `${Math.min(due, 5)} words to review` : '', mistakes ? `${Math.min(mistakes, 3)} mistakes` : '', next ? `${STEPS[step].title.toLowerCase()}` : ''].filter(Boolean);
   const lessonLink = next ? `/unit/${next.id}` : '/course';
@@ -75,7 +84,8 @@ export function Home() {
       <section className="card dashboard-lesson">
         <span className="tag">{next ? `${next.level} · Lesson ${UNITS.indexOf(next) + 1} of ${UNITS.length}` : 'Course complete'}</span>
         <h2>{next?.title ?? 'You finished A1–B1!'}</h2>
-        {next ? <><p className="muted" lang={LANG}>{next.titleEs}</p><div className="steps-dots">{STEPS.map((s, i) => <span key={s.title} className={p.steps[`${next.id}:${i}`] !== undefined ? 'done' : i === step ? 'now' : ''}>{p.steps[`${next.id}:${i}`] !== undefined ? '✓' : i + 1} {s.title}</span>)}</div></>
+        {next ? <><p className="muted" lang={LANG}>{next.titleEs}</p><div className="steps-dots">{STEPS.map((s, i) => <span key={s.title} className={p.steps[`${next.id}:${i}`] !== undefined ? 'done' : i === step ? 'now' : ''}>{p.steps[`${next.id}:${i}`] !== undefined ? '✓' : i + 1} {s.title}</span>)}</div>
+          <div className="milestone"><div className="bar" role="progressbar" aria-label={`${next.level} lessons finished`} aria-valuenow={levelDone} aria-valuemin={0} aria-valuemax={levelUnits.length}><div style={{ width: `${levelDone / Math.max(1, levelUnits.length) * 100}%` }} /></div><span className="small muted">{levelUnits.length - levelDone} lessons to finish {next.level}</span></div></>
           : <p className="muted">Keep reviewing, or test yourself with a mock exam.</p>}
         {dailyDone
           ? <><p className="small daily-note"><Icon name="shield" size={16} /> Daily session done today.</p>
@@ -95,6 +105,9 @@ export function Home() {
             </div>
             <GoalRing value={xpToday} goal={goal} />
           </div>
+          <ol className="week" aria-label="Last 7 days">
+            {week.map((d, i) => <li key={d.key} className={d.state} title={d.key}><span className="dot">{d.state === 'on' ? '✓' : d.state === 'shield' ? '🛡' : ''}</span><span className="day">{i === 6 ? 'Today' : d.label}</span></li>)}
+          </ol>
           {savedYesterday && <p className="small">A shield kept your streak alive yesterday. Welcome back!</p>}
           {unitsToday >= 3 && <p className="small">Great work today! Your memory sorts new words while you sleep, so tomorrow’s review will make them stick.</p>}
         </section>

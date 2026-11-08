@@ -1,14 +1,23 @@
 import { WORD_MAP } from '../data/course';
 import { LANG } from '../data/lang';
 import type { SessionSummary } from './Session';
+import { streak, today, useProgress } from '../lib/store';
 
 export function Summary({ summary, xp, onDone, onRetry, doneLabel = 'Continue' }: { summary: SessionSummary; xp: number; onDone: () => void; onRetry?: () => void; doneLabel?: string }) {
   const pct = summary.total ? Math.round((summary.correct / summary.total) * 100) : 100;
   const missed = Object.entries(summary.words).filter(([, ok]) => !ok).map(([id]) => id);
+  const p = useProgress();
+  const xpToday = p.xp[today()] ?? 0;
+  const goal = p.settings.dailyGoal;
+  const days = streak(p.xp, p.frozen);
+  // Specific, effort-focused feedback: what went well and what happens next, never a bare score.
+  const headline = pct >= 90 ? 'Excellent work!' : pct >= 70 ? 'Nice progress!' : 'Good effort — this is how it sticks.';
   return (
     <div className="summary card">
       <div className="summary-emoji">{pct >= 90 ? '🏆' : pct >= 70 ? '🎉' : '💪'}</div>
-      <h2>Results</h2>
+      <h2>{headline}</h2>
+      <p className="summary-streak"><span aria-hidden="true">🔥</span> {days > 0 ? `${days}-day streak` : 'Streak started'} · {xpToday >= goal ? 'daily goal reached' : `${goal - xpToday} XP to today’s goal`}</p>
+      <div className="bar summary-goal" role="progressbar" aria-label="Today’s goal" aria-valuenow={Math.min(xpToday, goal)} aria-valuemin={0} aria-valuemax={goal}><div style={{ width: `${Math.min(100, xpToday / Math.max(1, goal) * 100)}%` }} /></div>
       <div className="stats">
         <div><strong>{pct}%</strong><span>accuracy</span></div>
         <div><strong>+{xp}</strong><span>XP</span></div>

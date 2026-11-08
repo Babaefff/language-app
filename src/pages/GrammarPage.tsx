@@ -19,7 +19,7 @@ export function GrammarList() {
       <h1>Grammar</h1>
       <p className="muted">Short lessons that explain the logic behind {L.name}: why verbs change, which ones behave alike, and when to use what. Each ends with practice.</p>
       <Link to="/pronunciation" className="card action pron-link">
-        <h2>🔤 Pronunciation</h2>
+        <h2>Pronunciation</h2>
         <p className="muted small">Start here: how every letter and letter combination sounds, with examples to hear.</p>
       </Link>
       {LEVELS.map((level) => (
@@ -100,7 +100,7 @@ export function GrammarLessonPage() {
             case 'text':
               return <Grammar key={i} source={b.md} />;
             case 'logic':
-              return <div key={i} className="logic"><h3>🧠 The logic</h3><Grammar source={b.md} /></div>;
+              return <div key={i} className="logic"><h3>The logic</h3><Grammar source={b.md} /></div>;
             case 'tip':
               return <div key={i} className="tip"><Grammar source={b.md} /></div>;
             case 'table':

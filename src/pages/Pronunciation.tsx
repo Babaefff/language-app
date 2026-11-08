@@ -26,7 +26,7 @@ function Quiz() {
   if (!q) {
     return (
       <section className="card">
-        <h2>🎧 Which word do you hear?</h2>
+        <h2>Which word do you hear?</h2>
         <p><strong>{score}/{qs.length} correct.</strong> {score === qs.length ? '🎉' : 'Read the rules above again and listen to the examples.'}</p>
         <button className="btn" onClick={restart}>↻ New round</button>
       </section>
@@ -34,7 +34,7 @@ function Quiz() {
   }
   return (
     <section className="card">
-      <div className="row between"><h2>🎧 Which word do you hear?</h2><span className="muted small">{i + 1}/{qs.length}</span></div>
+      <div className="row between"><h2>Which word do you hear?</h2><span className="muted small">{i + 1}/{qs.length}</span></div>
       <button className="btn primary" onClick={() => speak(q.word)}>🔊 Play the word</button>
       <div className="options">
         {q.options.map((o) => (
@@ -58,7 +58,7 @@ export function Pronunciation() {
   return (
     <div className="page narrow">
       <Link className="link" to="/grammar">← Grammar</Link>
-      <h1>🔤 Pronunciation</h1>
+      <h1>Pronunciation</h1>
       <p className="muted">How {L.name} letters and letter combinations sound, explained for English speakers. Tap any example to hear it.</p>
       <nav className="chips">
         {PRONUNCIATION.map((s, i) => <a key={s.title} className="chip" href={`#pron-${i}`} onClick={(e) => { e.preventDefault(); document.getElementById(`pron-${i}`)?.scrollIntoView({ behavior: 'smooth' }); }}>{s.title}</a>)}
