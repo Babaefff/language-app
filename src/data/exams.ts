@@ -1,7 +1,5 @@
 import type { Exam } from './types';
-import { LANG } from './lang';
-import { EXAMS_FR } from './fr/exams';
-import { EXAMS_DE } from './de/exams';
-import { EXAMS_ES } from './exams-es';
+import { content } from './content';
 
-export const EXAMS: Exam[] = LANG === 'de' ? EXAMS_DE : LANG === 'fr' ? EXAMS_FR : EXAMS_ES;
+/** Mock exams of the language being studied. */
+export const EXAMS: Exam[] = content().exams;

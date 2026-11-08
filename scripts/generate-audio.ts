@@ -9,14 +9,18 @@
  * Existing clips are skipped, so re-running only generates what's new.
  */
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
-import { WORDS, SENTENCES } from '../src/data/course';
-import { READINGS, SONGS } from '../src/data/readings';
-import { GRAMMAR } from '../src/data/grammar';
-import { EXAMS } from '../src/data/exams';
+import { loadContent } from '../src/data/load';
 import { PRONUNCIATION } from '../src/data/pronunciation';
 import { VERBS } from '../src/data/verbs';
 import { conjugate, gerund, participle, TENSES } from '../src/lib/conjugate';
 import { audioFile, audioKey, speakable, chunks } from '../src/lib/audioKey';
+
+// Courses are separate downloads: load the one for HABLO_LANG before reading it.
+await loadContent();
+const { WORDS, SENTENCES } = await import('../src/data/course');
+const { READINGS, SONGS } = await import('../src/data/readings');
+const { GRAMMAR } = await import('../src/data/grammar');
+const { EXAMS } = await import('../src/data/exams');
 
 const args = process.argv.slice(2);
 const dry = args.includes('--dry');

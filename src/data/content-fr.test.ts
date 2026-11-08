@@ -14,6 +14,7 @@ let m: Mods;
 
 beforeAll(async () => {
   vi.stubEnv('HABLO_LANG', 'fr');
+  await (await import('./load')).loadContent();
   m = {
     course: await import('./course'),
     grammar: await import('./grammar'),
