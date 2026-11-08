@@ -64,6 +64,17 @@ export async function signInWithEmail(email: string) {
   if (error) throw error;
 }
 
+/** Google's own sign-in button (Google Identity Services): sign-in happens on this site, so Google
+ * shows this site's address instead of the Supabase project's. Needs VITE_GOOGLE_CLIENT_ID. */
+export const googleClientId = clean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
+
+/** Signs in with the ID token from Google's button; the nonce ties the token to this attempt. */
+export async function signInWithGoogleIdToken(token: string, nonce: string) {
+  const sb = await getClient();
+  const { error } = await sb.auth.signInWithIdToken({ provider: 'google', token, nonce });
+  if (error) throw error;
+}
+
 export async function signInWithGoogle() {
   const sb = await getClient();
   const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: redirectTo() } });

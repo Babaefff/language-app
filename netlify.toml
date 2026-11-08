@@ -12,19 +12,19 @@
   TTS_TIME_LIMIT = "5"
 
 # Security headers for every page.
-# - CSP: only this site's own scripts, YouTube's player and Supabase (accounts) may run or be contacted.
+# - CSP: only this site's own scripts, YouTube's player, Google's sign-in button and Supabase (accounts) may run or be contacted.
 # - No framing of the app by other sites (clickjacking), HTTPS only, no MIME sniffing,
 #   microphone only for this site (Speaking practice), no camera/location/payments.
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' https://www.youtube.com https://s.ytimg.com; frame-src https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co; img-src 'self' data: https://i.ytimg.com; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; font-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://www.youtube.com https://s.ytimg.com https://accounts.google.com/gsi/client; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://accounts.google.com/gsi/; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com/gsi/; img-src 'self' data: https://i.ytimg.com; media-src 'self' blob:; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style; font-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "microphone=(self), camera=(), geolocation=(), payment=(), usb=()"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
-    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Opener-Policy = "same-origin-allow-popups"
 
 # The service worker must always be fresh so updates reach users.
 [[headers]]
