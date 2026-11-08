@@ -40,3 +40,60 @@ describe('streak shields', () => {
     expect(Object.keys(mergeProgress(a, b).frozen).sort()).toEqual([day(5), day(3)].sort());
   });
 });
+
+describe('backup safety and account separation', () => {
+  it('rejects invalid and oversized backups without changing progress', async () => {
+    const s = await import('./store');
+    const before = s.exportProgress();
+    for (const data of ['null', '{"version":1,"cards":null}', '{"version":1,"cards":[]}', ' '.repeat(1_000_001)]) {
+      expect(() => s.importProgress(data)).toThrow();
+      expect(s.exportProgress()).toBe(before);
+    }
+  });
+
+  it('sanitizes nested values while retaining valid older backup fields', async () => {
+    const s = await import('./store');
+    s.importProgress(JSON.stringify({ version: 1, cards: { bad: null,
+      old: { interval: 1, due: 12, reps: 2, lapses: 0, seen: 10, ease: 2.5 } },
+      xp: { day: 'bad', good: 10 }, units: { bad: {} },
+      settings: { rate: 'invalid', theme: 'bogus', autoplay: 'yes' } }));
+    expect(s.getProgress().cards.old.ease).toBe(2.5);
+    expect(s.getProgress().cards.bad).toBeUndefined();
+    expect(s.getProgress().xp).toEqual({ good: 10 });
+    expect(s.getProgress().units).toEqual({});
+    expect(typeof s.getProgress().settings.rate).toBe('number');
+    expect(typeof s.getProgress().settings.autoplay).toBe('boolean');
+    expect(s.getProgress().settings.theme).toBe('system');
+  });
+
+  it('separates guest and account copies across sign-out, reload, and languages', async () => {
+    const s = await import('./store');
+    const memory = new Map<string, string>();
+    const previous = globalThis.localStorage;
+    Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: {
+      getItem: (k: string) => memory.get(k) ?? null,
+      setItem: (k: string, v: string) => memory.set(k, v),
+    } });
+    try {
+      s.selectProgressAccount(null);
+      s.resetProgress(); s.addXp(5);
+      s.selectProgressAccount('alice');
+      expect(s.getProgress().xp).toEqual({});
+      s.addXp(20);
+      memory.set(s.progressKeyFor('de'), JSON.stringify({ xp: { day: 99 } }));
+      s.selectProgressAccount(null);
+      expect(Object.values(s.getProgress().xp)).toEqual([5]);
+      expect(s.readProgressFor('de').xp).toEqual({});
+      s.selectProgressAccount('bob');
+      expect(s.getProgress().xp).toEqual({});
+      s.importGuestProgress();
+      expect(Object.values(s.getProgress().xp)).toEqual([5]);
+      s.selectProgressAccount('alice');
+      expect(Object.values(s.getProgress().xp)).toEqual([20]);
+      expect(s.readProgressFor('de').xp).toEqual({ day: 99 });
+    } finally {
+      s.selectProgressAccount(null);
+      Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: previous });
+    }
+  });
+});

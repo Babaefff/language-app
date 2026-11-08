@@ -117,7 +117,7 @@ export function Settings() {
           <input ref={file} type="file" accept="application/json" hidden onChange={async (e) => {
             const f = e.target.files?.[0];
             if (!f) return;
-            try { importProgress(await f.text()); setMsg('Backup restored ✓'); } catch (err) { setMsg(String(err)); }
+            try { if (f.size > 1_000_000) throw new Error('Backup must be smaller than 1 MB'); importProgress(await f.text()); setMsg('Backup restored ✓'); } catch (err) { setMsg(String(err)); }
           }} />
           {confirmReset ? (
             <>

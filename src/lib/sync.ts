@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 import { LANG } from '../data/lang';
-import { getProgress, mergeProgress, onProgressChange, parseProgress, replaceProgress, updateSettings } from './store';
+import { getProgress, mergeProgress, onProgressChange, parseProgress, replaceProgress, selectProgressAccount, updateSettings } from './store';
 
 /**
  * Optional accounts (Supabase). Without VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY the app works
@@ -83,7 +83,8 @@ export async function signInWithGoogle() {
 
 export async function signOut() {
   const sb = await getClient();
-  await sb.auth.signOut();
+  const { error } = await sb.auth.signOut();
+  if (error) throw error;
 }
 
 /** Deletes the account itself and all its cloud data (progress on this device stays). */
@@ -104,11 +105,15 @@ export async function deleteCloudData() {
   setSync({ lastSync: null });
 }
 
+let accountRevision = 0;
+
 async function pull(user: User) {
+  const revision = accountRevision;
   const sb = await getClient();
   setSync({ status: 'syncing' });
   const { data, error } = await sb.from('progress').select('data').eq('user_id', user.id).eq('lang', LANG).maybeSingle();
   if (error) throw error;
+  if (revision !== accountRevision || sync.user?.id !== user.id) return;
   if (data?.data) {
     replaceProgress(mergeProgress(getProgress(), parseProgress(data.data)));
     // The avatar choice follows the account: the most recent change (on any device) wins.
@@ -121,13 +126,17 @@ async function pull(user: User) {
 }
 
 async function push() {
-  if (!sync.user) return;
-  const sb = await getClient();
-  setSync({ status: 'syncing' });
+  const user = sync.user;
+  const revision = accountRevision;
+  if (!user) return;
   const { settings, ...progress } = getProgress();
+  const sb = await getClient();
+  if (revision !== accountRevision) return;
+  setSync({ status: 'syncing' });
   const data = { ...progress, avatar: { glyph: settings.avatarGlyph, shuffle: settings.avatarShuffle, at: settings.avatarAt } };
-  const { error } = await sb.from('progress').upsert({ user_id: sync.user.id, lang: LANG, data, updated_at: new Date().toISOString() });
+  const { error } = await sb.from('progress').upsert({ user_id: user.id, lang: LANG, data, updated_at: new Date().toISOString() });
   if (error) throw error;
+  if (revision !== accountRevision) return;
   setSync({ status: 'synced', lastSync: Date.now(), error: undefined });
 }
 
@@ -142,12 +151,18 @@ export async function initSync() {
   const sb = await getClient();
   const onUser = async (user: User | null) => {
     if (user?.id === sync.user?.id) return;
-    setSync({ user, status: user ? 'syncing' : 'idle', lastSync: null });
-    if (!user) return;
-    // Remove ?code=… left by the sign-in link.
-    if (window.location.search.includes('code=')) window.history.replaceState(null, '', redirectTo() + window.location.hash);
+    const revision = ++accountRevision;
+    clearTimeout(timer);
+    timer = undefined;
     pulling = true;
-    try { await pull(user); } catch (e) { fail(e); } finally { pulling = false; }
+    // Clear the old identity before notifying progress subscribers.
+    setSync({ user: null, status: 'idle', lastSync: null, error: undefined });
+    selectProgressAccount(user?.id ?? null);
+    setSync({ user, status: user ? 'syncing' : 'idle' });
+    if (!user) { pulling = false; return; }
+    if (window.location.search.includes('code=')) window.history.replaceState(null, '', redirectTo() + window.location.hash);
+    try { await pull(user); } catch (e) { if (revision === accountRevision) fail(e); }
+    finally { if (revision === accountRevision) pulling = false; }
   };
   sb.auth.onAuthStateChange((_event, session) => { void onUser(session?.user ?? null); });
   const { data } = await sb.auth.getSession();
@@ -166,6 +181,9 @@ export async function initSync() {
   window.addEventListener('focus', () => {
     if (!sync.user || pulling || Date.now() - lastPull < 60_000) return;
     lastPull = Date.now();
-    pull(sync.user).catch(fail);
+    const revision = accountRevision;
+    pulling = true;
+    pull(sync.user).catch(e => { if (revision === accountRevision) fail(e); })
+      .finally(() => { if (revision === accountRevision) pulling = false; });
   });
 }

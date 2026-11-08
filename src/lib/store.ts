@@ -50,7 +50,11 @@ export interface Progress {
 import { LANG } from '../data/lang';
 
 /** Each language keeps its own progress (Spanish keeps the original key). */
-const KEY = LANG === 'es' ? 'hablo:progress:v1' : `hablo:progress:${LANG}:v1`; // keep in sync with progressKeyFor
+let progressOwner: string | null = null;
+const storageKey = (lang: string, owner = progressOwner) => {
+  const base = lang === 'es' ? 'hablo:progress:v1' : `hablo:progress:${lang}:v1`;
+  return owner ? `${base}:user:${owner}` : base;
+};
 
 const DEFAULT: Progress = {
   version: 1,
@@ -80,12 +84,12 @@ function saveTheme(t: Settings['theme']) {
   try { localStorage.setItem(THEME_KEY, t); } catch { /* storage unavailable */ }
 }
 
-const isObj = (v: unknown): v is Record<string, never> => typeof v === 'object' && v !== null && !Array.isArray(v);
+const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 
 /** Loads saved progress, falling back field by field to defaults if anything is malformed. */
 function load(): Progress {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(storageKey(LANG));
     return parseProgress(raw ? JSON.parse(raw) : {});
   } catch {
     return parseProgress({});
@@ -96,19 +100,42 @@ function load(): Progress {
 export function parseProgress(parsed: unknown): Progress {
   try {
     if (!isObj(parsed)) return DEFAULT;
-    const pick = <K extends keyof Progress>(k: K): Progress[K] => (isObj(parsed[k]) ? (parsed[k] as Progress[K]) : DEFAULT[k]);
+    const record = <T>(value: unknown, valid: (v: unknown) => boolean): Record<string, T> =>
+      isObj(value) ? Object.fromEntries(Object.entries(value).filter(([k, v]) =>
+        !['__proto__', 'constructor', 'prototype'].includes(k) && valid(v))) as Record<string, T> : {};
+    const num = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v) && v >= 0;
+    const fields = (v: unknown, names: string[]) => isObj(v) && names.every(k => num(v[k]));
+    const numbers = (v: unknown) => record<number>(v, num);
+    const settings = { ...DEFAULT.settings };
+    if (isObj(parsed.settings)) {
+      for (const k of Object.keys(settings) as (keyof Settings)[]) {
+        const v = parsed.settings[k];
+        const d = DEFAULT.settings[k];
+        if ((typeof d === 'number' && num(v)) ||
+            (typeof d === 'boolean' && typeof v === 'boolean') ||
+            (typeof d === 'string' && typeof v === 'string' && v.length <= 1000) ||
+            (k === 'voiceURI' && (v === null || typeof v === 'string' && v.length <= 1000))) {
+          Object.assign(settings, { [k]: v });
+        }
+      }
+    }
+    if (!['system', 'light', 'dark'].includes(settings.theme)) settings.theme = DEFAULT.settings.theme;
+    if (!['es-ES', 'es-MX', 'any'].includes(settings.accent)) settings.accent = DEFAULT.settings.accent;
+    settings.rate = Math.min(1.3, Math.max(0.5, settings.rate));
     return {
       version: 1,
-      cards: pick('cards'),
-      units: pick('units'),
-      steps: pick('steps'),
-      readings: pick('readings'),
-      grammar: pick('grammar'),
-      exams: pick('exams'),
-      xp: pick('xp'),
-      frozen: pick('frozen'),
-      conj: { ...DEFAULT.conj, ...pick('conj') },
-      settings: { ...DEFAULT.settings, ...pick('settings'), ...withSharedTheme() },
+      cards: record<Card>(parsed.cards, v => fields(v, ['interval', 'due', 'reps', 'lapses', 'seen']) &&
+        ['stability', 'difficulty', 'ease'].every(k => !isObj(v) || v[k] === undefined || num(v[k]))),
+      units: record(parsed.units, v => fields(v, ['completedAt', 'best'])),
+      steps: numbers(parsed.steps),
+      readings: record(parsed.readings, v => fields(v, ['readAt', 'score'])),
+      grammar: numbers(parsed.grammar),
+      exams: record<ExamResult>(parsed.exams, v => fields(v, ['at', 'best']) && isObj(v) && isObj(v.scores) && Object.values(v.scores).every(num)),
+      xp: numbers(parsed.xp),
+      frozen: numbers(parsed.frozen),
+      conj: { right: isObj(parsed.conj) && num(parsed.conj.right) ? parsed.conj.right : 0,
+        wrong: isObj(parsed.conj) && num(parsed.conj.wrong) ? parsed.conj.wrong : 0 },
+      settings: { ...settings, ...withSharedTheme() },
     };
   } catch {
     return DEFAULT;
@@ -128,7 +155,7 @@ const listeners = new Set<() => void>();
 function set(next: Progress) {
   state = next;
   try {
-    localStorage.setItem(KEY, JSON.stringify(state));
+    localStorage.setItem(storageKey(LANG), JSON.stringify(state));
   } catch {
     // Storage can be unavailable (private mode); progress then lasts for the session only.
   }
@@ -208,9 +235,10 @@ export function exportProgress(): string {
 }
 
 export function importProgress(json: string) {
-  const parsed = JSON.parse(json) as Progress;
-  if (parsed.version !== 1 || typeof parsed.cards !== 'object') throw new Error('Not a Hablo backup file');
-  set({ ...DEFAULT, ...parsed, settings: { ...DEFAULT.settings, ...parsed.settings } });
+  if (new TextEncoder().encode(json).length > 1_000_000) throw new Error('Backup must be smaller than 1 MB');
+  const parsed: unknown = JSON.parse(json);
+  if (!isObj(parsed) || parsed.version !== 1 || !isObj(parsed.cards)) throw new Error('Not a Hablo backup file');
+  set(parseProgress(parsed));
 }
 
 /** Applies the colour theme to the page (CSS reads :root[data-theme]). */
@@ -280,7 +308,22 @@ export function mergeProgress(a: Progress, b: Progress): Progress {
 }
 
 /** Where each language keeps its progress in this browser. */
-export const progressKeyFor = (lang: string) => (lang === 'es' ? 'hablo:progress:v1' : `hablo:progress:${lang}:v1`);
+export const progressKeyFor = (lang: string) => storageKey(lang);
+
+/** Switch before syncing so one account can never inherit another account's device copy. */
+export function selectProgressAccount(userId: string | null) {
+  if (progressOwner === userId) return;
+  progressOwner = userId;
+  state = load();
+  listeners.forEach(l => l());
+}
+
+/** Guest progress is imported only after an explicit user choice. */
+export function importGuestProgress() {
+  if (!progressOwner) return;
+  const raw = localStorage.getItem(storageKey(LANG, null));
+  if (raw) set(mergeProgress(state, parseProgress(JSON.parse(raw))));
+}
 
 /** Progress of another language saved in this browser (the current one comes from useProgress). */
 export function readProgressFor(lang: string): Progress {

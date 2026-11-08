@@ -15,7 +15,7 @@ A web app for learning Spanish that also installs on phones. It covers vocabular
 | **Reading** | 12 texts from A1 to B1+, including public-domain classics: *Don Quijote* (ch. 1), *Lazarillo de Tormes*, Bécquer's *Rima LIII*. Tap any word for its meaning, including conjugated forms like *fue → ir/ser, preterite*. The text can be read aloud with sentence highlighting, and there are comprehension questions. |
 | **Audio** | Uses the device's built-in Spanish text-to-speech (free, works offline). You can choose the voice, the accent (Spain / Latin America) and the speed. |
 
-Progress is stored on the device in `localStorage`. You can export or import a backup in Settings.
+Progress is stored on the device in `localStorage`. You can export or import a backup in Settings. Signed-in accounts keep separate local progress copies. Signing out returns to guest progress; guest progress is only added to an account with the **Import guest progress** button in Settings. Existing unassigned progress from older versions stays in the guest copy, so import it only if it is yours. Backup imports are limited to 1 MB and validated before use.
 
 ## Run it
 
