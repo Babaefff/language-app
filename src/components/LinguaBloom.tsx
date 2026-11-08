@@ -33,7 +33,7 @@ export function useBloomData(): BloomData {
   const p = useProgress();
   const done = UNITS.filter((u) => p.units[u.id]);
   const level = (['B1', 'A2', 'A1'] as const).find((lv) => done.some((u) => u.level === lv)) ?? 'none';
-  return { lessons: done.length, streak: streak(p.xp), level };
+  return { lessons: done.length, streak: streak(p.xp, p.frozen), level };
 }
 
 /**

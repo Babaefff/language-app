@@ -16,7 +16,7 @@ export function Account() {
   const p = useProgress();
   const { user, status, lastSync } = useSync();
   const signedIn = !!user;
-  const days = streak(p.xp);
+  const days = streak(p.xp, p.frozen);
   const best = Math.max(days, bestStreak(p.xp));
   const lessons = Object.keys(p.units).length;
   const examsPassed = EXAMS.filter((e) => p.exams[e.id] && Object.values(p.exams[e.id].scores).every((s) => s >= 60)).length;
