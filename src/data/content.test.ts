@@ -68,6 +68,16 @@ describe('course content', () => {
     }
   });
 
+  it('every example sentence in the unit grammar notes has English', async () => {
+    const { exampleTranslation } = await import('./grammar-translations');
+    const re = /(\*\*[^*]+\*\*|\*(?:\*\*[^*]+\*\*|[^*])+\*)/g;
+    for (const u of UNITS) for (const m of u.grammar.matchAll(re)) {
+      if (m[0].startsWith('**') && !m[0].startsWith('***')) continue;
+      const s = m[0].slice(1, -1).replace(/\*\*/g, '').trim();
+      if (/[.!?]$/.test(s) && s.split(/\s+/).length >= 2) expect(exampleTranslation(s), `${u.id}: ${s}`).toBeTruthy();
+    }
+  });
+
   it('every grammar lesson has its logic box', async () => {
     const { DEEP_ES } = await import('./grammar-deep-es');
     const lessons = (await import('./grammar')).GRAMMAR;

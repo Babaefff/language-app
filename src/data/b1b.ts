@@ -192,7 +192,7 @@ If the statement is still true, you can keep the present: *Dice que **está** ca
 - *Si **haces** ejercicio, te **sentirás** mejor.* (future result)
 - *Si te **duele**, **ve** al médico.* (advice)
 
-Never use the future or the present subjunctive right after **si**: *Si ~~lloverá~~ **llueve**, no salgo.*
+Never use the future or the present subjunctive right after **si**: *Si **llueve**, no salgo.* (never *si lloverá*)
 
 ## Frequency
 *una vez / dos veces **por** semana (**a la** semana)* · *cada día* · *casi nunca* · *de vez en cuando*

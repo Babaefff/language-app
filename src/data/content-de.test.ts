@@ -80,6 +80,16 @@ describe('German course', () => {
     }
   });
 
+  it('every example sentence in the unit grammar notes has English', async () => {
+    const { exampleTranslation } = await import('./grammar-translations');
+    const re = /(\*\*[^*]+\*\*|\*(?:\*\*[^*]+\*\*|[^*])+\*)/g;
+    for (const u of m.course.UNITS) for (const m of u.grammar.matchAll(re)) {
+      if (m[0].startsWith('**') && !m[0].startsWith('***')) continue;
+      const s = m[0].slice(1, -1).replace(/\*\*/g, '').trim();
+      if (/[.!?]$/.test(s) && s.split(/\s+/).length >= 2) expect(exampleTranslation(s), `${u.id}: ${s}`).toBeTruthy();
+    }
+  });
+
   it('every grammar lesson has its logic box', async () => {
     const { DEEP_DE } = await import('./de/grammar-deep');
     const lessons = m.grammar.GRAMMAR;
