@@ -495,3 +495,4 @@ body:has(.session) .feedback { bottom: 1rem; }
 
 .google-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; width: 100%; background: #fff; color: #1f1f1f; border: 1px solid #747775; font-weight: 600; }
 .or-line { text-align: center; margin: 0.25rem 0; }
+.center-text { text-align: center; }

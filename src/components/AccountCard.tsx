@@ -67,7 +67,7 @@ export function AccountCard() {
         </form>
       )}
       {msg && <p className="warn small">{msg}</p>}
-      <p className="muted small">We store only your email and your learning progress — nothing else, and it is never shared.</p>
+      <p className="muted small">We store only your email and your learning progress — nothing else, and it is never shared. <a href="./privacy.html">Privacy policy</a></p>
       <p className="muted small">Server: {configSummary}</p>
     </section>
   );

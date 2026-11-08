@@ -145,6 +145,7 @@ export function Home() {
           <div><strong>{WORDS.length}</strong><span>in course</span></div>
         </div>
       </section>
+      <p className="small muted center-text"><a href="./privacy.html">Privacy policy</a></p>
     </div>
   );
 }

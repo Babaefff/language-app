@@ -117,6 +117,7 @@ export function Settings() {
         </div>
         {msg && <p className="small">{msg}</p>}
       </section>
+      <p className="small muted center-text"><a href="./privacy.html">Privacy policy</a></p>
     </div>
   );
 }
