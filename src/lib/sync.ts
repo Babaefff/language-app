@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 import { LANG } from '../data/lang';
-import { getProgress, mergeProgress, onProgressChange, parseProgress, replaceProgress } from './store';
+import { getProgress, mergeProgress, onProgressChange, parseProgress, replaceProgress, updateSettings } from './store';
 
 /**
  * Optional accounts (Supabase). Without VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY the app works
@@ -109,7 +109,14 @@ async function pull(user: User) {
   setSync({ status: 'syncing' });
   const { data, error } = await sb.from('progress').select('data').eq('user_id', user.id).eq('lang', LANG).maybeSingle();
   if (error) throw error;
-  if (data?.data) replaceProgress(mergeProgress(getProgress(), parseProgress(data.data)));
+  if (data?.data) {
+    replaceProgress(mergeProgress(getProgress(), parseProgress(data.data)));
+    // The avatar choice follows the account: the most recent change (on any device) wins.
+    const a = (data.data as { avatar?: { glyph?: unknown; shuffle?: unknown; at?: unknown } }).avatar;
+    if (a && typeof a.at === 'number' && a.at > getProgress().settings.avatarAt) {
+      updateSettings({ avatarGlyph: typeof a.glyph === 'string' ? a.glyph.slice(0, 4) : '', avatarShuffle: Number(a.shuffle) || 0, avatarAt: a.at });
+    }
+  }
   await push();
 }
 
@@ -117,7 +124,8 @@ async function push() {
   if (!sync.user) return;
   const sb = await getClient();
   setSync({ status: 'syncing' });
-  const { settings: _settings, ...data } = getProgress();
+  const { settings, ...progress } = getProgress();
+  const data = { ...progress, avatar: { glyph: settings.avatarGlyph, shuffle: settings.avatarShuffle, at: settings.avatarAt } };
   const { error } = await sb.from('progress').upsert({ user_id: sync.user.id, lang: LANG, data, updated_at: new Date().toISOString() });
   if (error) throw error;
   setSync({ status: 'synced', lastSync: Date.now(), error: undefined });

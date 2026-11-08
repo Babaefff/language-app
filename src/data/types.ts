@@ -128,6 +128,8 @@ export type LessonBlock =
   | { t: 'examples'; title?: string; items: [string, string][] }
   /** A highlighted rule of thumb. */
   | { t: 'tip'; md: string }
+  /** "The logic behind it": the idea that connects this rule to others. */
+  | { t: 'logic'; md: string }
   /** Typical learner errors: [wrong, right, why]. */
   | { t: 'mistakes'; items: [string, string, string][] };
 

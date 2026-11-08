@@ -546,3 +546,7 @@ body:has(.session) .feedback { bottom: 1rem; }
 .glyphs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
 .glyphs button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); font-size: 1.15rem; font-weight: 800; color: inherit; cursor: pointer; }
 .glyphs button.on { border: 2px solid var(--primary); }
+
+.logic { border: 2px solid var(--accent); border-radius: 14px; padding: 0.9rem 1.1rem; margin: 1rem 0; background: color-mix(in srgb, var(--accent) 9%, var(--surface)); }
+.logic h3 { margin: 0 0 0.4rem; }
+.logic p:last-child { margin-bottom: 0; }

@@ -67,6 +67,13 @@ describe('German course', () => {
     for (const w of WRITING) for (const u of w.units) expect(m.course.UNITS.some((x) => x.id === u), `${w.id}: ${u}`).toBe(true);
   });
 
+  it('every grammar lesson has its logic box', async () => {
+    const { DEEP_DE } = await import('./de/grammar-deep');
+    const lessons = m.grammar.GRAMMAR;
+    for (const id of Object.keys(DEEP_DE)) expect(lessons.some((l) => l.id === id), id).toBe(true);
+    for (const l of lessons) expect(l.blocks.some((b) => b.t === 'logic') || l.id.endsWith('big-picture'), `${l.id} has no logic box`).toBe(true);
+  });
+
   it('mock exams are well-formed', async () => {
     const { EXAMS } = await import('./exams');
     expect(EXAMS.map((e) => e.level)).toEqual(['A1', 'A2', 'B1']);

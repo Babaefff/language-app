@@ -21,6 +21,8 @@ const PALETTES: Record<string, string[]> = {
   es: ['#c60b1e', '#ffc400', '#e8590c', '#f59f00'],
   de: ['#1f1f1f', '#dd0000', '#ffce00', '#7a0000'],
 };
+/** Streak laps of 30 days: 1–30 gold, 31–60 orange, 61–90 ruby, 91–120 violet, 121+ diamond. */
+export const STREAK_COLOURS = ['#ffb300', '#fb8c00', '#e53935', '#8e24aa', '#00bcd4'];
 const LEVEL_RING = { none: '#9e9e9e', A1: '#2e7d32', A2: '#1565c0', B1: '#8e24aa' } as const;
 
 export interface BloomData { lessons: number; streak: number; level: keyof typeof LEVEL_RING }
@@ -49,8 +51,10 @@ export function LinguaBloom({ seed, glyph, data, size = 64, detail = true }: { s
   const offset = r() * 360;
   const outer = 5 + Math.min(11, data.lessons);
   const inner = data.lessons >= 10 ? 5 + Math.min(11, data.lessons - 10) : 0;
+  // Streak ring: 30 dots per lap; every finished lap changes colour (gold, orange, ruby, violet, diamond).
   const dots = 30;
-  const lit = Math.min(dots, data.streak);
+  const lap = data.streak > 0 ? Math.min(STREAK_COLOURS.length - 1, Math.floor((data.streak - 1) / dots)) : 0;
+  const lit = data.streak > 0 ? Math.min(dots, data.streak - lap * dots) : 0;
   const petal = (i: number, n: number, len: number, w: number, layer: number) => {
     const angle = offset + (360 / n) * i + layer * (180 / n);
     const fill = palette[(i + layer) % palette.length];
@@ -70,7 +74,7 @@ export function LinguaBloom({ seed, glyph, data, size = 64, detail = true }: { s
       <circle cx="50" cy="50" r="48" fill={`url(#bg${uid})`} stroke={LEVEL_RING[data.level]} strokeWidth="4" />
       {detail && Array.from({ length: dots }, (_, i) => {
         const a = ((360 / dots) * i - 90) * (Math.PI / 180);
-        return <circle key={i} cx={50 + 42 * Math.cos(a)} cy={50 + 42 * Math.sin(a)} r="1.6" fill={i < lit ? '#ffb300' : 'rgb(0 0 0 / 0.12)'} />;
+        return <circle key={i} cx={50 + 42 * Math.cos(a)} cy={50 + 42 * Math.sin(a)} r={i < lit ? 1.9 : 1.6} fill={i < lit ? STREAK_COLOURS[lap] : lap > 0 ? STREAK_COLOURS[lap - 1] : 'rgb(0 0 0 / 0.12)'} />;
       })}
       <g>{Array.from({ length: outer }, (_, i) => petal(i, outer, length, width, 0))}</g>
       {inner > 0 && <g>{Array.from({ length: inner }, (_, i) => petal(i, inner, length * 0.62, width * 0.75, 1))}</g>}

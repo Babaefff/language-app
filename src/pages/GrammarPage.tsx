@@ -99,6 +99,8 @@ export function GrammarLessonPage() {
           switch (b.t) {
             case 'text':
               return <Grammar key={i} source={b.md} />;
+            case 'logic':
+              return <div key={i} className="logic"><h3>🧠 The logic</h3><Grammar source={b.md} /></div>;
             case 'tip':
               return <div key={i} className="tip"><Grammar source={b.md} /></div>;
             case 'table':

@@ -76,7 +76,7 @@ export function Account() {
           <h2>🌸 Your Lingua Bloom</h2>
           <button className="btn small-btn" onClick={() => updateSettings({ avatarShuffle: p.settings.avatarShuffle + 1 })}>🎲 New pattern</button>
         </div>
-        <p className="muted small">Your avatar is unique to you and grows as you learn: <strong>every lesson adds a petal</strong> (a second ring opens after 10), petals wear the colours of the language you’re learning, the <strong>gold dots</strong> are your streak days and the <strong>outer ring</strong> shows your level — grey, then green A1, blue A2, purple B1.</p>
+        <p className="muted small">Your avatar is unique to you and grows as you learn: <strong>every lesson adds a petal</strong> (a second ring opens after 10), petals wear the colours of the language you’re learning, the <strong>dots</strong> are your streak days — every 30 days the ring starts a new lap in a new colour: gold, orange, ruby, violet, then 💎 diamond after 120 days and the <strong>outer ring</strong> shows your level — grey, then green A1, blue A2, purple B1.</p>
         <div className="glyphs" role="radiogroup" aria-label="Avatar centre">
           {['', '🦉', '🦊', '🐻', '🐱', '🐸', '🌻', '⭐', '🚀', '🎧', '📚'].map((g) => (
             <button key={g || 'initial'} role="radio" aria-checked={p.settings.avatarGlyph === g} className={p.settings.avatarGlyph === g ? 'on' : ''} onClick={() => updateSettings({ avatarGlyph: g })}>

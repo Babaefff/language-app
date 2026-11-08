@@ -55,6 +55,13 @@ describe('course content', () => {
     for (const r of SONGS) r.paragraphs.forEach((p, i) => expect(r.translation[i].split('\n').length, `${r.id} verse ${i + 1}`).toBe(p.split('\n').length));
   });
 
+  it('every grammar lesson has its logic box', async () => {
+    const { DEEP_ES } = await import('./grammar-deep-es');
+    const lessons = (await import('./grammar')).GRAMMAR;
+    for (const id of Object.keys(DEEP_ES)) expect(lessons.some((l) => l.id === id), id).toBe(true);
+    for (const l of lessons) expect(l.blocks.some((b) => b.t === 'logic') || l.id.endsWith('big-picture'), `${l.id} has no logic box`).toBe(true);
+  });
+
   it('readings are well-formed', () => {
     for (const r of [...READINGS, ...SONGS]) {
       expect(r.translation.length, r.id).toBe(r.paragraphs.length);

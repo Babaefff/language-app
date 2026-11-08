@@ -2,6 +2,7 @@ import type { GrammarLesson } from './types';
 
 import { LANG } from './lang';
 import { GRAMMAR_DE } from './de/grammar';
+import { BIG_PICTURE_ES, DEEP_ES, deepen } from './grammar-deep-es';
 
 const GRAMMAR_ES: GrammarLesson[] = [
   // ─── A1 ────────────────────────────────────────────────────────────────────
@@ -787,5 +788,5 @@ It usually appears after **que**, when the two parts of the sentence have **diff
   },
 ];
 
-export const GRAMMAR: GrammarLesson[] = LANG === 'de' ? GRAMMAR_DE : GRAMMAR_ES;
+export const GRAMMAR: GrammarLesson[] = LANG === 'de' ? GRAMMAR_DE : [BIG_PICTURE_ES, ...deepen(GRAMMAR_ES, DEEP_ES)];
 export const GRAMMAR_MAP: Record<string, GrammarLesson> = Object.fromEntries(GRAMMAR.map((g) => [g.id, g]));

@@ -19,6 +19,8 @@ export interface Settings {
   /** Lingua Bloom avatar: centre emoji ('' = initial) and pattern shuffle count. */
   avatarGlyph: string;
   avatarShuffle: number;
+  /** When the avatar was last changed (the newest choice wins when syncing devices). */
+  avatarAt: number;
 }
 
 export interface ExamResult { at: number; scores: Record<string, number>; best: number }
@@ -54,7 +56,7 @@ const DEFAULT: Progress = {
   exams: {},
   xp: {},
   conj: { right: 0, wrong: 0 },
-  settings: { rate: 0.9, voiceURI: null, accent: 'es-ES', autoplay: true, ticker: true, natural: true, dailyGoal: 50, typeChoices: false, strictSpelling: false, theme: 'system', avatarGlyph: '', avatarShuffle: 0 },
+  settings: { rate: 0.9, voiceURI: null, accent: 'es-ES', autoplay: true, ticker: true, natural: true, dailyGoal: 50, typeChoices: false, strictSpelling: false, theme: 'system', avatarGlyph: '', avatarShuffle: 0, avatarAt: 0 },
 };
 
 const isObj = (v: unknown): v is Record<string, never> => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -160,7 +162,8 @@ export function recordConj(right: number, wrong: number) {
 }
 
 export function updateSettings(patch: Partial<Settings>) {
-  set({ ...state, settings: { ...state.settings, ...patch } });
+  const avatarChanged = ('avatarGlyph' in patch || 'avatarShuffle' in patch) && !('avatarAt' in patch);
+  set({ ...state, settings: { ...state.settings, ...patch, ...(avatarChanged ? { avatarAt: Date.now() } : {}) } });
   if (patch.theme) applyTheme(patch.theme);
 }
 
