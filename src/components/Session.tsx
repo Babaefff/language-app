@@ -1,3 +1,4 @@
+import { Icon } from './Icon';
 import { L, LANG } from '../data/lang';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Exercise } from '../lib/exercises';
@@ -90,7 +91,8 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
   useEffect(() => {
     if (!result) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Enter') {
+      if (e.key === 'Enter' && !e.defaultPrevented &&
+          !(e.target instanceof Element && e.target.closest('button, summary, a, input, textarea, select'))) {
         e.preventDefault();
         next();
       }
@@ -109,7 +111,7 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
   return (
     <div className="session">
       <div className="session-top">
-        <button className="icon-btn" onClick={onExit} aria-label="Exit">✕</button>
+        <button className="icon-btn" onClick={onExit} aria-label="Exit"><Icon name="close" /></button>
         <div className="bar" role="progressbar" aria-label="Session progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)}><div style={{ width: `${progress}%` }} /></div>
         {title && <span className="muted small">{title}</span>}
       </div>
@@ -128,7 +130,7 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
             {result.note && <div className="small">{result.note}</div>}
             {result.typed && result.note && <Highlight typed={result.typed} expected={result.answer} />}
             {!result.ok && <p className="small">Saved for review.</p>}
-            {result.why && <div className="why">💡 {result.why}</div>}
+            {result.why && <details className="why"><summary>Why?</summary><p>{result.why}</p></details>}
           </div>
           <button className="btn primary" onClick={next} autoFocus>Continue</button>
         </div>
@@ -141,7 +143,7 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
 function ExerciseView(props: { ex: Exercise; onResult: (r: Result) => void; locked: boolean }) {
   const from = 'from' in props.ex ? props.ex.from : undefined;
   // Review words from earlier units are labelled, so they never feel like a slip in this lesson.
-  return from ? <><p className="review-tag">🔁 Review · from “{from}”</p><ExerciseBody {...props} /></> : <ExerciseBody {...props} />;
+  return from ? <><p className="review-tag">Review · from “{from}”</p><ExerciseBody {...props} /></> : <ExerciseBody {...props} />;
 }
 
 function ExerciseBody({ ex, onResult, locked }: { ex: Exercise; onResult: (r: Result) => void; locked: boolean }) {

@@ -1,3 +1,4 @@
+import { Icon } from './Icon';
 import { LANG } from '../data/lang';
 import { useEffect, useState } from 'react';
 import type { Word } from '../data/types';
@@ -24,7 +25,7 @@ export function LearnCards({ words, onDone, onExit }: { words: Word[]; onDone: (
   return (
     <div className="session">
       <div className="session-top">
-        <button className="icon-btn" onClick={onExit} aria-label="Exit">✕</button>
+        <button className="icon-btn" onClick={onExit} aria-label="Exit"><Icon name="close" /></button>
         <div className="bar"><div style={{ width: `${(i / words.length) * 100}%` }} /></div>
         <span className="muted small">{i + 1}/{words.length}</span>
       </div>

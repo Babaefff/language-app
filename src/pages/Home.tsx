@@ -1,3 +1,4 @@
+import { Icon, type IconName } from '../components/Icon';
 import { L, LANG } from '../data/lang';
 import { Link } from '../components/Nav';
 import { UNITS, WORDS } from '../data/course';
@@ -7,10 +8,10 @@ import { STEPS } from '../lib/exercises';
 import { SpeakButton } from '../components/SpeakButton';
 import { dueMistakes } from '../lib/learning';
 
-const ACTIVITIES = [
-  ['/grammar', 'Grammar'], ['/practice/verbs', 'Verbs'], ['/practice/sentences', 'Sentences'],
-  ['/reading', 'Reading'], ['/practice/listen', 'Listening'], ['/practice/speaking', 'Speaking'],
-  ['/writing', 'Writing'], ['/songs', 'Songs'], ['/exam', 'Exams'],
+const ACTIVITIES: [string, string, IconName][] = [
+  ['/grammar', 'Grammar', 'grammar'], ['/practice/verbs', 'Verbs', 'review'], ['/practice/sentences', 'Sentences', 'sentences'],
+  ['/reading', 'Reading', 'reading'], ['/practice/listen', 'Listening', 'volume'], ['/practice/speaking', 'Speaking', 'mic'],
+  ['/writing', 'Writing', 'practice'], ['/songs', 'Songs', 'songs'], ['/exam', 'Exams', 'exam'],
 ];
 
 export function Home() {
@@ -37,9 +38,9 @@ export function Home() {
         <section className="card dashboard-daily"><h2>Daily session</h2><p className="muted small">{p.learning.daily.includes(today()) ? 'Completed today' : 'Review + one lesson step'}</p><Link className="link" to="/daily">{p.learning.daily.includes(today()) ? 'Open session' : 'Start session'} →</Link></section>
       </aside>
     </div>
-    <section className="card"><div className="section-heading"><h2>Practice</h2><Link className="link small" to="/practice">All activities →</Link></div><div className="activity-links">{ACTIVITIES.map(([to,label]) => <Link key={to} to={to} className="activity-link">{label}<span aria-hidden="true">→</span></Link>)}</div></section>
+    <section className="card"><div className="section-heading"><h2>Practice</h2><Link className="link small" to="/practice">All activities →</Link></div><div className="activity-links">{ACTIVITIES.map(([to,label,icon]) => <Link key={to} to={to} className="activity-link"><span className="activity-label"><Icon name={icon} size={17} />{label}</span><span aria-hidden="true">→</span></Link>)}</div></section>
     <div className="dashboard-bottom">
-      <section className="card"><div className="section-heading"><h2>Course progress</h2><Link className="link small" to="/progress">Learning results →</Link></div><p className="small muted">{done}/{UNITS.length} lessons</p>
+      <section className="card"><div className="section-heading"><h2>Course progress</h2><Link className="link small" to="/progress">Progress →</Link></div><p className="small muted">{done}/{UNITS.length} lessons</p>
         {LEVELS.map(level => { const units = UNITS.filter(u => u.level === level); const finished = units.filter(u => p.units[u.id]).length; return <div className="level-progress" key={level}><span className={`badge ${level}`}>{level}</span><div className="bar" role="progressbar" aria-label={`${level} lessons`} aria-valuenow={finished} aria-valuemin={0} aria-valuemax={units.length}><div style={{ width: `${finished / Math.max(1, units.length) * 100}%` }} /></div><span className="small muted">{finished}/{units.length}</span></div>; })}
       </section>
       {word && <section className="card dashboard-word"><span className="tag">Word of the day</span><div className="row"><h2 lang={LANG}>{word.es}</h2><SpeakButton text={word.es} /></div><p>{word.en}</p><Link className="link small" to="/practice/words">Word bank →</Link></section>}

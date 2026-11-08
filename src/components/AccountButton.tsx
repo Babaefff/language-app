@@ -1,3 +1,4 @@
+import { Icon } from './Icon';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Link } from './Nav';
@@ -5,7 +6,7 @@ import { LinguaBloom, useBloomData } from './LinguaBloom';
 import { accountsEnabled, configProblem, signOut, useSync } from '../lib/sync';
 import { updateSettings, useProgress } from '../lib/store';
 
-const THEMES = { system: '💻 Theme: System', light: '☀️ Theme: Light', dark: '🌙 Theme: Dark' } as const;
+const THEMES = { system: 'Theme: System', light: 'Theme: Light', dark: 'Theme: Dark' } as const;
 const NEXT = { system: 'dark', dark: 'light', light: 'system' } as const;
 
 /**
@@ -31,7 +32,7 @@ export function AccountButton() {
     return () => { document.removeEventListener('mousedown', away); document.removeEventListener('touchstart', away); document.removeEventListener('keydown', esc); };
   }, [open]);
 
-  const gear = <Link to="/settings" className="icon-btn" aria-label="Settings">⚙️</Link>;
+  const gear = <Link to="/settings" className="icon-btn" aria-label="Settings"><Icon name="settings" /></Link>;
   if (!accountsEnabled || configProblem) return gear;
   if (!user) return <>{<Link to="/account" className="btn signin-btn">Sign in</Link>}{gear}</>;
 
@@ -49,11 +50,11 @@ export function AccountButton() {
             <LinguaBloom seed={seed} glyph={glyph} data={bloom} size={44} />
             <div><strong>{name}</strong><span className="muted small">{user.email}</span></div>
           </div>
-          <Link to="/account" className="menu-item">📊 Profile &amp; progress</Link>
-          <Link to="/settings" className="menu-item">⚙️ Settings</Link>
-          <button className="menu-item" role="menuitem" onClick={() => updateSettings({ theme: NEXT[settings.theme] })}>{THEMES[settings.theme]}</button>
-          <a href="./privacy.html" className="menu-item" role="menuitem">🔒 Privacy</a>
-          <button className="menu-item" role="menuitem" onClick={() => { setOpen(false); void signOut(); }}>↩ Sign out</button>
+          <Link to="/account" className="menu-item"><Icon name="chart" /> Profile &amp; progress</Link>
+          <Link to="/settings" className="menu-item"><Icon name="settings" /> Settings</Link>
+          <button className="menu-item" role="menuitem" onClick={() => updateSettings({ theme: NEXT[settings.theme] })}><Icon name="settings" /> {THEMES[settings.theme]}</button>
+          <a href="./privacy.html" className="menu-item" role="menuitem"><Icon name="shield" /> Privacy</a>
+          <button className="menu-item" role="menuitem" onClick={() => { setOpen(false); void signOut(); }}><Icon name="logout" /> Sign out</button>
         </div>
       )}
     </div>

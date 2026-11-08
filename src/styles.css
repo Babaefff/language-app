@@ -752,3 +752,21 @@ p { line-height: 1.65; }
   .dashboard-lesson h2 { font-size: 1.35rem; }
   .session { min-height: 65vh; }
 }
+.icon { display: inline-block; flex-shrink: 0; vertical-align: -0.2em; }
+.activity-label, .streak, .ticker-es { display: inline-flex; align-items: center; gap: 0.4rem; }
+.ticker { min-height: 40px; border-bottom: 1px solid var(--border); padding-block: 0.5rem; }
+body:has(.session) .ticker { display: none; }
+.speak { display: inline-flex; align-items: center; justify-content: center; }
+.why summary, .insight summary { cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+.why p, .insight details p { margin: 0.65rem 0 0; }
+.why { background: transparent; padding: 0; }
+.card.action h2 { display: flex; align-items: center; gap: 0.6rem; }
+/* Use compact rows for related lessons instead of cards inside cards. */
+.card .card.step { border: 0; border-top: 1px solid var(--border); border-radius: 0; padding: 0.8rem 0; background: transparent; }
+@media (min-width: 800px) and (max-width: 999px) {
+  .topnav { display: none; }
+  .bottomnav { display: grid !important; }
+  body { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+  body:has(.session) .bottomnav { display: none !important; }
+}
+.ticker { background: var(--surface-2); font-size: 0.95rem; min-height: 44px; }

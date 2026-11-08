@@ -1,3 +1,4 @@
+import { Icon, type IconName } from './components/Icon';
 import { Daily } from './pages/Daily';
 import { Insights } from './pages/Insights';
 import { ExamList, ExamPage } from './pages/Exam';
@@ -27,13 +28,15 @@ import { WordTicker } from './components/WordTicker';
 import { streak, useProgress, applyShields } from './lib/store';
 import { LANG, LANGS, switchLanguage, type LangId } from './data/lang';
 
-const NAV = [
-  { to: '/', icon: '⌂', label: 'Home' },
-  { to: '/course', icon: '▤', label: 'Course' },
-  { to: '/review', icon: '↺', label: 'Review' },
-  { to: '/practice', icon: '◇', label: 'Practice' },
-  { to: '/reading', icon: '▥', label: 'Reading' },
+const NAV: { to: string; icon: IconName; label: string }[] = [
+  { to: '/', icon: 'home', label: 'Home' },
+  { to: '/course', icon: 'book', label: 'Course' },
+  { to: '/review', icon: 'review', label: 'Review' },
+  { to: '/practice', icon: 'practice', label: 'Practice' },
+  { to: '/reading', icon: 'reading', label: 'Reading' },
 ];
+
+const DESKTOP_NAV = [...NAV.slice(0, 2), { to: '/grammar', icon: 'grammar' as const, label: 'Grammar' }, ...NAV.slice(2)];
 
 function ScrollTop() {
   const { pathname } = useLocation();
@@ -60,7 +63,7 @@ function Shell() {
       <header className="topbar">
         <Link to="/" className="brand">Hablo<span>.</span></Link>
         <nav className="topnav" aria-label="Main navigation">
-          {NAV.map((n) => (
+          {DESKTOP_NAV.map((n) => (
             <NavLink key={n.to} to={n.to} end={n.to === '/'}>
               {n.label}
               {n.to === '/review' && due > 0 && <span className="count">{due}</span>}
@@ -78,11 +81,11 @@ function Shell() {
               <option key={l.id} value={l.id}>{l.flag} {l.name}</option>
             ))}
           </select>
-          <span className="streak" title="Day streak">🔥 {days}</span>
+          <span className="streak" title="Day streak"><Icon name="flame" size={16} /> {days}</span>
           <AccountButton />
         </div>
       </header>
-      {pathname !== '/' && !/^\/(daily|review|unit)(\/|$)/.test(pathname) && <WordTicker />}
+      <WordTicker />
       <main>
         <ErrorBoundary key={`${pathname}:${user?.id ?? 'guest'}`} onReset={() => navigate('/')}>
         <Routes>
@@ -118,7 +121,7 @@ function Shell() {
       <nav className="bottomnav" aria-label="Mobile navigation">
         {NAV.map((n) => (
           <NavLink key={n.to} to={n.to} end={n.to === '/'}>
-            <span className="nav-icon" aria-hidden="true">{n.icon}</span>
+            <span className="nav-icon" aria-hidden="true"><Icon name={n.icon} /></span>
             {n.label}
             {n.to === '/review' && due > 0 && <span className="count">{due}</span>}
           </NavLink>

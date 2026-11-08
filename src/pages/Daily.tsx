@@ -23,7 +23,7 @@ export function Daily() {
   const finishPractice = (s: SessionSummary) => { applyWordResults(s.words); addXp(s.correct); advance(); };
   if (finished) return <div className="page narrow"><section className="card daily-finish">
     <h1>Session complete</h1>
-    <Link className="btn primary" to="/progress">Learning results</Link> <Link className="btn" to="/">Back home</Link>
+    <Link className="btn primary" to="/progress">Progress</Link> <Link className="btn" to="/">Back home</Link>
   </section></div>;
   const stage = stages[index];
   if (stage) return <div className="page">

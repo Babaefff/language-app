@@ -1,3 +1,4 @@
+import { Icon } from '../components/Icon';
 import { LANG } from '../data/lang';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -156,7 +157,7 @@ function RelatedLessons({ unitId }: { unitId: string }) {
   if (!lessons.length) return null;
   return (
     <section className="card">
-      <h3>📐 Understand the grammar</h3>
+      <h3><Icon name="grammar" size={18} /> Grammar</h3>
       <p className="muted small">Step-by-step lessons that explain the logic behind this unit.</p>
       <div className="steps">
         {lessons.map((g) => (

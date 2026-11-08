@@ -1,3 +1,4 @@
+import { Icon } from './Icon';
 import { useState } from 'react';
 import { speak } from '../lib/speech';
 
@@ -7,7 +8,7 @@ export function SpeakButton({ text, slow, label, className = '' }: { text: strin
     <button
       type="button"
       className={`speak ${playing ? 'playing' : ''} ${className}`}
-      aria-label={label ?? `Listen: ${text}`}
+      aria-label={label ?? `${slow ? 'Listen slowly' : 'Listen'}: ${text}`}
       title={slow ? 'Listen slowly' : 'Listen'}
       onClick={(e) => {
         e.stopPropagation();
@@ -15,7 +16,7 @@ export function SpeakButton({ text, slow, label, className = '' }: { text: strin
         speak(text, slow ? { rate: 0.6 } : {}).then(() => setPlaying(false));
       }}
     >
-      {slow ? '🐢' : '🔊'}
+      <Icon name={slow ? 'slow' : 'volume'} size={18} />
     </button>
   );
 }

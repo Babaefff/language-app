@@ -1,3 +1,4 @@
+import { Icon } from '../components/Icon';
 import { MistakeNotebook } from '../components/MistakeNotebook';
 import { LANG } from '../data/lang';
 import { useEffect, useState } from 'react';
@@ -120,7 +121,7 @@ function TrickyWords({ onPractise }: { onPractise: (w: Word[]) => void }) {
   if (!leeches.length) return null;
   return (
     <div className="card">
-      <h3>🧩 Tricky words ({leeches.length})</h3>
+      <h3><Icon name="sentences" size={18} /> Tricky words ({leeches.length})</h3>
       <p className="muted small">
         You've forgotten these several times. Try linking each one to an image or a similar-sounding English word
         (e.g. <em>la cara</em> — "a car with a face"), then drill them on their own.
@@ -168,7 +169,7 @@ function Flashcards({ words, onDone, onExit }: { words: Word[]; onDone: (s: Sess
   return (
     <div className="session">
       <div className="session-top">
-        <button className="icon-btn" onClick={onExit} aria-label="Exit">✕</button>
+        <button className="icon-btn" onClick={onExit} aria-label="Exit"><Icon name="close" /></button>
         <div className="bar"><div style={{ width: `${(i / words.length) * 100}%` }} /></div>
         <span className="muted small">{i + 1}/{words.length}</span>
       </div>

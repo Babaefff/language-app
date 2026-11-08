@@ -51,3 +51,7 @@ Export a progress backup before rollback: older code ignores the new learning-hi
 ## Compact-layout correction
 
 Removed the Home hero, motivational paragraphs, and repeated explanations. Exercise feedback and headings now use short functional labels. Home has about 100 words for a new learner. The daily lesson workspace explicitly fills its available width (800 px on desktop, fluid on mobile), fixing shrink-to-content behavior caused by horizontal auto margins inside a flex column. The learning, notebook, and measurement behavior is unchanged. The original pre-redesign rollback branch remains available.
+
+## Navigation and control refinement
+
+Desktop navigation restores Grammar; mobile keeps five primary links with Grammar available through Practice. The vocabulary strip is restored on Home and overview screens, and hidden during exercise sessions. Shared navigation, activity, audio, exit, and settings controls use a single SVG icon component. Explanations use keyboard-accessible Why/details disclosures, and the progress page uses the functional heading Progress. Related lesson links use flat rows rather than nested cards. Browser checks cover six header widths (320–1440 px), the strip's visible/hidden states, SVG controls, keyboard activation of Why without advancing the exercise, and collapsed measurement details.
