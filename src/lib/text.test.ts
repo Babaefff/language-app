@@ -49,9 +49,11 @@ describe('comfortable Spanish answers', () => {
     expect(checkAnswer('Yo soy estudiante.', 'Soy estudiante.').ok).toBe(true);
     expect(checkAnswer('Él habla español.', 'Ella habla español.').ok).toBe(false);
   });
-  it('accepts a one-letter typo in a long word only, never a real other form', () => {
+  it('a one-letter slip: wrong (but "almost") for a word, accepted in a sentence, never a real other form', () => {
     const isWord = (w: string) => ['vas', 'hablas'].includes(w);
-    expect(checkAnswer('la biblioteka', 'la biblioteca', false, { typos: true, isWord })).toEqual({ ok: true, typo: true });
+    expect(checkAnswer('la biblioteka', 'la biblioteca', false, { typos: true, isWord })).toEqual({ ok: false, nearMiss: true });
+    expect(checkAnswer('biblioteka', 'la biblioteca', false, { typos: true, isWord })).toEqual({ ok: false, nearMiss: true });
+    expect(checkAnswer('Estudio en la biblioteka.', 'Estudio en la biblioteca.', false, { typos: true, isWord })).toEqual({ ok: true, typo: true });
     expect(checkAnswer('Mañana vas a la playa.', 'Mañana voy a la playa.', false, { typos: true, isWord }).ok).toBe(false);
     expect(checkAnswer('el gado', 'el gato', false, { typos: true, isWord }).ok).toBe(false);
   });

@@ -296,6 +296,7 @@ function feedbackFor(input: string, expected: string, accept: string[] = [], typ
   const notes = [
     c.otherWord && `“${c.otherWord}” is a different word: the ${LANG === 'de' ? 'umlaut' : 'accent'} matters here.`,
     c.typo && 'Small typo — check the spelling.',
+    c.nearMiss && 'Almost — just one letter off. Look at the spelling and it’ll come back soon.',
     c.accent && (LANG === 'de' ? 'Watch the special letters (ä ö ü ß).' : LANG === 'fr' ? 'Watch the accents (é è ê à ç ô…).' : LANG === 'ru' ? 'Watch the soft sign ь and the accents.' : 'Watch the accents (á é í ó ú ñ ü).'),
     c.letterCase && (LANG === 'de' ? 'Watch the capitals: nouns and Sie start with a capital letter.' : 'Watch the capital letters.'),
     c.article && 'Remember the article.',

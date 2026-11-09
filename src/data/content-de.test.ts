@@ -170,6 +170,8 @@ describe('German course', () => {
     expect(c('Er ist 25.', 'Er ist fünfundzwanzig.').ok).toBe(true);
     expect(c('Ich habe Kopfschmerzn.', 'Ich habe Kopfschmerzen.', { typos: true })).toEqual({ ok: true, typo: true });
     expect(c('Ich habe Kopfschmerzn.', 'Ich habe Kopfschmerzen.').ok).toBe(false);
+    // A single word is what's being learned: one letter off is wrong (shown as "almost").
+    expect(c('die schwister', 'die Schwester', { typos: true })).toEqual({ ok: false, nearMiss: true });
     expect(m.text.checkAnswer('Ich habe Kopfschmerzn.', 'Ich habe Kopfschmerzen.', true, { typos: true }).ok).toBe(false);
   });
   it('every generated exercise is fair: answers accepted, no wrong option that is also right, no look-alike tiles', async () => {

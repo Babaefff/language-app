@@ -38,6 +38,8 @@ export interface Check {
   article?: boolean;
   /** Right except for a one-letter typo (only where allowed, never in strict mode). */
   typo?: boolean;
+  /** Wrong, but only one letter off: shown as "almost" so the learner sees how close it was. */
+  nearMiss?: boolean;
   /** Wrong: an accent or umlaut was left out and that makes a different word (el ≠ él, schlaft ≠ schläft). */
   otherWord?: string;
 }
@@ -133,15 +135,19 @@ export function checkAnswer(input: string, expected: string, strict = false, opt
   }
   // A one-letter slip counts, with a note: in one word of 6+ letters only, and never when the
   // typed word is itself a real word or verb form (vas for voy is a grammar mistake, not a typo).
-  if (opts.typos && !strict) {
+  {
     const tw = fold(typed).split(' ');
-    for (const alt of expected.split('/')) {
-      const ew = fold(clean(alt)).split(' ');
+    for (const alt of expected.split('/').flatMap((x) => [clean(x), clean(x).replace(ARTICLES_I, '')])) {
+      const ew = fold(alt).split(' ');
       if (ew.length !== tw.length) continue;
       const diff = ew.map((_, i) => i).filter((i) => ew[i] !== tw[i]);
       if (diff.length !== 1) continue;
       const [x, y] = [tw[diff[0]], ew[diff[0]]];
-      if (y.length >= 6 && distance(x, y) === 1 && !opts.isWord?.(x)) return { ok: true, typo: true };
+      if (y.length >= 4 && distance(x, y) === 1 && !opts.isWord?.(x)) {
+        // Accepted only in whole sentences of 3+ words (the point there is building the sentence);
+        // a single word is what is being learned, so its spelling must be right.
+        return opts.typos && !strict && ew.length >= 3 && y.length >= 6 ? { ok: true, typo: true } : { ok: false, nearMiss: true };
+      }
     }
   }
   return { ok: false };
