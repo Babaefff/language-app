@@ -1,21 +1,44 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from '../components/Nav';
 import { LANGS, type LangId } from '../data/lang';
-import { allFeedback, CATEGORIES, isAdmin, markSeen, myFeedback, openFeedbackPlace, resolveFeedback, type Feedback } from '../lib/feedback';
+import { allFeedback, CATEGORIES, EXERCISE_KIND, isAdmin, markSeen, myFeedback, openFeedbackPlace, resolveFeedback, type Feedback } from '../lib/feedback';
 import { accountsEnabled, useSync } from '../lib/sync';
 
 const CAT = Object.fromEntries(CATEGORIES) as Record<string, string>;
 const STATUS: Record<Feedback['status'], string> = { open: 'Open', resolved: 'Fixed', declined: 'No change needed' };
 const when = (iso: string) => new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
-const flag = (lang: string) => LANGS[lang as LangId]?.flag ?? '';
 
+/** "2 hours ago", "yesterday", or the date. */
+function ago(iso: string) {
+  const min = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+  if (min < 1) return 'just now';
+  if (min < 60) return `${min} min ago`;
+  if (min < 24 * 60) return `${Math.round(min / 60)} h ago`;
+  if (min < 48 * 60) return 'yesterday';
+  return new Date(iso).toLocaleDateString(undefined, { dateStyle: 'medium' });
+}
+
+/** Where the report comes from and what was on screen, in plain words. */
 function Where({ f }: { f: Feedback }) {
   const c = f.context;
+  const lang = LANGS[f.lang as LangId];
+  const e = c.exercise;
   return (
-    <div className="small">
-      <div><strong>{flag(f.lang)} {c.title ?? c.route}</strong>{c.step ? ` · ${c.step}` : ''}</div>
-      {c.exercise && <div className="muted">{c.exercise.kind}: {c.exercise.prompt}{c.exercise.answer ? ` → ${c.exercise.answer}` : ''}{c.typed ? ` · typed “${c.typed}”` : ''}</div>}
-    </div>
+    <dl className="fb-where">
+      <dt>Language</dt><dd>{lang ? `${lang.flag} ${lang.name}` : f.lang}</dd>
+      <dt>Where</dt><dd>{c.where ? `${c.where} — ` : ''}<strong>{c.title ?? c.route}</strong></dd>
+      {c.step && <><dt>Step</dt><dd>{c.step}</dd></>}
+      {e && <>
+        <dt>Exercise</dt>
+        <dd>
+          {EXERCISE_KIND[e.kind] ?? e.kind}{e.label ? ` — “${e.label}”` : ''}
+          {e.prompt && <div><span className="muted">Shown:</span> {e.prompt}</div>}
+          {e.options && <div><span className="muted">Options:</span> {e.options.join(' · ')}</div>}
+          {e.answer && <div><span className="muted">Expected answer:</span> <strong>{e.answer}</strong></div>}
+          {c.typed && <div><span className="muted">Learner answered:</span> <strong>{c.typed}</strong></div>}
+        </dd>
+      </>}
+    </dl>
   );
 }
 
@@ -35,9 +58,9 @@ export function MyFeedback() {
       {items?.length === 0 && <p className="card">No reports yet. Use the flag button in any lesson to report a problem.</p>}
       {items?.map((f) => (
         <section key={f.id} className={`card fb-item ${f.status}`}>
-          <div className="row between wrap"><span className={`fb-status ${f.status}`}>{STATUS[f.status]}</span><span className="muted small">{when(f.created_at)}</span></div>
+          <div className="row between wrap"><span className={`fb-status ${f.status}`}>{STATUS[f.status]}</span><span className="muted small" title={when(f.created_at)}>{ago(f.created_at)}</span></div>
+          <p className="fb-problem"><strong>{CAT[f.category]}</strong>{f.message ? <> — “{f.message}”</> : ''}</p>
           <Where f={f} />
-          <p className="small"><strong>{CAT[f.category]}</strong>{f.message ? `: ${f.message}` : ''}</p>
           {f.reply && <p className="fb-reply">💬 {f.reply}</p>}
         </section>
       ))}
@@ -79,11 +102,11 @@ function AdminItem({ f, onDone }: { f: Feedback; onDone: () => void }) {
   };
   return (
     <section className={`card fb-item ${f.status}`}>
-      <div className="row between wrap"><span className={`fb-status ${f.status}`}>{STATUS[f.status]}</span><span className="muted small">{when(f.created_at)} · user {f.user_id.slice(0, 8)}</span></div>
+      <div className="row between wrap"><span className={`fb-status ${f.status}`}>{STATUS[f.status]}</span><span className="muted small" title={when(f.created_at)}>{ago(f.created_at)}</span></div>
+      <p className="fb-problem"><strong>{CAT[f.category]}</strong>{f.message ? <> — “{f.message}”</> : ''}</p>
       <Where f={f} />
-      <p><strong>{CAT[f.category]}</strong>{f.message ? `: ${f.message}` : ''}</p>
       <div className="row wrap">
-        <button className="btn" onClick={() => openFeedbackPlace(f)}>Open this lesson →</button>
+        <button className="btn" onClick={() => openFeedbackPlace(f)}>Open {f.context.title ?? 'this lesson'} {LANGS[f.lang as LangId] ? `(${LANGS[f.lang as LangId].name})` : ''} →</button>
       </div>
       <label className="field">Reply to the learner<textarea rows={2} maxLength={2000} value={reply} onChange={(e) => setReply(e.target.value)} /></label>
       <div className="row wrap">

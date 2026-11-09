@@ -37,7 +37,7 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
   const [mode, setMode] = useState<Mode>(() => initialStep === 0 ? { name: 'learn' } : initialStep === 2 ? { name: 'grammar' } : initialStep === 1 && unit ? { name: 'quiz', step: 1, exercises: stepExercises(unit, 1) } : { name: 'overview' });
 
   const stepName = mode.name === 'learn' ? STEPS[0].title : mode.name === 'quiz' || mode.name === 'done' ? STEPS[mode.step].title : mode.name === 'grammar' ? STEPS[2].title : undefined;
-  useFeedbackPage(unit ? `${unit.level} · ${unit.title}` : undefined, stepName);
+  useFeedbackPage(unit ? `${unit.level} · ${unit.title}` : undefined, stepName, unit ? `Course · ${unit.level} · Lesson ${UNITS.indexOf(unit) + 1} of ${UNITS.length}` : undefined);
 
   if (!unit) return <div className="page"><p>Unit not found. <Link to="/course">Back to the course</Link></p></div>;
 

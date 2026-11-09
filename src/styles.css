@@ -909,3 +909,9 @@ td .say { display: inline-flex; align-items: center; gap: 0.15rem; text-decorati
 .quiet-btn { display: block; margin: 0.8rem auto 0; color: var(--muted); }
 .quiet-note { text-align: center; margin: -0.25rem 0 0.5rem; }
 @media (prefers-reduced-motion: reduce) { .mic-btn.on { animation: none; } }
+
+.fb-problem { margin: 0; font-size: 1.05rem; }
+.fb-where { display: grid; grid-template-columns: max-content 1fr; gap: 0.25rem 0.9rem; margin: 0; font-size: 0.92rem; }
+.fb-where dt { color: var(--muted); }
+.fb-where dd { margin: 0; }
+@media (max-width: 480px) { .fb-where { grid-template-columns: 1fr; } .fb-where dt { margin-top: 0.35rem; } }

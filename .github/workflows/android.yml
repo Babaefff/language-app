@@ -1,10 +1,10 @@
-# Builds the Android app (a debug APK you can install on your phone) on every push.
+# Builds the Android app (a debug APK you can install on your phone).
 # Download it from the run's "Artifacts" section on GitHub → Actions.
 name: Android app
 
+# Manual for now (Actions → Android app → Run workflow), so pushes don't start builds while
+# GitHub Actions isn't available on this account.
 on:
-  push:
-    branches: [claude/spanish-learning-platform-x0ckgi, main]
   workflow_dispatch:
 
 jobs:

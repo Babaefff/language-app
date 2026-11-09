@@ -58,7 +58,7 @@ export function GrammarLessonPage() {
   const [session, setSession] = useState<Exercise[] | null>(null);
   const [done, setDone] = useState<{ summary: SessionSummary; xp: number } | null>(null);
 
-  useFeedbackPage(lesson ? `Grammar · ${lesson.title}` : undefined, session ? 'Practice' : undefined);
+  useFeedbackPage(lesson ? `Grammar · ${lesson.title}` : undefined, session ? 'Practice' : undefined, lesson ? `Grammar · ${lesson.level} · Lesson ${GRAMMAR.indexOf(lesson) + 1} of ${GRAMMAR.length}${fromUnit ? ' (opened from a course lesson)' : ''}` : undefined);
   if (!lesson) return <div className="page"><p>Lesson not found. <Link to="/grammar">Back to grammar</Link></p></div>;
   const index = GRAMMAR.indexOf(lesson);
   // Opened from a course lesson: stay in the course. "Next" is that lesson's next grammar topic,

@@ -35,6 +35,8 @@ export interface Result {
   study?: boolean;
   /** Per-word outcome (for match exercises that cover several words). */
   words?: Record<string, boolean>;
+  /** The option chosen (multiple choice), for "Report a problem". */
+  picked?: string;
   /** Not right, but close: "almost" (a word one letter off) or "partly" (a sentence with one slip). */
   grade?: 'almost' | 'partly';
 }
@@ -163,7 +165,9 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
       ex.kind === 'study' ? { prompt: `New forms · ${ex.inf} · ${tenseLabel(ex.tense)}`, answer: '' } :
       ex.kind === 'speak' ? { prompt: `Say: ${ex.es} (${ex.en})`, answer: ex.es } :
       { prompt: ex.prompt, answer: ex.answer };
-    setFeedbackContext({ exercise: { kind: ex.kind, ...d }, typed: result?.typed });
+    const label = 'label' in ex ? ex.label : ex.kind === 'listen' ? 'Type what you hear' : ex.kind === 'build' ? `Build the sentence in ${L.name}` : ex.kind === 'speak' ? `Say it in ${L.name}` : undefined;
+    const options = ex.kind === 'choice' ? ex.options : ex.kind === 'conj' ? ex.options : undefined;
+    setFeedbackContext({ exercise: { kind: ex.kind, label, ...d, ...(options ? { options } : {}) }, typed: result?.typed ?? result?.picked });
   }, [ex, result]);
 
   return (
@@ -244,7 +248,7 @@ function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'c
     setChosen(o);
     if (ex.promptSpanish) speak(ex.prompt.replace(/_{2,}/, ex.answer));
     else if (ex.optionsSpanish) speak(o);
-    onResult({ ok: o === ex.answer, answer: ex.answer, why: ex.why });
+    onResult({ ok: o === ex.answer, answer: ex.answer, why: ex.why, picked: o });
   };
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

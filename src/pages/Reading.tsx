@@ -80,7 +80,7 @@ export function ReadingPage() {
 
   useEffect(() => () => { playId.current++; stopSpeaking(); }, []);
 
-  useFeedbackPage(r ? `${r.song ? 'Song' : 'Reading'} · ${r.title}` : undefined);
+  useFeedbackPage(r ? `${r.song ? 'Song' : 'Reading'} · ${r.title}` : undefined, undefined, r ? `${r.song ? 'Songs' : 'Reading'} · ${r.level}` : undefined);
   if (!r) return <div className="page"><p>Text not found. <Link to="/reading">Back</Link></p></div>;
 
   const sentences = (p: string) => chunks(p, r.song);

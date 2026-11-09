@@ -8,10 +8,12 @@ export interface FeedbackContext {
   route: string;
   /** Lesson, grammar lesson or text title. */
   title?: string;
+  /** Where in the app, for people: "Course · A1 · Lesson 1 of 102". */
+  where?: string;
   /** Lesson step (Learn the words / Practise / Grammar, sentences & verbs). */
   step?: string;
   /** The exercise on screen. */
-  exercise?: { kind: string; prompt?: string; answer?: string };
+  exercise?: { kind: string; label?: string; prompt?: string; answer?: string; options?: string[] };
   /** What they answered, if they had. */
   typed?: string;
 }
@@ -52,10 +54,16 @@ const currentRoute = () => (typeof window === 'undefined' ? '/' : window.locatio
 export function useFeedbackContext(): FeedbackContext {
   return useSyncExternalStore((l) => { listeners.add(l); return () => listeners.delete(l); }, () => current);
 }
-/** Pages call this with their title (and step); it resets the exercise details. */
-export function useFeedbackPage(title: string | undefined, step?: string) {
-  useEffect(() => { setFeedbackContext({ title, step }, true); }, [title, step]);
+/** Pages call this with their title, place and step; it resets the exercise details. */
+export function useFeedbackPage(title: string | undefined, step?: string, where?: string) {
+  useEffect(() => { setFeedbackContext({ title, step, where }, true); }, [title, step, where]);
 }
+
+/** Exercise kinds in plain words, for the inbox. */
+export const EXERCISE_KIND: Record<string, string> = {
+  choice: 'Multiple choice', type: 'Typing', listen: 'Listening (type what you hear)', build: 'Sentence builder',
+  conj: 'Conjugation', match: 'Match the pairs', speak: 'Speaking', study: 'Verb table',
+};
 
 // ---- Server -----------------------------------------------------------------------------
 export const feedbackEnabled = accountsEnabled;
