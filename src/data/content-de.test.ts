@@ -164,4 +164,12 @@ describe('German course', () => {
     expect(c('Wie geht’s?', 'Wie geht es Ihnen?')).toBe(false);
     expect(c('Gibt es hier ein Café?', 'Gibt’s hier ein Café?')).toBe(true);
   });
+  it('is comfortable to type: numbers as digits, small typos', () => {
+    const c = (a: string, b: string, o = {}) => m.text.checkAnswer(a, b, false, o);
+    expect(c('Ich bin 20 Jahre alt.', 'Ich bin zwanzig Jahre alt.').ok).toBe(true);
+    expect(c('Er ist 25.', 'Er ist fünfundzwanzig.').ok).toBe(true);
+    expect(c('Ich habe Kopfschmerzn.', 'Ich habe Kopfschmerzen.', { typos: true })).toEqual({ ok: true, typo: true });
+    expect(c('Ich habe Kopfschmerzn.', 'Ich habe Kopfschmerzen.').ok).toBe(false);
+    expect(m.text.checkAnswer('Ich habe Kopfschmerzn.', 'Ich habe Kopfschmerzen.', true, { typos: true }).ok).toBe(false);
+  });
 });

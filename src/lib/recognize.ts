@@ -1,4 +1,5 @@
-import { L } from '../data/lang';
+import { L, LANG } from '../data/lang';
+import { numbersToDigits } from './numbers';
 import { normalize, stripAccents } from './text';
 import { isNative } from './native';
 
@@ -48,7 +49,8 @@ export function stopListening() {
   if (isNative) void import('@capacitor-community/speech-recognition').then(({ SpeechRecognition }) => SpeechRecognition.stop()).catch(() => {});
 }
 
-const words = (s: string): string[] => stripAccents(normalize(s)).match(/\p{L}+/gu) ?? [];
+// Recognisers write numbers as digits ("20"): compare number words as digits too.
+const words = (s: string): string[] => stripAccents(normalize(numbersToDigits(s, LANG))).match(/[\p{L}\p{N}]+/gu) ?? [];
 
 /** Which target words were heard, and the share of the sentence that was understood. */
 export function compareSpeech(target: string, heard: string[]) {

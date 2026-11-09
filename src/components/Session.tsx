@@ -8,7 +8,8 @@ import { phrasesIn, phraseForWord } from '../lib/phrases';
 import { checkAnswer, normalize, shuffle, wrongWords } from '../lib/text';
 import { speak } from '../lib/speech';
 import { getProgress, recordLearning, updateSettings } from '../lib/store';
-import { WORD_MAP } from '../data/course';
+import { lookupWord, WORD_MAP } from '../data/course';
+import { lookupForm } from '../lib/conjugate';
 import { questionId, eligibleDelayedRecall } from '../lib/learning';
 import { VERB_MAP } from '../data/verbs';
 import { SpeakButton } from './SpeakButton';
@@ -263,7 +264,7 @@ function TextAnswer({ onSubmit, locked, placeholder }: { onSubmit: (v: string) =
   );
 }
 
-function feedbackFor(input: string, expected: string, accept: string[] = []): Result {
+function feedbackFor(input: string, expected: string, accept: string[] = [], typos = false): Result {
   const strict = getProgress().settings.strictSpelling;
   // Another word with the same meaning (a synonym in the course) is right too.
   const alt = accept.find((a) => checkAnswer(input, a, strict).ok && !checkAnswer(input, a, strict).article);
@@ -271,8 +272,9 @@ function feedbackFor(input: string, expected: string, accept: string[] = []): Re
     speak(alt);
     return { ok: true, answer: alt, note: `Also right: ${expected}.`, typed: input };
   }
-  const c = checkAnswer(input, expected, strict);
+  const c = checkAnswer(input, expected, strict, { typos, isWord: (w) => !!lookupWord(w, false) || lookupForm(w).length > 0 });
   const notes = [
+    c.typo && 'Small typo — check the spelling.',
     c.accent && (LANG === 'de' ? 'Watch the special letters (ä ö ü ß).' : LANG === 'fr' ? 'Watch the accents (é è ê à ç ô…).' : LANG === 'ru' ? 'Watch the soft sign ь and the accents.' : 'Watch the accents (á é í ó ú ñ ü).'),
     c.letterCase && (LANG === 'de' ? 'Watch the capitals: nouns and Sie start with a capital letter.' : 'Watch the capital letters.'),
     c.article && 'Remember the article.',
@@ -296,7 +298,7 @@ function TypeView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'typ
     <>
       <p className="ex-label">{ex.label}</p>
       <div className="ex-prompt"><span lang="en">{ex.prompt}</span></div>
-      <TextAnswer locked={locked} onSubmit={(v) => onResult({ ...feedbackFor(v, ex.answer, ex.accept), why: ex.why })} />
+      <TextAnswer locked={locked} onSubmit={(v) => onResult({ ...feedbackFor(v, ex.answer, ex.accept, true), why: ex.why })} />
     </>
   );
 }
@@ -311,7 +313,7 @@ function ListenView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'l
         <SpeakButton text={ex.answer} slow />
       </div>
       <TextAnswer locked={locked} onSubmit={(v) => {
-        const r = feedbackFor(v, ex.answer);
+        const r = feedbackFor(v, ex.answer, [], true);
         onResult({ ...r, note: [r.note, `Meaning: ${ex.en}`].filter(Boolean).join(' · ') });
       }} />
     </>

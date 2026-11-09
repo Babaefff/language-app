@@ -172,4 +172,12 @@ describe('French course', () => {
     const t = await import('../lib/taught');
     for (const u of m.course.UNITS) expect(t.sentenceWords(u).length, u.id).toBe(t.untaughtInSentences(u).length);
   });
+  it('is comfortable to type: numbers as digits, œ as oe, stray spaces after an apostrophe', () => {
+    const c = (a: string, b: string) => m.text.checkAnswer(a, b).ok;
+    expect(c("J'ai 20 ans.", "J'ai vingt ans.")).toBe(true);
+    expect(c("J'ai 97 ans.", "J'ai quatre-vingt-dix-sept ans.")).toBe(true);
+    expect(c('Il a 71 ans.', 'Il a soixante et onze ans.')).toBe(true);
+    expect(c('le coeur', 'le cœur')).toBe(true);
+    expect(c("j' ai faim", "J’ai faim.")).toBe(true);
+  });
 });

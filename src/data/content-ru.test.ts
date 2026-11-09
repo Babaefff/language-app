@@ -166,4 +166,10 @@ describe('Russian course', () => {
     const t = await import('../lib/taught');
     for (const u of m.course.UNITS) expect(t.sentenceWords(u).length, u.id).toBe(t.untaughtInSentences(u).length);
   });
+  it('is comfortable to type: numbers as digits, Latin look-alike letters', () => {
+    const c = (a: string, b: string) => m.text.checkAnswer(a, b).ok;
+    expect(c('Мне 25 лет.', 'Мне двадцать пять лет.')).toBe(true);
+    expect(c('Moлoкo', 'Молоко')).toBe(true);
+    expect(c('мама', 'папа')).toBe(false);
+  });
 });

@@ -39,3 +39,20 @@ describe('equivalent spellings count as the same answer', () => {
     expect(equivalentForm('Всё хорошо, ещё', 'ru')).toBe(equivalentForm('Все хорошо, еще', 'ru'));
   });
 });
+
+describe('comfortable Spanish answers', () => {
+  it('accepts numbers as digits and an optional subject pronoun', () => {
+    expect(checkAnswer('Tengo 25 años.', 'Tengo veinticinco años.').ok).toBe(true);
+    expect(checkAnswer('Tengo 31 años.', 'Tengo treinta y un años.').ok).toBe(true);
+    expect(checkAnswer('Tengo 21 años.', 'Tengo veintiún años.').ok).toBe(true);
+    expect(checkAnswer('Soy estudiante.', 'Yo soy estudiante.').ok).toBe(true);
+    expect(checkAnswer('Yo soy estudiante.', 'Soy estudiante.').ok).toBe(true);
+    expect(checkAnswer('Él habla español.', 'Ella habla español.').ok).toBe(false);
+  });
+  it('accepts a one-letter typo in a long word only, never a real other form', () => {
+    const isWord = (w: string) => ['vas', 'hablas'].includes(w);
+    expect(checkAnswer('la biblioteka', 'la biblioteca', false, { typos: true, isWord })).toEqual({ ok: true, typo: true });
+    expect(checkAnswer('Mañana vas a la playa.', 'Mañana voy a la playa.', false, { typos: true, isWord }).ok).toBe(false);
+    expect(checkAnswer('el gado', 'el gato', false, { typos: true, isWord }).ok).toBe(false);
+  });
+});
