@@ -1,6 +1,6 @@
 import { Icon } from './Icon';
 import { L, LANG } from '../data/lang';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import type { Exercise } from '../lib/exercises';
 import { personLabel, tenseLabel } from '../lib/exercises';
 import { checkAnswer, normalize, shuffle, wrongWords } from '../lib/text';
@@ -316,34 +316,114 @@ function ListenView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'l
   );
 }
 
+const MEANINGS_KEY = 'hablo:showMeanings';
+const readMeanings = () => { try { return localStorage.getItem(MEANINGS_KEY) === '1'; } catch { return false; } };
+
 function BuildView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'build' }>; onResult: (r: Result) => void; locked: boolean }) {
   const tiles = useMemo(() => ex.tiles.map((t, i) => ({ t, i })), [ex.tiles]);
   const [picked, setPicked] = useState<number[]>([]);
+  const [meanings, setMeanings] = useState(readMeanings);
+  const toggleMeanings = () => {
+    const v = !meanings;
+    setMeanings(v);
+    try { localStorage.setItem(MEANINGS_KEY, v ? '1' : '0'); } catch { /* storage blocked */ }
+  };
   const check = () => {
     const attempt = picked.map((i) => tiles[i].t).join(' ');
     const ok = normalize(attempt) === normalize(ex.es);
     if (ok) speak(ex.es);
     onResult({ ok, answer: ex.es });
   };
+
+  // Drag to reorder: press a placed word and move it; a short tap still sends it back.
+  const line = useRef<HTMLDivElement>(null);
+  const [drag, setDrag] = useState<{ tile: number; startX: number; startY: number; dx: number; dy: number; moved: boolean; to: number } | null>(null);
+  // Where the dragged word will land (the others stay put while dragging; a marker shows the spot).
+  const dropped = (() => {
+    if (!drag?.moved) return picked;
+    const rest = picked.filter((p) => p !== drag.tile);
+    rest.splice(drag.to, 0, drag.tile);
+    return rest;
+  })();
+  const others = drag?.moved ? picked.filter((p) => p !== drag.tile) : picked;
+  const targetIndex = (x: number, y: number, tile: number) => {
+    const els = [...(line.current?.querySelectorAll<HTMLElement>('[data-tile]') ?? [])].filter((e) => Number(e.dataset.tile) !== tile);
+    const i = els.findIndex((e) => {
+      const r = e.getBoundingClientRect();
+      return y < r.top || (y <= r.bottom && x < r.left + r.width / 2);
+    });
+    return i === -1 ? els.length : i;
+  };
+  const move = (from: number, by: number) => {
+    const to = Math.max(0, Math.min(picked.length - 1, from + by));
+    const next = [...picked];
+    const [t] = next.splice(from, 1);
+    next.splice(to, 0, t);
+    setPicked(next);
+  };
+
   return (
     <>
       <p className="ex-label">Build the sentence in {L.name}</p>
       <div className="ex-prompt"><span lang="en">{ex.en}</span></div>
-      <div className="build-line" lang={LANG}>
+      <div className="build-line" lang={LANG} ref={line}>
         {picked.length === 0 && <span className="muted">Tap the words below…</span>}
-        {picked.map((i) => (
-          <button key={i} className="tile" disabled={locked} onClick={() => setPicked(picked.filter((p) => p !== i))}>{tiles[i].t}</button>
-        ))}
+        {picked.map((i, pos) => {
+          const dragging = drag?.moved && drag.tile === i;
+          const marker = drag?.moved && !dragging && others.indexOf(i) === drag.to;
+          return (
+            <Fragment key={i}>
+            {marker && <span className="drop-marker" aria-hidden="true" />}
+            <button
+              data-tile={i}
+              className={`tile placed ${dragging ? 'dragging' : ''}`}
+              disabled={locked}
+              style={dragging ? { transform: `translate(${drag.dx}px, ${drag.dy}px)` } : undefined}
+              aria-label={`${tiles[i].t}: tap to remove, drag or use arrow keys to move`}
+              onPointerDown={(e) => {
+                if (locked) return;
+                e.currentTarget.setPointerCapture(e.pointerId);
+                setDrag({ tile: i, startX: e.clientX, startY: e.clientY, dx: 0, dy: 0, moved: false, to: pos });
+              }}
+              onPointerMove={(e) => {
+                if (!drag || drag.tile !== i) return;
+                const dx = e.clientX - drag.startX, dy = e.clientY - drag.startY;
+                const moved = drag.moved || Math.hypot(dx, dy) > 6;
+                setDrag({ ...drag, dx, dy, moved, to: moved ? targetIndex(e.clientX, e.clientY, i) : drag.to });
+              }}
+              onPointerUp={() => {
+                if (!drag) return;
+                if (drag.moved) setPicked(dropped);
+                else setPicked(picked.filter((p) => p !== i));
+                setDrag(null);
+              }}
+              onPointerCancel={() => setDrag(null)}
+              onKeyDown={(e) => {
+                if (e.key === 'ArrowLeft') { e.preventDefault(); move(pos, -1); }
+                if (e.key === 'ArrowRight') { e.preventDefault(); move(pos, 1); }
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPicked(picked.filter((p) => p !== i)); }
+              }}
+            >
+              {tiles[i].t}
+            </button>
+            </Fragment>
+          );
+        })}
+        {drag?.moved && drag.to >= others.length && <span className="drop-marker" aria-hidden="true" />}
       </div>
-      <div className="tiles" lang={LANG}>
+      <div className={`tiles ${meanings ? 'with-meanings' : ''}`} lang={LANG}>
         {tiles.map(({ t, i }) => (
-          <HintTile key={i} text={t} used={picked.includes(i)} disabled={locked || picked.includes(i)} onPick={() => { speak(t); setPicked([...picked, i]); }} />
+          <HintTile key={i} text={t} used={picked.includes(i)} disabled={locked || picked.includes(i)} showMeaning={meanings} onPick={() => { speak(t); setPicked([...picked, i]); }} />
         ))}
       </div>
-      <div className="row end">
-        <button className="btn" disabled={locked || !picked.length} onClick={() => setPicked([])}>Clear</button>
-        <button className="btn primary" disabled={locked || !picked.length} onClick={check}>Check</button>
+      <div className="row between wrap">
+        <button className="link small" onClick={toggleMeanings} aria-pressed={meanings}>{meanings ? 'Hide word meanings' : 'Show word meanings'}</button>
+        <div className="row">
+          <button className="btn" disabled={locked || !picked.length} onClick={() => setPicked([])}>Clear</button>
+          <button className="btn primary" disabled={locked || !picked.length} onClick={check}>Check</button>
+        </div>
       </div>
+      {picked.length > 1 && !locked && <p className="small muted build-help">Drag a word to move it, or tap it to send it back.</p>}
     </>
   );
 }
@@ -432,11 +512,14 @@ function StudyView({ ex, onResult }: { ex: Extract<Exercise, { kind: 'study' }>;
   );
 }
 
+/** The English for a tile word, or a dash when the course has none. */
+const meaningOf = (word: string) => { const g = gloss(word); return g.meaning === '—' ? '…' : g.meaning; };
+
 /** Only one tile hint is visible at a time. */
 let hideActiveHint: (() => void) | null = null;
 
 /** A word tile that shows its meaning after hovering (or a long press on touch screens). */
-function HintTile({ text, used, disabled, onPick }: { text: string; used: boolean; disabled: boolean; onPick: () => void }) {
+function HintTile({ text, used, disabled, onPick, showMeaning = false }: { text: string; used: boolean; disabled: boolean; onPick: () => void; showMeaning?: boolean }) {
   const [hint, setHint] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const longPressed = useRef(false);
@@ -471,8 +554,9 @@ function HintTile({ text, used, disabled, onPick }: { text: string; used: boolea
         }}
       >
         {text}
+        {showMeaning && <span className="tile-meaning" lang="en">{meaningOf(word)}</span>}
       </button>
-      {hint && !used && <span className="tile-hint" role="tooltip">{hint}</span>}
+      {hint && !used && !showMeaning && <span className="tile-hint" role="tooltip">{hint}</span>}
     </span>
   );
 }

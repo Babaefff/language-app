@@ -848,3 +848,11 @@ body:has(.session) .ticker { display: none; }
 .key-words h3 { margin: 0; }
 .reading-unlocked { text-align: left; width: 100%; }
 .reading-unlocked a { font-weight: 700; }
+
+/* Sentence builder: drag to reorder, optional meanings under the word tiles. */
+.tile.placed { touch-action: none; user-select: none; cursor: grab; transition: transform 0.08s; }
+.tile.placed.dragging { cursor: grabbing; position: relative; z-index: 5; transition: none; box-shadow: 0 6px 16px rgb(0 0 0 / 0.18); border-color: var(--primary); }
+.tiles.with-meanings .tile { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.2; }
+.tile-meaning { font-size: 0.72rem; font-weight: 500; color: var(--muted); max-width: 9rem; white-space: normal; text-align: center; }
+.build-help { margin: 0.25rem 0 0; }
+.drop-marker { width: 3px; align-self: stretch; min-height: 2.2rem; border-radius: 2px; background: var(--primary); }

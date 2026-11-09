@@ -15,6 +15,8 @@ export interface LangContent {
   translations: Record<string, string>;
   /** Why the answer to each grammar practice question is right. */
   why: Record<string, string>;
+  /** Small words (pronouns, prepositions…) and forms missing from the word lists, for tap-to-translate. */
+  smallWords?: Record<string, string>;
 }
 
 let current: LangContent | null = null;

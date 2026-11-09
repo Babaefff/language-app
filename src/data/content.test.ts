@@ -132,4 +132,11 @@ describe('course content', () => {
       expect(UNITS.indexOf(gate!), `${x.id}: ready only after ${gate!.title}`).toBeLessThanOrEqual(UNITS.map((u) => u.level).lastIndexOf(level));
     }
   });
+  it('every word of every lesson sentence can be translated (tap a tile, "show meanings")', async () => {
+    const { gloss } = await import('../lib/gloss');
+    const missing = new Set<string>();
+    for (const u of UNITS) for (const st of [...u.sentences.map((x) => x.es), ...u.words.flatMap((w) => (w.ex ? [w.ex] : []))])
+      for (const raw of st.split(/\s+/)) { const w = raw.replace(/[¿?¡!.,;:"«»—–()]/g, ''); if (w && !/\d/.test(w) && gloss(w).meaning === '—') missing.add(w); }
+    expect([...missing]).toEqual([]);
+  });
 });
