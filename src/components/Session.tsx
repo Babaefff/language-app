@@ -4,6 +4,7 @@ import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import type { Exercise } from '../lib/exercises';
 import { personLabel, tenseLabel } from '../lib/exercises';
 import { cleanWord, newWordsIn } from '../lib/taught';
+import { phrasesIn, phraseForWord } from '../lib/phrases';
 import { checkAnswer, normalize, shuffle, wrongWords } from '../lib/text';
 import { speak } from '../lib/speech';
 import { getProgress, recordLearning, updateSettings } from '../lib/store';
@@ -335,7 +336,9 @@ function BuildView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'bu
     const attempt = picked.map((i) => tiles[i].t).join(' ');
     const ok = normalize(attempt) === normalize(ex.es);
     if (ok) speak(ex.es);
-    onResult({ ok, answer: ex.es });
+    // Explain fixed phrases after every answer: "Mir geht es gut = I'm fine (literally: to me it goes well)".
+    const ph = phrasesIn(ex.es).map((x) => `${x.phrase} = ${x.en} (literally “${x.literal}”). ${x.note.replace(/\*/g, '')}`).join(' ');
+    onResult({ ok, answer: ex.es, ...(ph ? { why: ph } : {}) });
   };
 
   // Drag to reorder: press a placed word and move it; a short tap still sends it back.
@@ -416,7 +419,7 @@ function BuildView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'bu
       </div>
       <div className={`tiles ${meanings ? 'with-meanings' : ''}`} lang={LANG}>
         {tiles.map(({ t, i }) => (
-          <HintTile key={i} text={t} used={picked.includes(i)} disabled={locked || picked.includes(i)} showMeaning={meanings || fresh.has(cleanWord(t))} isNew={fresh.has(cleanWord(t))} onPick={() => { speak(t); setPicked([...picked, i]); }} />
+          <HintTile key={i} text={t} used={picked.includes(i)} disabled={locked || picked.includes(i)} showMeaning={meanings || fresh.has(cleanWord(t))} isNew={fresh.has(cleanWord(t))} phrase={phraseForWord(ex.es, t)?.en} onPick={() => { speak(t); setPicked([...picked, i]); }} />
         ))}
       </div>
       <div className="row between wrap">
@@ -522,7 +525,7 @@ const meaningOf = (word: string) => { const g = gloss(word); return g.meaning ==
 let hideActiveHint: (() => void) | null = null;
 
 /** A word tile that shows its meaning after hovering (or a long press on touch screens). */
-function HintTile({ text, used, disabled, onPick, showMeaning = false, isNew = false }: { text: string; used: boolean; disabled: boolean; onPick: () => void; showMeaning?: boolean; isNew?: boolean }) {
+function HintTile({ text, used, disabled, onPick, showMeaning = false, isNew = false, phrase }: { text: string; used: boolean; disabled: boolean; onPick: () => void; showMeaning?: boolean; isNew?: boolean; phrase?: string }) {
   const [hint, setHint] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const longPressed = useRef(false);
@@ -535,7 +538,7 @@ function HintTile({ text, used, disabled, onPick, showMeaning = false, isNew = f
       longPressed.current = true;
       if (hideActiveHint && hideActiveHint !== hide) hideActiveHint();
       hideActiveHint = hide;
-      setHint(g.meaning);
+      setHint(phrase ? `${g.meaning} · part of “${phrase}”` : g.meaning);
     }, delay);
   };
   const hide = () => { clearTimeout(timer.current); setHint(null); };
@@ -557,7 +560,7 @@ function HintTile({ text, used, disabled, onPick, showMeaning = false, isNew = f
         }}
       >
         {text}
-        {showMeaning && <span className="tile-meaning" lang="en">{isNew && <b className="tile-new">new </b>}{meaningOf(word)}</span>}
+        {showMeaning && <span className="tile-meaning" lang="en">{isNew && <b className="tile-new">new </b>}{meaningOf(word)}{phrase && <em className="tile-phrase"> · part of “{phrase}”</em>}</span>}
       </button>
       {hint && !used && !showMeaning && <span className="tile-hint" role="tooltip">{hint}</span>}
     </span>

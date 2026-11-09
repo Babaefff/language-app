@@ -3,7 +3,8 @@ import { L, LANG } from '../data/lang';
 import { canDoFor } from '../data/can-do';
 import { READINGS, SONGS } from '../data/readings';
 import { readyAfter } from '../lib/readiness';
-import { sentenceWords } from '../lib/taught';
+import { phrasesOfUnit, sentenceWords } from '../lib/taught';
+import { PhraseNote } from '../components/PhraseNote';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Link } from '../components/Nav';
@@ -194,9 +195,16 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
  */
 function SentenceWords({ unitId, bare = false }: { unitId: string; bare?: boolean }) {
   const words = sentenceWords(UNIT_MAP[unitId]);
-  if (!words.length) return null;
+  const phrases = phrasesOfUnit(UNIT_MAP[unitId]);
+  if (!words.length && !phrases.length) return null;
   const body = (
     <>
+      {phrases.length > 0 && <>
+        <h3>Phrases in this lesson</h3>
+        <p className="muted small">Fixed expressions: learn them as a whole. The words don’t add up word for word.</p>
+        {phrases.map((ph) => <PhraseNote key={ph.phrase} p={ph} />)}
+      </>}
+      {words.length > 0 && <>
       <h3>{bare ? 'Also in this lesson’s sentences' : 'New words in this lesson’s sentences'}</h3>
       {!bare && <p className="muted small">Learn these before you build the sentences.</p>}
       <ul className="word-list">
@@ -208,6 +216,7 @@ function SentenceWords({ unitId, bare = false }: { unitId: string; bare?: boolea
           </li>
         ))}
       </ul>
+      </>}
     </>
   );
   return bare ? body : <section className="card">{body}</section>;

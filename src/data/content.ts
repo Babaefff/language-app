@@ -1,4 +1,5 @@
 import type { Exam, GrammarLesson, Reading, Unit } from './types';
+import type { Phrase } from './phrases/types';
 
 /**
  * The course of the language being studied. Each language is a separate download (see load.ts),
@@ -17,6 +18,8 @@ export interface LangContent {
   why: Record<string, string>;
   /** Small words (pronouns, prepositions…) and forms missing from the word lists, for tap-to-translate. */
   smallWords?: Record<string, string>;
+  /** Fixed expressions explained as a whole ("Mir geht es gut" = I'm fine). */
+  phrases?: Phrase[];
 }
 
 let current: LangContent | null = null;

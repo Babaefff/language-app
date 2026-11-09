@@ -3,6 +3,8 @@ import { UNITS } from '../data/course';
 import { VERB_MAP } from '../data/verbs';
 import { conjugate, TENSES } from './conjugate';
 import { gloss } from './gloss';
+import { phrasesIn } from './phrases';
+import type { Phrase } from '../data/phrases/types';
 
 /**
  * What a lesson has really taught: its word list (with every form of its verbs), the foreign
@@ -69,3 +71,13 @@ export function newWordsIn(es: string): Set<string> {
   return new Set(u ? untaughtInSentences(u).map((w) => clean(w)) : []);
 }
 export const cleanWord = clean;
+
+/** Fixed expressions that first appear in this lesson (its sentences or word examples). */
+export function phrasesOfUnit(u: Unit): Phrase[] {
+  const at = UNITS.indexOf(u);
+  const seen = new Set<string>();
+  for (const e of UNITS.slice(0, at)) for (const t of [...e.sentences.map((x) => x.es), ...e.words.flatMap((w) => (w.ex ? [w.ex] : []))]) for (const p of phrasesIn(t)) seen.add(p.phrase);
+  const out = new Map<string, Phrase>();
+  for (const t of [...u.words.flatMap((w) => (w.ex ? [w.ex] : [])), ...u.sentences.map((x) => x.es)]) for (const p of phrasesIn(t)) if (!seen.has(p.phrase)) out.set(p.phrase, p);
+  return [...out.values()];
+}

@@ -1,3 +1,5 @@
+import { phrasesIn } from '../lib/phrases';
+import { PhraseNote } from './PhraseNote';
 import { Icon } from './Icon';
 import { LANG } from '../data/lang';
 import { useEffect, useState } from 'react';
@@ -42,6 +44,7 @@ export function LearnCards({ words, onDone, onExit }: { words: Word[]; onDone: (
             <div className="learn-ex">
               <div lang={LANG}>{w.ex} <SpeakButton text={w.ex} /></div>
               <div className="muted">{w.exEn}</div>
+              {phrasesIn(w.ex).map((ph) => <PhraseNote key={ph.phrase} p={ph} compact />)}
             </div>
           )}
         </div>

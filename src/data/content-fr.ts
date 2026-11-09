@@ -1,4 +1,5 @@
 import type { LangContent } from './content';
+import { PHRASES_FR } from './phrases/fr';
 import { SMALL_FR } from './small/fr';
 import { KEY_WORDS_FR, withKeyWords } from './key-words';
 import { withEssentials, withLevelledEssentials } from './essentials';
@@ -13,5 +14,5 @@ import { FR_TRANSLATIONS, FR_WHY } from './fr/registry';
 
 export const CONTENT: LangContent = {
   units: withLevelledEssentials(withEssentials(FR_UNITS, ESSENTIALS_FR), MORE_FR), unitLessons: FR_UNIT_LESSONS, grammar: GRAMMAR_FR,
-  readings: withKeyWords(READINGS_FR, KEY_WORDS_FR), songs: withKeyWords(SONGS_FR, KEY_WORDS_FR), exams: EXAMS_FR, translations: FR_TRANSLATIONS, smallWords: SMALL_FR, why: FR_WHY,
+  readings: withKeyWords(READINGS_FR, KEY_WORDS_FR), songs: withKeyWords(SONGS_FR, KEY_WORDS_FR), exams: EXAMS_FR, translations: FR_TRANSLATIONS, smallWords: SMALL_FR, phrases: PHRASES_FR, why: FR_WHY,
 };
