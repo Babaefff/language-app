@@ -2,12 +2,12 @@ import { whyFor } from '../data/grammar-why';
 import type { ChoiceQuestion, GrammarLesson, Sentence, Tense, Unit, Word } from '../data/types';
 import { UNIT_MAP, WORDS } from '../data/course';
 import { VERB_MAP } from '../data/verbs';
-import { conjugate, personLabelsFor, TENSE_MAP } from './conjugate';
+import { conjugate, lookupForm, personLabelsFor, TENSE_MAP } from './conjugate';
 import { sample, shuffle } from './text';
 import { L } from '../data/lang';
 
 export type Exercise =
-  | { kind: 'choice'; key: string; prompt: string; label: string; audio?: string; options: string[]; answer: string; wordId?: string; optionsSpanish: boolean; hint?: string; promptSpanish?: boolean; typed?: boolean; why?: string; accept?: string[] }
+  | { kind: 'choice'; key: string; prompt: string; label: string; audio?: string; options: string[]; answer: string; wordId?: string; optionsSpanish: boolean; hint?: string; base?: string; promptSpanish?: boolean; typed?: boolean; why?: string; accept?: string[] }
   /** from: set on review words from an earlier unit, shown as a tag so they never look like a mistake. */
   /** accept: other right answers (course words with the same English, e.g. el marido / el esposo). */
   | { kind: 'type'; key: string; prompt: string; label: string; answer: string; wordId?: string; from?: string; accept?: string[]; why?: string; assessment?: 'context' | 'practice' }
@@ -183,23 +183,94 @@ export function reviewExercise(word: Word, reps: number): Exercise {
 }
 
 /** A fill-the-gap grammar question, e.g. "Ana ___ cansada." → es / está. */
-export function gapChoice(q: ChoiceQuestion, typed = false): Exercise {
+/** Words of the course by their written form (articles dropped), to look up a gap answer. */
+let wordIndex: Map<string, Word> | null = null;
+const plain = (t: string) => t.toLowerCase().replace(/[.,!?¿¡«»"]/g, '').trim();
+function courseWord(t: string): Word | undefined {
+  if (!wordIndex) {
+    wordIndex = new Map();
+    for (const w of WORDS) {
+      const k = plain(w.es);
+      wordIndex.set(k, w);
+      wordIndex.set(k.replace(/^(el|la|los|las|der|die|das|le|la|les|l')\s*/, ''), w);
+    }
+  }
+  return wordIndex.get(plain(t));
+}
+
+/**
+ * The dictionary form behind a gap answer, with its meaning: "tanzt" → tanzen (to dance).
+ * Typed gaps show it, the way grammar books write "Du ___ (tanzen) sehr gut", so a learner is
+ * never asked to produce a word they were not given.
+ */
+export function baseWordFor(answer: string): { word: string; en: string } | null {
+  const words = plain(answer).split(/\s+/);
+  for (const t of [plain(answer), ...words.slice().reverse()]) {
+    const infs = [...new Set(lookupForm(t).map((f) => f.inf))].filter((i) => VERB_MAP[i]);
+    if (infs.length) return { word: infs.slice(0, 2).join(' / '), en: infs.slice(0, 2).map((i) => VERB_MAP[i].en).join(' / ') };
+    if (VERB_MAP[t]) return { word: t, en: VERB_MAP[t].en };
+  }
+  const w = courseWord(answer);
+  return w ? { word: w.es, en: w.en } : null;
+}
+
+/** Everything a grammar lesson shows before its practice: text, examples, tables and their forms. */
+export function lessonText(lesson: GrammarLesson): string {
+  let txt = '';
+  for (const b of lesson.blocks) {
+    if ('md' in b) txt += ' ' + b.md;
+    if (b.t === 'examples') txt += ' ' + b.items.flat().join(' ');
+    if (b.t === 'mistakes') txt += ' ' + b.items.flat().join(' ');
+    if (b.t === 'table') for (const v of b.verbs) { txt += ' ' + v; try { txt += ' ' + conjugate(v, b.tense).filter(Boolean).join(' '); } catch { /* unknown verb */ } }
+  }
+  return txt.toLowerCase().replace(/\*/g, '');
+}
+const shown = (text: string, answer: string) =>
+  new RegExp(`(^|[^\\p{L}])${plain(answer).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}($|[^\\p{L}])`, 'u').test(text);
+
+/**
+ * A gap question. Typed only when the learner can know the answer: either the base word is given
+ * as a hint (and isn't itself the answer), or the exact answer was shown in the lesson.
+ * Otherwise it stays multiple choice, where the options show the forms to pick from.
+ */
+export function gapChoice(q: ChoiceQuestion, typed = false, text = ''): Exercise {
+  const answer = q.options[q.answer];
+  const gap = q.q.includes('___');
+  const base = gap ? baseWordFor(answer) : null;
+  const hintable = !!base && plain(base.word) !== plain(answer);
+  const canType = typed && gap && (hintable || (!!text && shown(text, answer)));
   return {
     kind: 'choice', key: key(), label: 'Choose the right word', prompt: q.q, hint: q.en,
+    base: canType && hintable ? `${base!.word} — ${base!.en}` : undefined,
     // Gap-fill questions are Spanish; "what does X mean?" questions have English options.
-    options: shuffle(q.options), answer: q.options[q.answer], optionsSpanish: q.q.includes('___'), promptSpanish: q.q.includes('___'),
+    options: shuffle(q.options), answer, optionsSpanish: gap, promptSpanish: gap,
     // Every other gap question must be typed: recall is stronger than recognition.
-    typed: typed && q.q.includes('___'),
-    why: whyFor(q.q, q.options[q.answer]),
+    typed: canType,
+    why: whyFor(q.q, answer),
   };
+}
+
+/** Every verb and word a grammar lesson uses, with its meaning, shown before the practice. */
+export function lessonGlossary(lesson: GrammarLesson): { word: string; en: string }[] {
+  const out = new Map<string, string>();
+  const add = (w: string, en?: string) => { if (en && !out.has(w)) out.set(w, en); };
+  for (const b of lesson.blocks) if (b.t === 'table') for (const v of b.verbs) add(v, VERB_MAP[v]?.en);
+  for (const v of lesson.practice.conj?.verbs ?? []) add(v, VERB_MAP[v]?.en);
+  for (const q of lesson.practice.choice ?? []) {
+    if (!q.q.includes('___')) continue;
+    const b = baseWordFor(q.options[q.answer]);
+    if (b) add(b.word, b.en);
+  }
+  return [...out].map(([word, en]) => ({ word, en }));
 }
 
 /** Grammar practice: choose first, then the verbs (table → choose → type), and only then type gap answers. */
 export function grammarExercises(lesson: GrammarLesson): Exercise[] {
   const qs = shuffle(lesson.practice.choice ?? []);
   const half = Math.ceil(qs.length / 2);
-  const chosen = qs.slice(0, half).map((q) => gapChoice(q));
-  const typed = qs.slice(half).map((q) => gapChoice(q, true));
+  const text = lessonText(lesson);
+  const chosen = qs.slice(0, half).map((q) => gapChoice(q, false, text));
+  const typed = qs.slice(half).map((q) => gapChoice(q, true, text));
   const c = lesson.practice.conj;
   const verbs = c ? c.verbs.slice(0, 2).flatMap((v, i) => conjSet(v, c.tenses[i % c.tenses.length], 1)) : [];
   return [...chosen, ...verbs, ...typed];

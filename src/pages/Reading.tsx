@@ -10,6 +10,8 @@ import { chunks } from '../lib/audioKey';
 import { speak, stopSpeaking } from '../lib/speech';
 import { addXp, completeReading, gradeWord, useProgress } from '../lib/store';
 import { SpeakButton } from '../components/SpeakButton';
+import { coverage, isReady, readyAfter } from '../lib/readiness';
+import { UNITS } from '../data/course';
 import { SongPlayer, type SongPlayerHandle } from '../components/SongPlayer';
 
 export function Readings() {
@@ -34,8 +36,16 @@ export function Songs() {
   );
 }
 
+/** "Ready to read" from the lessons finished so far, or the lesson that makes it ready. */
+export function ReadyTag({ r, done }: { r: Reading; done: Record<string, unknown> }) {
+  const gate = readyAfter(r);
+  if (isReady(r, done)) return <span className="ready-tag on">✓ Ready: you know {Math.round(coverage(r, done) * 100)}% of the words</span>;
+  if (!gate) return null;
+  return <span className="ready-tag">Ready after lesson {UNITS.indexOf(gate) + 1}: {gate.title}</span>;
+}
+
 function ReadingGrid({ items }: { items: Reading[] }) {
-  const { readings } = useProgress();
+  const { readings, units } = useProgress();
   return (
       <div className="grid-2">
         {items.map((r) => (
@@ -43,7 +53,7 @@ function ReadingGrid({ items }: { items: Reading[] }) {
             <span className={`badge ${r.level.replace('+', 'plus')}`}>{r.level}</span>
             <h2 lang={LANG}>{r.title}</h2>
             <p className="muted small">{r.source ?? r.paragraphs[0].slice(0, 90) + '…'}</p>
-            {readings[r.id] && <span className="small">✓ {r.song ? 'Done' : 'Read'} · {readings[r.id].score}/{r.questions.length} correct</span>}
+            {readings[r.id] ? <span className="small">✓ {r.song ? 'Done' : 'Read'} · {readings[r.id].score}/{r.questions.length} correct</span> : <ReadyTag r={r} done={units} />}
           </Link>
         ))}
       </div>
@@ -99,6 +109,12 @@ export function ReadingPage() {
           <label className="toggle"><input type="checkbox" checked={showEn} onChange={(e) => setShowEn(e.target.checked)} /> English</label>
         </div>
       </div>
+      {r.keyWords && r.keyWords.length > 0 && (
+        <section className="card key-words">
+          <h3>Key words for this text</h3>
+          <ul className="glossary-list">{r.keyWords.map((w) => <li key={w}><strong lang={LANG}>{w}</strong> <span>{r.glossary[w]}</span></li>)}</ul>
+        </section>
+      )}
 
       {r.song && <SongPlayer ref={songRef} r={r} lines={all.map((x) => x.s)} onLine={onSongLine} onSynced={setSynced} />}
 

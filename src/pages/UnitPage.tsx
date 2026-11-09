@@ -1,6 +1,8 @@
 import { Icon } from '../components/Icon';
 import { L, LANG } from '../data/lang';
 import { canDoFor } from '../data/can-do';
+import { READINGS, SONGS } from '../data/readings';
+import { readyAfter } from '../lib/readiness';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Link } from '../components/Nav';
@@ -65,6 +67,16 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
           summary={mode.summary}
           xp={mode.xp}
           canDo={mode.canDo}
+          extra={(() => {
+            // Finishing this lesson makes these texts readable: say so, with a link.
+            const ready = mode.canDo ? [...READINGS, ...SONGS].filter((r) => readyAfter(r)?.id === unit.id) : [];
+            return ready.length > 0 && (
+              <div className="can-do reading-unlocked">
+                <strong>New to read:</strong> you now know the words for{' '}
+                {ready.map((r, i) => <span key={r.id}>{i > 0 && ', '}<Link to={`/${r.song ? 'songs' : 'reading'}/${r.id}`}><span lang={LANG}>{r.title}</span></Link></span>)}.
+              </div>
+            );
+          })()}
           onRetry={() => start(mode.step)}
           doneLabel={onComplete ? 'Finish lesson step' : nextStep !== null ? `Next: ${STEPS[nextStep].title}` : nextUnit ? `Next unit: ${nextUnit.title}` : 'Back to course'}
           onDone={() => {

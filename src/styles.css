@@ -836,3 +836,15 @@ body:has(.session) .ticker { display: none; }
 
 .welcome-back { border: 1px solid var(--primary); background: color-mix(in srgb, var(--primary-soft) 70%, var(--surface)); }
 .welcome-back h2 { margin-top: 0; }
+
+/* Typed gap: the base word to use, like "(tanzen)" in a grammar book. */
+.base-hint { display: inline-flex; flex-wrap: wrap; gap: 0.35rem; align-items: baseline; background: var(--primary-soft); border-radius: 8px; padding: 0.3rem 0.65rem; margin: 0.25rem 0; }
+.glossary-list { display: flex; flex-wrap: wrap; gap: 0.4rem; list-style: none; padding: 0; margin: 0.5rem 0 0; }
+.glossary-list li { background: var(--surface-2); border-radius: 999px; padding: 0.25rem 0.7rem; font-size: 0.9rem; }
+.glossary-list li span { color: var(--muted); }
+
+.ready-tag { font-size: 0.8rem; color: var(--muted); }
+.ready-tag.on { color: var(--primary); font-weight: 700; }
+.key-words h3 { margin: 0; }
+.reading-unlocked { text-align: left; width: 100%; }
+.reading-unlocked a { font-weight: 700; }

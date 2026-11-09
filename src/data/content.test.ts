@@ -8,7 +8,7 @@ await loadContent('es');
 const { SENTENCES, UNIT_LESSONS, UNITS, WORDS } = await import('./course');
 const { GRAMMAR, GRAMMAR_MAP } = await import('./grammar');
 const { READINGS, SONGS } = await import('./readings');
-const { grammarExercises, stepExercises } = await import('../lib/exercises');
+const { grammarExercises, lessonGlossary, lessonText, stepExercises } = await import('../lib/exercises');
 
 describe('course content', () => {
   it('has unique word ids', () => {
@@ -111,5 +111,25 @@ describe('course content', () => {
 
   it('sentences end with punctuation', () => {
     for (const s of SENTENCES) expect(s.es, s.es).toMatch(/[.?!]$/);
+  });
+  it('never asks a typed gap the lesson did not prepare, and translates every lesson word', () => {
+    for (const g of GRAMMAR) {
+      for (const ex of grammarExercises(g)) {
+        if (ex.kind !== 'choice' || !ex.typed) continue;
+        const ok = !!ex.base || lessonText(g).includes(ex.answer.toLowerCase());
+        expect(ok, `${g.id}: typed "${ex.prompt}" → ${ex.answer}`).toBe(true);
+      }
+      for (const v of g.practice.conj?.verbs ?? []) expect(VERB_MAP[v]?.en, `${g.id}: ${v}`).toBeTruthy();
+      for (const w of lessonGlossary(g)) expect(w.en, `${g.id}: ${w.word}`).toBeTruthy();
+    }
+  });
+  it('every reading and song is readable by the end of its level', async () => {
+    const r = await import('../lib/readiness');
+    for (const x of [...READINGS, ...SONGS]) {
+      const gate = r.readyAfter(x);
+      const level = x.level === 'B1+' ? 'B1' : x.level;
+      expect(gate, `${x.id}: never reaches 95% known words`).toBeTruthy();
+      expect(UNITS.indexOf(gate!), `${x.id}: ready only after ${gate!.title}`).toBeLessThanOrEqual(UNITS.map((u) => u.level).lastIndexOf(level));
+    }
   });
 });

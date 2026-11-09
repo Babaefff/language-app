@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { GRAMMAR, GRAMMAR_MAP } from '../data/grammar';
 import { LEVEL_INFO, LEVELS } from '../data/types';
-import { grammarExercises, type Exercise } from '../lib/exercises';
+import { grammarExercises, lessonGlossary, type Exercise } from '../lib/exercises';
 import { addXp, completeGrammar, useProgress } from '../lib/store';
 import { Link } from '../components/Nav';
 import { Grammar } from '../components/Grammar';
@@ -95,6 +95,16 @@ export function GrammarLessonPage() {
       )}
 
       <article className="card lesson">
+        {(() => {
+          // Every word the lesson and its practice use, with its meaning: nothing appears untranslated.
+          const words = lessonGlossary(lesson);
+          return words.length > 0 && (
+            <section className="lesson-words">
+              <h3>Words in this lesson</h3>
+              <ul className="glossary-list">{words.map((w) => <li key={w.word}><strong lang={LANG}>{w.word}</strong> <span>{w.en}</span></li>)}</ul>
+            </section>
+          );
+        })()}
         {lesson.blocks.map((b, i) => {
           switch (b.t) {
             case 'text':

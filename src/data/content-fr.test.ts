@@ -140,4 +140,25 @@ describe('French course', () => {
     expect(m.conj.lookupForm('prennent')[0]).toMatchObject({ inf: 'prendre' });
   });
 
+  it('never asks a typed gap the lesson did not prepare, and translates every lesson word', () => {
+    for (const g of m.grammar.GRAMMAR) {
+      for (const ex of m.ex.grammarExercises(g)) {
+        if (ex.kind !== 'choice' || !ex.typed) continue;
+        const ok = !!ex.base || m.ex.lessonText(g).includes(ex.answer.toLowerCase());
+        expect(ok, `${g.id}: typed "${ex.prompt}" → ${ex.answer}`).toBe(true);
+      }
+      for (const v of g.practice.conj?.verbs ?? []) expect(m.verbs.VERB_MAP[v]?.en, `${g.id}: ${v}`).toBeTruthy();
+      for (const w of m.ex.lessonGlossary(g)) expect(w.en, `${g.id}: ${w.word}`).toBeTruthy();
+    }
+  });
+  it('every reading and song is readable by the end of its level', async () => {
+    const r = await import('../lib/readiness');
+    const units = m.course.UNITS;
+    for (const x of [...m.readings.READINGS, ...m.readings.SONGS]) {
+      const gate = r.readyAfter(x);
+      const level = x.level === 'B1+' ? 'B1' : x.level;
+      expect(gate, `${x.id}: never reaches 95% known words`).toBeTruthy();
+      expect(units.indexOf(gate!), `${x.id}: ready only after ${gate!.title}`).toBeLessThanOrEqual(units.map((u) => u.level).lastIndexOf(level));
+    }
+  });
 });

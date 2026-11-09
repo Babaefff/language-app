@@ -195,6 +195,7 @@ function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'c
           <span lang={ex.audio || ex.promptSpanish ? LANG : 'en'}>{ex.prompt}</span>
           {ex.audio && <SpeakButton text={ex.audio} />}
         </div>
+        {ex.base && <p className="base-hint">Use: <strong lang={LANG}>{ex.base.split(' — ')[0]}</strong> <span className="muted">— {ex.base.split(' — ').slice(1).join(' — ')}</span></p>}
         {ex.hint && <p className="muted">{ex.hint}</p>}
         <TextAnswer locked={locked} onSubmit={(v) => onResult({ ...feedbackFor(v, ex.answer, ex.accept), why: ex.why })} />
         {!locked && !ex.typed && <button className="link small" onClick={toggle}>☰ Show options instead</button>}
