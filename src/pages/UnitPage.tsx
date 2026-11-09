@@ -194,7 +194,7 @@ function RelatedLessons({ unitId }: { unitId: string }) {
       <p className="muted small">Step-by-step lessons that explain the logic behind this unit.</p>
       <div className="steps">
         {lessons.map((g) => (
-          <Link key={g.id} to={`/grammar/${g.id}`} className="card step">
+          <Link key={g.id} to={`/grammar/${g.id}?from=${unitId}`} className="card step">
             <div>
               <strong>{g.title}</strong>
               <span className="muted small">{g.summary}</span>

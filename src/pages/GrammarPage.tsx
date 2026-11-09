@@ -1,6 +1,7 @@
 import { L, LANG } from '../data/lang';
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { UNIT_LESSONS, UNIT_MAP } from '../data/course';
 import { GRAMMAR, GRAMMAR_MAP } from '../data/grammar';
 import { LEVEL_INFO, LEVELS } from '../data/types';
 import { grammarExercises, lessonGlossary, type Exercise } from '../lib/exercises';
@@ -48,13 +49,22 @@ export function GrammarList() {
 export function GrammarLessonPage() {
   const { id = '' } = useParams();
   const lesson = GRAMMAR_MAP[id];
+  const [params] = useSearchParams();
+  const fromUnit = params.get('from');
+  const navigate = useNavigate();
   const { grammar } = useProgress();
   const [session, setSession] = useState<Exercise[] | null>(null);
   const [done, setDone] = useState<{ summary: SessionSummary; xp: number } | null>(null);
 
   if (!lesson) return <div className="page"><p>Lesson not found. <Link to="/grammar">Back to grammar</Link></p></div>;
   const index = GRAMMAR.indexOf(lesson);
-  const next = GRAMMAR[index + 1];
+  // Opened from a course lesson: stay in the course. "Next" is that lesson's next grammar topic,
+  // or back to the course lesson; only the Grammar section walks through grammar in order.
+  const unit = fromUnit ? UNIT_MAP[fromUnit] : undefined;
+  const related = unit ? UNIT_LESSONS[unit.id] ?? [] : [];
+  const nextRelated = unit ? related[related.indexOf(lesson.id) + 1] : undefined;
+  const next = unit ? (nextRelated ? GRAMMAR_MAP[nextRelated] : undefined) : GRAMMAR[index + 1];
+  const nextHref = (g: { id: string }) => `/grammar/${g.id}${unit ? `?from=${unit.id}` : ''}`;
 
   const start = () => { setDone(null); setSession(grammarExercises(lesson)); };
 
@@ -77,7 +87,7 @@ export function GrammarLessonPage() {
 
   return (
     <div className="page narrow">
-      <Link className="link" to="/grammar">← Grammar</Link>
+      {unit ? <Link className="link" to={`/unit/${unit.id}`}>← {unit.title}</Link> : <Link className="link" to="/grammar">← Grammar</Link>}
       <header>
         <span className={`badge ${lesson.level}`}>{lesson.level}</span>
         <h1>{lesson.title}</h1>
@@ -89,8 +99,8 @@ export function GrammarLessonPage() {
           summary={done.summary}
           xp={done.xp}
           onRetry={start}
-          onDone={() => setDone(null)}
-          doneLabel="Back to the lesson"
+          onDone={() => (unit && !next ? navigate(`/unit/${unit.id}`) : setDone(null))}
+          doneLabel={unit && !next ? `Back to ${unit.title}` : 'Back to the lesson'}
         />
       )}
 
@@ -151,7 +161,8 @@ export function GrammarLessonPage() {
         <span className="muted small">{grammar[lesson.id] !== undefined ? `Best score: ${grammar[lesson.id]}%` : 'Practice to complete this lesson'}</span>
         <div className="row wrap">
           <button className="btn primary" onClick={start}>Practise</button>
-          {next && <Link className="btn" to={`/grammar/${next.id}`}>Next lesson →</Link>}
+          {next && <Link className="btn" to={nextHref(next)}>{unit ? `Next: ${next.title}` : 'Next lesson'} →</Link>}
+          {unit && !next && <Link className="btn" to={`/unit/${unit.id}`}>Back to {unit.title} →</Link>}
         </div>
       </div>
     </div>
