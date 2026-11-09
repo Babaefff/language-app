@@ -94,7 +94,13 @@ if (withVerbs) {
 
 const chars = [...texts.values()].reduce((a, t) => a + t.length, 0);
 console.log(`${texts.size} clips, ${chars.toLocaleString()} characters (voice ${voice}).`);
-if (dry) process.exit(0);
+if (dry) {
+  // What a real run would still have to make (and bill): the clips that don't exist yet.
+  const missing = [...texts].filter(([k]) => !existsSync(OUT + audioFile(k)));
+  const missingChars = missing.reduce((a, [, t]) => a + t.length, 0);
+  console.log(`Missing: ${missing.length} clips, ${missingChars.toLocaleString()} characters.`);
+  process.exit(0);
+}
 if (!key) {
   if (optional) {
     console.log('No GOOGLE_TTS_KEY set — skipping audio generation.');
