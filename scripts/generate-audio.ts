@@ -17,7 +17,7 @@ import { audioFile, audioKey, speakable, chunks } from '../src/lib/audioKey';
 
 // Courses are separate downloads: load the one for HABLO_LANG before reading it.
 await loadContent();
-const { WORDS, SENTENCES } = await import('../src/data/course');
+const { WORDS, SENTENCES, UNITS } = await import('../src/data/course');
 const { READINGS, SONGS } = await import('../src/data/readings');
 const { GRAMMAR } = await import('../src/data/grammar');
 const { EXAMS } = await import('../src/data/exams');
@@ -68,6 +68,17 @@ for (const g of GRAMMAR) {
   for (const q of g.practice.choice ?? []) if (q.q.includes('___')) add(q.q.replace(/_{2,}/, q.options[q.answer]));
 }
 for (const s of PRONUNCIATION) for (const it of s.items) it.examples.forEach(([w]) => add(w));
+// Grammar notes: every foreign bold / italic bit and table cell can be tapped to hear it.
+const { isForeign, speakableForeign } = await import('../src/lib/foreign');
+const noteBits = (md: string) => {
+  for (const m of md.matchAll(/\*\*([^*]+)\*\*|\*([^*]+)\*/g)) { const t = m[1] ?? m[2]; if (isForeign(t)) add(speakableForeign(t)); }
+  for (const line of md.split('\n')) if (line.trim().startsWith('|')) for (const c of line.trim().replace(/^\||\|$/g, '').split('|')) { const t = c.trim(); if (t && !t.includes('*') && isForeign(t)) add(speakableForeign(t)); }
+};
+for (const u of UNITS) noteBits(u.grammar);
+for (const g of GRAMMAR) for (const b of g.blocks) if ('md' in b) noteBits(b.md);
+// Fixed phrases ("Mir geht es gut.") have their own speak button.
+const { content } = await import('../src/data/content');
+for (const ph of content().phrases ?? []) add(ph.phrase);
 for (const e of EXAMS) for (const m of e.modules) for (const p of m.parts) { add(p.audio); p.items.forEach((it) => add(it.audio)); }
 // Every single word of readings, songs and sentences, so tapping a word always has a clip.
 const tokens = (t?: string) => t?.match(/\p{L}+/gu) ?? [];
