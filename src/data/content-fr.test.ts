@@ -184,4 +184,12 @@ describe('French course', () => {
     const { auditExercises } = await import('../test/exercise-audit');
     expect(await auditExercises()).toEqual([]);
   }, 60000);
+  it('explains words by their parts, every part with a meaning', async () => {
+    const { breakdown } = await import('../lib/breakdown');
+    for (const w of m.course.WORDS) {
+      const b = breakdown(w);
+      if (b) for (const p of b.parts) expect(p.text && p.en, `${w.es}: ${p.text}`).toBeTruthy();
+    }
+    expect(breakdown({ es: 'télécharger', en: 'to download' })?.parts.map((p) => p.text).join(' + ')).toBe('télé- + charger');
+  });
 });

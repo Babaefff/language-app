@@ -1,3 +1,4 @@
+import { WordParts } from './WordParts';
 import { phrasesIn } from '../lib/phrases';
 import { PhraseNote } from './PhraseNote';
 import { Icon } from './Icon';
@@ -40,6 +41,7 @@ export function LearnCards({ words, onDone, onExit }: { words: Word[]; onDone: (
             <SpeakButton text={w.es} slow />
           </div>
           <div className="learn-en">{w.en}</div>
+          <WordParts word={w} />
           {w.ex && (
             <div className="learn-ex">
               <div lang={LANG}>{w.ex} <SpeakButton text={w.ex} /></div>

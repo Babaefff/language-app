@@ -6,6 +6,7 @@ import { personLabel, tenseLabel } from '../lib/exercises';
 import { cleanWord, newWordsIn } from '../lib/taught';
 import { setFeedbackContext } from '../lib/feedback';
 import { FeedbackButton } from './FeedbackButton';
+import { WordParts } from './WordParts';
 import { phrasesIn, phraseForWord } from '../lib/phrases';
 import { checkAnswer, normalize, shuffle, wrongWords } from '../lib/text';
 import { speak } from '../lib/speech';
@@ -151,6 +152,8 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
                 Correct answer: <span lang={LANG}>{result.answer}</span> <SpeakButton text={result.answer} />
               </div>
             )}
+            {/* After a slip, seeing how the word is built helps it stick (Brief + Träger). */}
+            {!result.ok && 'wordId' in ex && ex.wordId && WORD_MAP[ex.wordId] && <WordParts word={WORD_MAP[ex.wordId]} compact />}
             {result.note && <div className="small">{result.note}</div>}
             {result.typed && result.note && <Highlight typed={result.typed} expected={result.answer} />}
             {!result.ok && <p className="small">Saved for review.</p>}

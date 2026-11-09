@@ -1,3 +1,4 @@
+import { WordParts } from '../components/WordParts';
 import { Icon, type IconName } from '../components/Icon';
 import { L, LANG } from '../data/lang';
 import { Link } from '../components/Nav';
@@ -149,7 +150,7 @@ export function Home() {
       <section className="card"><div className="section-heading"><h2>Course progress</h2><Link className="link small" to="/progress">Progress →</Link></div><p className="small muted">{done}/{UNITS.length} lessons</p>
         {LEVELS.map(level => { const units = UNITS.filter(u => u.level === level); const finished = units.filter(u => p.units[u.id]).length; return <div className="level-progress" key={level}><span className={`badge ${level}`}>{level}</span><div className="bar" role="progressbar" aria-label={`${level} lessons`} aria-valuenow={finished} aria-valuemin={0} aria-valuemax={units.length}><div style={{ width: `${finished / Math.max(1, units.length) * 100}%` }} /></div><span className="small muted">{finished}/{units.length}</span></div>; })}
       </section>
-      {word && <section className="card dashboard-word"><span className="tag">Word of the day</span><div className="row"><h2 lang={LANG}>{word.es}</h2><SpeakButton text={word.es} /></div><p>{word.en}</p><Link className="link small" to="/practice/words">Word bank →</Link></section>}
+      {word && <section className="card dashboard-word"><span className="tag">Word of the day</span><div className="row"><h2 lang={LANG}>{word.es}</h2><SpeakButton text={word.es} /></div><p>{word.en}</p><WordParts word={word} compact /><Link className="link small" to="/practice/words">Word bank →</Link></section>}
     </div>
     <p className="small muted center-text"><a href="./privacy.html">Privacy policy</a></p>
   </div>;

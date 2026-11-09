@@ -13,7 +13,8 @@ import { SpeakButton } from '../components/SpeakButton';
 import { coverage, isReady, readyAfter } from '../lib/readiness';
 import { useFeedbackPage } from '../lib/feedback';
 import { FeedbackButton } from '../components/FeedbackButton';
-import { UNITS } from '../data/course';
+import { UNITS, WORD_MAP } from '../data/course';
+import { WordParts } from '../components/WordParts';
 import { SongPlayer, type SongPlayerHandle } from '../components/SongPlayer';
 
 export function Readings() {
@@ -152,6 +153,7 @@ export function ReadingPage() {
           </div>
           <div>{popup.meaning}</div>
           {popup.detail && <div className="muted small" lang={LANG}>{popup.detail}</div>}
+          {popup.wordId && WORD_MAP[popup.wordId] && <WordParts word={WORD_MAP[popup.wordId]} compact />}
           {popup.wordId && !cards[popup.wordId] && <button className="btn small-btn" onClick={() => { gradeWord(popup.wordId!, 0); setPopup(null); }}>+ Add to my reviews</button>}
         </div>
       )}
