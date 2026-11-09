@@ -1,6 +1,7 @@
 import { Icon, type IconName } from './components/Icon';
 import { Daily } from './pages/Daily';
 import { Insights } from './pages/Insights';
+import { AdminFeedback, FeedbackThanks, MyFeedback } from './pages/FeedbackPages';
 import { ExamList, ExamPage } from './pages/Exam';
 import { Speaking } from './pages/Speaking';
 import { Account } from './pages/Account';
@@ -87,11 +88,14 @@ function Shell() {
       </header>
       <WordTicker />
       <main>
+        <FeedbackThanks />
         <ErrorBoundary key={`${pathname}:${user?.id ?? 'guest'}`} onReset={() => navigate('/')}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/daily" element={<Daily />} />
           <Route path="/progress" element={<Insights />} />
+          <Route path="/feedback" element={<MyFeedback />} />
+          <Route path="/admin" element={<AdminFeedback />} />
           <Route path="/course" element={<Course />} />
           <Route path="/unit/:id" element={<UnitPage />} />
           <Route path="/review" element={<Review />} />

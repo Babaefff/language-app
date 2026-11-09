@@ -18,6 +18,8 @@ const paths = {
   chart: ['M4 3v18h17M8 16v-5M13 16V7M18 16v-8'],
   logout: ['M9 4H3v16h6M8 12h13m-5-5 5 5-5 5'],
   shield: ['m12 2 9 4v6c0 5-9 10-9 10S3 17 3 12V6l9-4Z', 'm8 12 3 3 5-6'],
+  flag: ['M5 21V4', 'M5 4h11l-2 4 2 4H5'],
+  inbox: ['M3 13h5l1 3h6l1-3h5', 'M5 5h14l2 8v6H3v-6l2-8Z'],
 };
 export type IconName = keyof typeof paths;
 export function Icon({ name, size = 20 }: { name: IconName; size?: number }) {

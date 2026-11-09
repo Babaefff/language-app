@@ -5,6 +5,8 @@ import { READINGS, SONGS } from '../data/readings';
 import { readyAfter } from '../lib/readiness';
 import { phrasesOfUnit, sentenceWords } from '../lib/taught';
 import { PhraseNote } from '../components/PhraseNote';
+import { useFeedbackPage } from '../lib/feedback';
+import { FeedbackButton } from '../components/FeedbackButton';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Link } from '../components/Nav';
@@ -33,6 +35,9 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
   const p = useProgress();
   const navigate = useNavigate();
   const [mode, setMode] = useState<Mode>(() => initialStep === 0 ? { name: 'learn' } : initialStep === 2 ? { name: 'grammar' } : initialStep === 1 && unit ? { name: 'quiz', step: 1, exercises: stepExercises(unit, 1) } : { name: 'overview' });
+
+  const stepName = mode.name === 'learn' ? STEPS[0].title : mode.name === 'quiz' || mode.name === 'done' ? STEPS[mode.step].title : mode.name === 'grammar' ? STEPS[2].title : undefined;
+  useFeedbackPage(unit ? `${unit.level} · ${unit.title}` : undefined, stepName);
 
   if (!unit) return <div className="page"><p>Unit not found. <Link to="/course">Back to the course</Link></p></div>;
 
@@ -104,6 +109,7 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
         <div className="page-actions">
           <button className="btn primary" onClick={() => setMode({ name: 'quiz', step: 2, exercises: stepExercises(unit, 2) })}>Start exercises</button>
         </div>
+        <p className="center-text"><FeedbackButton /></p>
       </div>
     );
   }
@@ -185,6 +191,7 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
           ))}
         </ul>
       </section>
+      <p className="center-text"><FeedbackButton /></p>
     </div>
   );
 }

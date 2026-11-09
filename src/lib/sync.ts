@@ -59,6 +59,9 @@ async function getClient() {
   return client;
 }
 
+/** The Supabase client for other features (feedback); only when accounts are enabled. */
+export const supabase = () => getClient();
+
 const redirectTo = () => window.location.origin + window.location.pathname;
 
 export async function signInWithEmail(email: string) {

@@ -4,6 +4,8 @@ import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import type { Exercise } from '../lib/exercises';
 import { personLabel, tenseLabel } from '../lib/exercises';
 import { cleanWord, newWordsIn } from '../lib/taught';
+import { setFeedbackContext } from '../lib/feedback';
+import { FeedbackButton } from './FeedbackButton';
 import { phrasesIn, phraseForWord } from '../lib/phrases';
 import { checkAnswer, normalize, shuffle, wrongWords } from '../lib/text';
 import { speak } from '../lib/speech';
@@ -110,6 +112,17 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
 
   if (!ex) return null;
   const progress = Math.min(100, (index / queue.length) * 100);
+  // "Report a problem" sends the exercise on screen and what was answered.
+  useEffect(() => {
+    if (!ex) return;
+    const d = ex.kind === 'build' ? { prompt: ex.en, answer: ex.es } :
+      ex.kind === 'conj' ? { prompt: `${personLabel(ex.tense, ex.person)} · ${ex.inf} · ${tenseLabel(ex.tense)}`, answer: ex.answer } :
+      ex.kind === 'listen' ? { prompt: `(audio) ${ex.en}`, answer: ex.answer } :
+      ex.kind === 'match' ? { prompt: 'Match the pairs', answer: ex.pairs.map((x) => `${x.es} = ${x.en}`).join('; ') } :
+      ex.kind === 'study' ? { prompt: `New forms · ${ex.inf} · ${tenseLabel(ex.tense)}`, answer: '' } :
+      { prompt: ex.prompt, answer: ex.answer };
+    setFeedbackContext({ exercise: { kind: ex.kind, ...d }, typed: result?.typed });
+  }, [ex, result]);
 
   return (
     <div className="session">
@@ -117,6 +130,7 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
         <button className="icon-btn" onClick={onExit} aria-label="Exit"><Icon name="close" /></button>
         <div className="bar" role="progressbar" aria-label="Session progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)}><div style={{ width: `${progress}%` }} /></div>
         {title && <span className="muted small">{title}</span>}
+        <FeedbackButton compact />
       </div>
       <div className="session-body" key={`${ex.key}-${index}`}>
         <ExerciseView ex={ex} onResult={answer} locked={!!result} />

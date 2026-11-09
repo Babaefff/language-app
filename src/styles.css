@@ -864,3 +864,24 @@ body:has(.session) .ticker { display: none; }
 .phrase-note p { margin: 0.15rem 0 0; }
 .phrase-note.compact { margin-top: 0.6rem; font-size: 0.92rem; }
 .tile-phrase { font-style: normal; color: var(--accent); }
+
+/* Feedback: report button, dialog, inbox. */
+.feedback-btn { margin-left: auto; opacity: 0.7; }
+.feedback-btn:hover { opacity: 1; }
+.feedback-link { display: inline-flex; align-items: center; gap: 0.3rem; color: var(--muted); }
+.modal-backdrop { position: fixed; inset: 0; background: rgb(0 0 0 / 0.35); display: grid; place-items: center; z-index: 50; padding: 1rem; }
+.modal { width: min(520px, 100%); max-height: 90vh; overflow: auto; }
+.modal h2 { margin: 0; }
+.fb-context { background: var(--surface-2); border-radius: 10px; padding: 0.5rem 0.7rem; margin: 0.6rem 0; }
+.fb-cats { border: 0; padding: 0; margin: 0.5rem 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.fb-cats legend { margin-bottom: 0.3rem; }
+.chip { display: inline-flex; align-items: center; gap: 0.3rem; border: 1px solid var(--border); border-radius: 999px; padding: 0.3rem 0.7rem; font-size: 0.88rem; cursor: pointer; background: var(--surface); }
+.chip.on { border-color: var(--primary); background: var(--primary-soft); }
+.chip input { position: absolute; opacity: 0; pointer-events: none; }
+.fb-item { display: grid; gap: 0.4rem; }
+.fb-status { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.15rem 0.55rem; border-radius: 999px; background: var(--surface-2); }
+.fb-status.resolved { background: var(--good-soft); color: var(--good); }
+.fb-status.open { background: var(--primary-soft); color: var(--primary); }
+.fb-reply { background: var(--good-soft); border-radius: 10px; padding: 0.5rem 0.7rem; margin: 0; }
+.fb-thanks { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap; border: 1px solid var(--good); background: var(--good-soft); margin: 0 auto 1rem; max-width: 1080px; }
+textarea { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.5rem 0.65rem; width: 100%; }

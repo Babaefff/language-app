@@ -99,6 +99,23 @@ Choose another voice with `TTS_VOICE`, e.g. `es-US-Neural2-A` (Latin American) o
 - Speaking practice with speech recognition
 - More languages: the data model is language-agnostic
 
+## Lesson feedback (needs accounts)
+
+Signed-in learners can press the flag button in any exercise, lesson, grammar lesson or text to
+report a problem. The report carries where it happened (lesson, step, the exercise, the expected
+answer and what they typed). They see their reports under **My feedback**; when an admin marks one
+fixed, they get a thank-you in the app.
+
+Setup, once, in Supabase → SQL Editor:
+1. Run `supabase/schema.sql` again (it is safe to re-run).
+2. Make yourself an admin (use the email you sign in with):
+   ```sql
+   insert into public.admins (user_id)
+   select id from auth.users where email = 'YOUR-EMAIL' on conflict do nothing;
+   ```
+Then the account menu shows **Feedback inbox (admin)**: open a report, press **Open this lesson**
+to go there (in the right language), fix it, and press **Mark fixed & thank**.
+
 ## Accounts (optional, Supabase)
 
 Without these settings the app saves progress only in the browser. To let learners sign in and sync progress across devices:

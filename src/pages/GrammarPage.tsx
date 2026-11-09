@@ -5,6 +5,8 @@ import { UNIT_LESSONS, UNIT_MAP } from '../data/course';
 import { GRAMMAR, GRAMMAR_MAP } from '../data/grammar';
 import { LEVEL_INFO, LEVELS } from '../data/types';
 import { grammarExercises, lessonGlossary, type Exercise } from '../lib/exercises';
+import { useFeedbackPage } from '../lib/feedback';
+import { FeedbackButton } from '../components/FeedbackButton';
 import { addXp, completeGrammar, useProgress } from '../lib/store';
 import { Link } from '../components/Nav';
 import { Grammar } from '../components/Grammar';
@@ -56,6 +58,7 @@ export function GrammarLessonPage() {
   const [session, setSession] = useState<Exercise[] | null>(null);
   const [done, setDone] = useState<{ summary: SessionSummary; xp: number } | null>(null);
 
+  useFeedbackPage(lesson ? `Grammar · ${lesson.title}` : undefined, session ? 'Practice' : undefined);
   if (!lesson) return <div className="page"><p>Lesson not found. <Link to="/grammar">Back to grammar</Link></p></div>;
   const index = GRAMMAR.indexOf(lesson);
   // Opened from a course lesson: stay in the course. "Next" is that lesson's next grammar topic,
@@ -165,6 +168,7 @@ export function GrammarLessonPage() {
           {unit && !next && <Link className="btn" to={`/unit/${unit.id}`}>Back to {unit.title} →</Link>}
         </div>
       </div>
+      <p className="center-text"><FeedbackButton /></p>
     </div>
   );
 }
