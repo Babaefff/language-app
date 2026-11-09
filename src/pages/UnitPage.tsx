@@ -50,7 +50,7 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
   const finish = (step: number, summary: SessionSummary) => {
     const score = Math.round((summary.correct / Math.max(1, summary.total)) * 100);
     const xp = summary.correct + 10;
-    applyWordResults(summary.words);
+    applyWordResults(summary.words, summary.close);
     const wasDone = !!getProgress().units[unit.id];
     completeStep(unit.id, step, score, STEPS.length);
     addXp(xp);

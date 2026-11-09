@@ -32,6 +32,8 @@ export interface Result {
   study?: boolean;
   /** Per-word outcome (for match exercises that cover several words). */
   words?: Record<string, boolean>;
+  /** Not right, but close: "almost" (a word one letter off) or "partly" (a sentence with one slip). */
+  grade?: 'almost' | 'partly';
 }
 
 export interface SessionSummary {
@@ -39,6 +41,8 @@ export interface SessionSummary {
   total: number;
   /** wordId → answered correctly every time in this session. */
   words: Record<string, boolean>;
+  /** wordId → wrong only by "almost" (one letter): it comes back later than a real mistake. */
+  close?: Record<string, boolean>;
 }
 
 const wordsOf = (ex: Exercise): string[] =>
@@ -48,7 +52,7 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
   const [queue, setQueue] = useState(exercises);
   const [index, setIndex] = useState(0);
   const [result, setResult] = useState<Result | null>(null);
-  const stats = useRef({ correct: 0, words: {} as Record<string, boolean>, retried: new Set<string>(), exposed: new Set<string>() });
+  const stats = useRef({ correct: 0, words: {} as Record<string, boolean>, close: {} as Record<string, boolean>, retried: new Set<string>(), exposed: new Set<string>() });
   const ex = queue[index];
 
   const answer = (r: Result) => {
@@ -79,6 +83,9 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
     }
     for (const id of wordsOf(ex)) {
       const ok = r.words ? r.words[id] !== false : r.ok;
+      // A real mistake outweighs a near miss: once wrong, the word isn't "close" any more.
+      if (!ok && firstTry) s.close[id] = r.grade !== undefined && s.close[id] !== false;
+      if (!ok && !r.grade) s.close[id] = false;
       s.words[id] = (s.words[id] ?? true) && ok;
     }
     if (!r.ok && firstTry && ex.kind !== 'match') {
@@ -89,7 +96,7 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
 
   const next = () => {
     setResult(null);
-    if (index + 1 >= queue.length) onFinish({ correct: stats.current.correct, total: exercises.filter((e) => e.kind !== 'study').length, words: stats.current.words });
+    if (index + 1 >= queue.length) onFinish({ correct: stats.current.correct, total: exercises.filter((e) => e.kind !== 'study').length, words: stats.current.words, close: stats.current.close });
     else setIndex(index + 1);
   };
 
@@ -136,9 +143,9 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
         <ExerciseView ex={ex} onResult={answer} locked={!!result} />
       </div>
       {result && (
-        <div role="status" className={`feedback ${result.ok ? 'good' : 'bad'}`}>
+        <div role="status" className={`feedback ${result.ok ? 'good' : result.grade ? 'close' : 'bad'}`}>
           <div>
-            <strong>{result.ok ? 'Correct' : 'Incorrect'}</strong>
+            <strong>{result.ok ? 'Correct' : result.grade === 'almost' ? 'Almost' : result.grade === 'partly' ? 'Partly correct' : 'Incorrect'}</strong>
             {!result.ok && (
               <div className="feedback-answer">
                 Correct answer: <span lang={LANG}>{result.answer}</span> <SpeakButton text={result.answer} />
@@ -295,14 +302,14 @@ function feedbackFor(input: string, expected: string, accept: string[] = [], typ
   const c = checkAnswer(input, expected, strict, { typos, isWord: (w) => !!lookupWord(w, false) || lookupForm(w).length > 0 });
   const notes = [
     c.otherWord && `“${c.otherWord}” is a different word: the ${LANG === 'de' ? 'umlaut' : 'accent'} matters here.`,
-    c.typo && 'Small typo — check the spelling.',
+    c.typo && 'One small slip in the spelling — the rest is right.',
     c.nearMiss && 'Almost — just one letter off. Look at the spelling and it’ll come back soon.',
     c.accent && (LANG === 'de' ? 'Watch the special letters (ä ö ü ß).' : LANG === 'fr' ? 'Watch the accents (é è ê à ç ô…).' : LANG === 'ru' ? 'Watch the soft sign ь and the accents.' : 'Watch the accents (á é í ó ú ñ ü).'),
     c.letterCase && (LANG === 'de' ? 'Watch the capitals: nouns and Sie start with a capital letter.' : 'Watch the capital letters.'),
     c.article && 'Remember the article.',
   ].filter(Boolean);
   if (c.ok) speak(expected);
-  return { ok: c.ok, answer: expected, note: notes.length ? notes.join(' ') : undefined, typed: input };
+  return { ok: c.ok, answer: expected, note: notes.length ? notes.join(' ') : undefined, typed: input, ...(c.nearMiss ? { grade: 'almost' as const } : c.typo ? { grade: 'partly' as const } : {}) };
 }
 
 /** The expected answer with the words that were typed differently marked. */

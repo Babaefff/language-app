@@ -168,7 +168,8 @@ describe('German course', () => {
     const c = (a: string, b: string, o = {}) => m.text.checkAnswer(a, b, false, o);
     expect(c('Ich bin 20 Jahre alt.', 'Ich bin zwanzig Jahre alt.').ok).toBe(true);
     expect(c('Er ist 25.', 'Er ist fünfundzwanzig.').ok).toBe(true);
-    expect(c('Ich habe Kopfschmerzn.', 'Ich habe Kopfschmerzen.', { typos: true })).toEqual({ ok: true, typo: true });
+    // A sentence with one slip is "partly correct": not counted as right.
+    expect(c('Ich habe Kopfschmerzn.', 'Ich habe Kopfschmerzen.', { typos: true })).toEqual({ ok: false, typo: true });
     expect(c('Ich habe Kopfschmerzn.', 'Ich habe Kopfschmerzen.').ok).toBe(false);
     // A single word is what's being learned: one letter off is wrong (shown as "almost").
     expect(c('die schwister', 'die Schwester', { typos: true })).toEqual({ ok: false, nearMiss: true });

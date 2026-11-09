@@ -56,8 +56,8 @@ export function Review() {
         title="Review"
         onExit={() => setMode({ name: 'menu' })}
         onFinish={(summary) => {
-          if (mode.grade) applyWordResults(summary.words);
-          else applyWordResults(Object.fromEntries(Object.entries(summary.words).filter(([, ok]) => !ok)));
+          if (mode.grade) applyWordResults(summary.words, summary.close);
+          else applyWordResults(Object.fromEntries(Object.entries(summary.words).filter(([, ok]) => !ok)), summary.close);
           addXp(summary.correct);
           setMode({ name: 'done', summary, xp: summary.correct });
         }}

@@ -389,13 +389,15 @@ export function streak(xp: Record<string, number>, frozen: Record<string, number
  * that are not yet due are only touched when answered wrong, so extra practice can't inflate
  * intervals.
  */
-export function applyWordResults(words: Record<string, boolean>) {
+export function applyWordResults(words: Record<string, boolean>, close: Record<string, boolean> = {}) {
   const now = Date.now();
   const cards = { ...state.cards };
   for (const [id, ok] of Object.entries(words)) {
     const c = cards[id];
-    if (!c || c.due <= now) cards[id] = review(c, ok ? 2 : 0, now);
-    else if (!ok) cards[id] = review(c, 0, now);
+    // Right → "good"; almost (one letter off) → "hard": back sooner than right, later than wrong.
+    const grade = ok ? 2 : close[id] ? 1 : 0;
+    if (!c || c.due <= now) cards[id] = review(c, grade, now);
+    else if (!ok && !close[id]) cards[id] = review(c, 0, now);
   }
   set({ ...state, cards });
 }

@@ -36,7 +36,7 @@ export interface Check {
   letterCase?: boolean;
   /** Right except the article was missing. */
   article?: boolean;
-  /** Right except for a one-letter typo (only where allowed, never in strict mode). */
+  /** Partly correct: a sentence with one small slip in one word (not counted as correct). */
   typo?: boolean;
   /** Wrong, but only one letter off: shown as "almost" so the learner sees how close it was. */
   nearMiss?: boolean;
@@ -144,9 +144,9 @@ export function checkAnswer(input: string, expected: string, strict = false, opt
       if (diff.length !== 1) continue;
       const [x, y] = [tw[diff[0]], ew[diff[0]]];
       if (y.length >= 4 && distance(x, y) === 1 && !opts.isWord?.(x)) {
-        // Accepted only in whole sentences of 3+ words (the point there is building the sentence);
-        // a single word is what is being learned, so its spelling must be right.
-        return opts.typos && !strict && ew.length >= 3 && y.length >= 6 ? { ok: true, typo: true } : { ok: false, nearMiss: true };
+        // Never "correct" when it isn't: a sentence of 3+ words with one slip is "partly correct",
+        // a single word one letter off is "almost". Both come back in review later than a wrong answer.
+        return opts.typos && !strict && ew.length >= 3 && y.length >= 6 ? { ok: false, typo: true } : { ok: false, nearMiss: true };
       }
     }
   }

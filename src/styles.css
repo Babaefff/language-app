@@ -891,3 +891,4 @@ textarea { font: inherit; color: var(--text); background: var(--surface); border
 .say:hover, .say:focus-visible { background: var(--primary-soft); outline: none; }
 .say .icon { margin-left: 0.2rem; color: var(--primary); opacity: 0.75; vertical-align: -0.1em; }
 td .say { display: inline-flex; align-items: center; gap: 0.15rem; text-decoration: none; }
+.feedback.close { background: color-mix(in srgb, var(--accent) 16%, var(--surface)); color: var(--accent); border-color: var(--accent); }

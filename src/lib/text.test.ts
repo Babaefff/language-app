@@ -53,7 +53,7 @@ describe('comfortable Spanish answers', () => {
     const isWord = (w: string) => ['vas', 'hablas'].includes(w);
     expect(checkAnswer('la biblioteka', 'la biblioteca', false, { typos: true, isWord })).toEqual({ ok: false, nearMiss: true });
     expect(checkAnswer('biblioteka', 'la biblioteca', false, { typos: true, isWord })).toEqual({ ok: false, nearMiss: true });
-    expect(checkAnswer('Estudio en la biblioteka.', 'Estudio en la biblioteca.', false, { typos: true, isWord })).toEqual({ ok: true, typo: true });
+    expect(checkAnswer('Estudio en la biblioteka.', 'Estudio en la biblioteca.', false, { typos: true, isWord })).toEqual({ ok: false, typo: true });
     expect(checkAnswer('Mañana vas a la playa.', 'Mañana voy a la playa.', false, { typos: true, isWord }).ok).toBe(false);
     expect(checkAnswer('el gado', 'el gato', false, { typos: true, isWord }).ok).toBe(false);
   });

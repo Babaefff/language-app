@@ -23,7 +23,7 @@ export function Daily() {
     if (index + 1 >= stages.length) { completeDailySession(); setFinished(true); }
     else setIndex(index + 1);
   };
-  const finishPractice = (s: SessionSummary) => { applyWordResults(s.words); addXp(s.correct); advance(); };
+  const finishPractice = (s: SessionSummary) => { applyWordResults(s.words, s.close); addXp(s.correct); advance(); };
   if (finished) return <div className="page narrow"><section className="card daily-finish">
     <h1>Session complete</h1>
     <Link className="btn primary" to="/progress">Progress</Link> <Link className="btn" to="/">Back home</Link>
