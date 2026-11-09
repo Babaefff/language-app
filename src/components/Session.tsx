@@ -2,14 +2,16 @@ import { Icon } from './Icon';
 import { L, LANG } from '../data/lang';
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import type { Exercise } from '../lib/exercises';
-import { personLabel, tenseLabel } from '../lib/exercises';
+import { personLabel, tenseLabel, typeEnEs } from '../lib/exercises';
 import { cleanWord, newWordsIn } from '../lib/taught';
 import { setFeedbackContext } from '../lib/feedback';
 import { FeedbackButton } from './FeedbackButton';
 import { WordParts } from './WordParts';
+import { isQuiet, setQuiet, type Quiet } from '../lib/quiet';
+import { compareSpeech, listenOnce, recognitionSupported, RECOGNITION_ERRORS, stopListening } from '../lib/recognize';
 import { phrasesIn, phraseForWord } from '../lib/phrases';
 import { checkAnswer, normalize, shuffle, wrongWords } from '../lib/text';
-import { speak } from '../lib/speech';
+import { speak, stopSpeaking } from '../lib/speech';
 import { getProgress, recordLearning, updateSettings } from '../lib/store';
 import { lookupWord, WORD_MAP } from '../data/course';
 import { lookupForm } from '../lib/conjugate';
@@ -49,8 +51,37 @@ export interface SessionSummary {
 const wordsOf = (ex: Exercise): string[] =>
   ex.kind === 'match' ? ex.pairs.map((p) => p.wordId) : 'wordId' in ex && ex.wordId ? [ex.wordId] : [];
 
+/**
+ * Respects "can't listen / speak now": a listening exercise becomes the same word without audio
+ * (written from English), a speaking exercise is left out (also where the browser can't listen).
+ */
+function adapt(ex: Exercise): Exercise | null {
+  if (ex.kind === 'listen' && isQuiet('listen')) {
+    const w = ex.wordId ? WORD_MAP[ex.wordId] : undefined;
+    return w ? { ...typeEnEs(w), key: ex.key + ':quiet' } : null;
+  }
+  if (ex.kind === 'speak' && (isQuiet('speak') || !recognitionSupported())) return null;
+  return ex;
+}
+const adaptAll = (list: Exercise[]) => list.map(adapt).filter((e): e is Exercise => !!e);
+
 export function Session({ exercises, onFinish, onExit, title }: { exercises: Exercise[]; onFinish: (s: SessionSummary) => void; onExit: () => void; title?: string }) {
-  const [queue, setQueue] = useState(exercises);
+  const [queue, setQueue] = useState(() => adaptAll(exercises));
+  const [total, setTotal] = useState(() => adaptAll(exercises).filter((e) => e.kind !== 'study').length);
+  const [quiet, setQuietState] = useState({ listen: isQuiet('listen'), speak: isQuiet('speak') });
+  /** "Can't listen / speak now": from this exercise on, for an hour. */
+  const goQuiet = (what: Quiet, on = true) => {
+    setQuiet(what, on);
+    setQuietState((q) => ({ ...q, [what]: on }));
+    if (!on) return;
+    setResult(null);
+    setQueue((q) => {
+      const rest = adaptAll(q.slice(index));
+      setTotal((t) => t - (q.length - index - rest.length));
+      if (!rest.length) setTimeout(() => onFinish({ correct: stats.current.correct, total: Math.max(1, total), words: stats.current.words, close: stats.current.close }), 0);
+      return [...q.slice(0, index), ...rest];
+    });
+  };
   const [index, setIndex] = useState(0);
   const [result, setResult] = useState<Result | null>(null);
   const stats = useRef({ correct: 0, words: {} as Record<string, boolean>, close: {} as Record<string, boolean>, retried: new Set<string>(), exposed: new Set<string>() });
@@ -72,7 +103,8 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
       const task = word ? { prompt: word.en, answer: word.es, wordId: word.id } :
         ex.kind === 'build' ? { prompt: ex.en, answer: ex.es } :
         ex.kind === 'conj' ? { prompt: `${personLabel(ex.tense, ex.person)} · ${ex.inf} · ${tenseLabel(ex.tense)}`, answer: ex.answer, why: ex.why } :
-        ex.kind === 'listen' ? { prompt: ex.en, answer: ex.answer } : { prompt: ex.prompt, answer: ex.answer, why: 'why' in ex ? ex.why : undefined };
+        ex.kind === 'listen' ? { prompt: ex.en, answer: ex.answer } :
+        ex.kind === 'speak' ? { prompt: `(say) ${ex.en}`, answer: ex.es } : { prompt: ex.prompt, answer: ex.answer, why: 'why' in ex ? ex.why : undefined };
       const id = questionId(task.prompt, task.answer);
       const seen = word ? getProgress().cards[word.id]?.seen : undefined;
       const independent = !s.exposed.has(id);
@@ -89,7 +121,8 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
       if (!ok && !r.grade) s.close[id] = false;
       s.words[id] = (s.words[id] ?? true) && ok;
     }
-    if (!r.ok && firstTry && ex.kind !== 'match') {
+    // Speaking isn't repeated: speech recognition can miss words, so no endless retries.
+    if (!r.ok && firstTry && ex.kind !== 'match' && ex.kind !== 'speak') {
       s.retried.add(ex.key);
       setQueue((q) => [...q, ex]);
     }
@@ -97,7 +130,7 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
 
   const next = () => {
     setResult(null);
-    if (index + 1 >= queue.length) onFinish({ correct: stats.current.correct, total: exercises.filter((e) => e.kind !== 'study').length, words: stats.current.words, close: stats.current.close });
+    if (index + 1 >= queue.length) onFinish({ correct: stats.current.correct, total, words: stats.current.words, close: stats.current.close });
     else setIndex(index + 1);
   };
 
@@ -128,6 +161,7 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
       ex.kind === 'listen' ? { prompt: `(audio) ${ex.en}`, answer: ex.answer } :
       ex.kind === 'match' ? { prompt: 'Match the pairs', answer: ex.pairs.map((x) => `${x.es} = ${x.en}`).join('; ') } :
       ex.kind === 'study' ? { prompt: `New forms · ${ex.inf} · ${tenseLabel(ex.tense)}`, answer: '' } :
+      ex.kind === 'speak' ? { prompt: `Say: ${ex.es} (${ex.en})`, answer: ex.es } :
       { prompt: ex.prompt, answer: ex.answer };
     setFeedbackContext({ exercise: { kind: ex.kind, ...d }, typed: result?.typed });
   }, [ex, result]);
@@ -140,8 +174,14 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
         {title && <span className="muted small">{title}</span>}
         <FeedbackButton compact />
       </div>
+      {(quiet.listen || quiet.speak) && (
+        <p className="quiet-note small muted">
+          {quiet.listen && <>🔇 Listening is off for an hour · <button className="link small" onClick={() => goQuiet('listen', false)}>turn back on</button> </>}
+          {quiet.speak && <>🎤 Speaking is off for an hour · <button className="link small" onClick={() => goQuiet('speak', false)}>turn back on</button></>}
+        </p>
+      )}
       <div className="session-body" key={`${ex.key}-${index}`}>
-        <ExerciseView ex={ex} onResult={answer} locked={!!result} />
+        <ExerciseView ex={ex} onResult={answer} locked={!!result} onQuiet={goQuiet} />
       </div>
       {result && (
         <div role="status" className={`feedback ${result.ok ? 'good' : result.grade ? 'close' : 'bad'}`}>
@@ -167,17 +207,18 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
 }
 
 
-function ExerciseView(props: { ex: Exercise; onResult: (r: Result) => void; locked: boolean }) {
+function ExerciseView(props: { ex: Exercise; onResult: (r: Result) => void; locked: boolean; onQuiet: (what: Quiet) => void }) {
   const from = 'from' in props.ex ? props.ex.from : undefined;
   // Review words from earlier units are labelled, so they never feel like a slip in this lesson.
   return from ? <><p className="review-tag">Review · from “{from}”</p><ExerciseBody {...props} /></> : <ExerciseBody {...props} />;
 }
 
-function ExerciseBody({ ex, onResult, locked }: { ex: Exercise; onResult: (r: Result) => void; locked: boolean }) {
+function ExerciseBody({ ex, onResult, locked, onQuiet }: { ex: Exercise; onResult: (r: Result) => void; locked: boolean; onQuiet: (what: Quiet) => void }) {
   switch (ex.kind) {
+    case 'speak': return <SpeakView ex={ex} onResult={onResult} locked={locked} onQuiet={onQuiet} />;
     case 'choice': return <ChoiceView ex={ex} onResult={onResult} locked={locked} />;
     case 'type': return <TypeView ex={ex} onResult={onResult} locked={locked} />;
-    case 'listen': return <ListenView ex={ex} onResult={onResult} locked={locked} />;
+    case 'listen': return <ListenView ex={ex} onResult={onResult} locked={locked} onQuiet={onQuiet} />;
     case 'build': return <BuildView ex={ex} onResult={onResult} locked={locked} />;
     case 'match': return <MatchView ex={ex} onResult={onResult} />;
     case 'conj': return <ConjView ex={ex} onResult={onResult} locked={locked} />;
@@ -335,7 +376,7 @@ function TypeView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'typ
   );
 }
 
-function ListenView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'listen' }>; onResult: (r: Result) => void; locked: boolean }) {
+function ListenView({ ex, onResult, locked, onQuiet }: { ex: Extract<Exercise, { kind: 'listen' }>; onResult: (r: Result) => void; locked: boolean; onQuiet: (what: Quiet) => void }) {
   useEffect(() => { speak(ex.answer); }, [ex.answer]);
   return (
     <>
@@ -348,6 +389,45 @@ function ListenView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'l
         const r = feedbackFor(v, ex.answer, [], true);
         onResult({ ...r, note: [r.note, `Meaning: ${ex.en}`].filter(Boolean).join(' · ') });
       }} />
+      {!locked && <button className="link small quiet-btn" onClick={() => { stopSpeaking(); onQuiet('listen'); }}>🔇 Can’t listen now</button>}
+    </>
+  );
+}
+
+/** Say a sentence aloud: speech recognition shows which words were understood. */
+function SpeakView({ ex, onResult, locked, onQuiet }: { ex: Extract<Exercise, { kind: 'speak' }>; onResult: (r: Result) => void; locked: boolean; onQuiet: (what: Quiet) => void }) {
+  const [listening, setListening] = useState(false);
+  const [error, setError] = useState('');
+  useEffect(() => { if (!isQuiet('listen')) void speak(ex.es); return () => stopListening(); }, [ex.es]);
+  const record = async () => {
+    if (listening || locked) return;
+    stopSpeaking();
+    setError('');
+    setListening(true);
+    try {
+      const r = compareSpeech(ex.es, await listenOnce());
+      // Most words understood → correct; about half → partly correct; otherwise try it again later.
+      const grade = r.pct >= 80 ? 'ok' : r.pct >= 50 ? 'partly' : 'no';
+      onResult({ ok: grade === 'ok', answer: ex.es, typed: r.heard || undefined, note: r.heard ? `We heard: “${r.heard}” (${r.pct}% of the words).` : 'Nothing was understood. Speak a little louder and closer to the microphone.', ...(grade === 'partly' ? { grade: 'partly' as const } : {}) });
+    } catch (e) {
+      const code = (e as Error).message;
+      setError(RECOGNITION_ERRORS[code] ?? `Speech recognition failed (${code}).`);
+    } finally {
+      setListening(false);
+    }
+  };
+  return (
+    <>
+      <p className="ex-label">Say it in {L.name}</p>
+      <div className="ex-prompt"><span lang={LANG}>{ex.es}</span><SpeakButton text={ex.es} /></div>
+      <p className="muted">{ex.en}</p>
+      <div className="speak-row">
+        <button className={`btn primary big-btn mic-btn ${listening ? 'on' : ''}`} disabled={locked || listening} onClick={() => void record()}>
+          <Icon name="mic" /> {listening ? 'Listening… speak now' : 'Tap and say it'}
+        </button>
+      </div>
+      {error && <p className="warn small">{error}</p>}
+      {!locked && <button className="link small quiet-btn" onClick={() => { stopListening(); onQuiet('speak'); }}>🎤 Can’t speak now</button>}
     </>
   );
 }

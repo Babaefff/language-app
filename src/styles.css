@@ -900,3 +900,12 @@ td .say { display: inline-flex; align-items: center; gap: 0.15rem; text-decorati
 .wp-plus { color: var(--accent); font-weight: 800; }
 .wp-link strong { color: var(--muted); font-weight: 600; }
 .wp-literal { color: var(--muted); font-style: italic; }
+
+/* Speaking in lessons; "can't listen / speak now". */
+.speak-row { display: flex; justify-content: center; margin: 1rem 0 0.5rem; }
+.mic-btn { display: inline-flex; align-items: center; gap: 0.5rem; }
+.mic-btn.on { animation: mic-pulse 1.2s ease-in-out infinite; }
+@keyframes mic-pulse { 50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--primary) 25%, transparent); } }
+.quiet-btn { display: block; margin: 0.8rem auto 0; color: var(--muted); }
+.quiet-note { text-align: center; margin: -0.25rem 0 0.5rem; }
+@media (prefers-reduced-motion: reduce) { .mic-btn.on { animation: none; } }

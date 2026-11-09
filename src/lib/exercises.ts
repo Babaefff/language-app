@@ -17,7 +17,9 @@ export type Exercise =
   /** options: choose the form (recognition) instead of typing it; why: all forms, shown after answering. */
   | { kind: 'conj'; key: string; inf: string; tense: Tense; person: number; answer: string; options?: string[]; why?: string }
   /** A study card: the full table of a verb before it is practised. Not scored. */
-  | { kind: 'study'; key: string; inf: string; tense: Tense };
+  | { kind: 'study'; key: string; inf: string; tense: Tense }
+  /** Say a sentence aloud (speech recognition checks which words were understood). */
+  | { kind: 'speak'; key: string; es: string; en: string };
 
 let seq = 0;
 const key = () => `x${++seq}`;
@@ -178,6 +180,8 @@ export function stepExercises(unit: Unit, step: number, review: Word[] = []): Ex
   const sentences = shuffle(unit.sentences);
   const builds = sentences.map((s) => build(s, unit.words));
   const writeAgain = sentences.slice(0, 2).map((s): Exercise => ({ kind: 'type', key: key(), label: `Now write it yourself in ${L.name}`, prompt: s.en, answer: s.es }));
+  // Speaking: say two short sentences aloud (left out where the browser can't listen).
+  const speakIt = shuffle(sentences.filter((s) => s.es.split(' ').length <= 8)).slice(0, 2).map((s): Exercise => ({ kind: 'speak', key: key(), es: s.es, en: s.en }));
   // Verbs: for each verb, first the table, then choosing forms, then typing one.
   const conj = unit.conj;
   const verbBlocks = conj ? conj.verbs.slice(0, 3).map((v, i) => conjSet(v, conj.tenses[i % conj.tenses.length], 1)).filter((b) => b.length) : [];
@@ -189,7 +193,7 @@ export function stepExercises(unit: Unit, step: number, review: Word[] = []): Ex
     out.push(...block, ...builds.slice(at, at + per));
     at += per;
   }
-  out.push(...builds.slice(at), ...writeAgain);
+  out.push(...builds.slice(at), ...speakIt, ...writeAgain);
   return out;
 }
 
