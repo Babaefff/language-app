@@ -38,6 +38,8 @@ export interface Check {
   article?: boolean;
   /** Right except for a one-letter typo (only where allowed, never in strict mode). */
   typo?: boolean;
+  /** Wrong: an accent or umlaut was left out and that makes a different word (el ≠ él, schlaft ≠ schläft). */
+  otherWord?: string;
 }
 
 /** Edit distance (insert, delete, replace, swap of two neighbours). */
@@ -115,6 +117,12 @@ export function checkAnswer(input: string, expected: string, strict = false, opt
     for (const [b, article] of variants) for (const a of inputs) {
       if (fold(a) !== fold(b)) continue;
       const accent = a.toLowerCase() !== b.toLowerCase();
+      // Without the accent / umlaut it is another real word or form: that's a mistake, not a slip.
+      if (accent && opts.isWord) {
+        const aw = a.toLowerCase().split(' '), bw = b.toLowerCase().split(' ');
+        const other = aw.find((w, i) => w !== bw[i] && opts.isWord!(w));
+        if (other) return { ok: false, otherWord: other };
+      }
       const letterCase = caseSlip(a, b);
       const r: Check = { ok: !(strict && (accent || letterCase)) };
       if (accent) r.accent = true;

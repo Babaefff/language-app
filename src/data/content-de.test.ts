@@ -172,4 +172,8 @@ describe('German course', () => {
     expect(c('Ich habe Kopfschmerzn.', 'Ich habe Kopfschmerzen.').ok).toBe(false);
     expect(m.text.checkAnswer('Ich habe Kopfschmerzn.', 'Ich habe Kopfschmerzen.', true, { typos: true }).ok).toBe(false);
   });
+  it('every generated exercise is fair: answers accepted, no wrong option that is also right, no look-alike tiles', async () => {
+    const { auditExercises } = await import('../test/exercise-audit');
+    expect(await auditExercises()).toEqual([]);
+  }, 60000);
 });

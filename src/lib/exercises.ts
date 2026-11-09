@@ -3,7 +3,7 @@ import type { ChoiceQuestion, GrammarLesson, Sentence, Tense, Unit, Word } from 
 import { UNIT_MAP, WORDS } from '../data/course';
 import { VERB_MAP } from '../data/verbs';
 import { conjugate, lookupForm, personLabelsFor, TENSE_MAP } from './conjugate';
-import { sample, shuffle } from './text';
+import { checkAnswer, normalize, sample, shuffle } from './text';
 import { L } from '../data/lang';
 
 export type Exercise =
@@ -22,7 +22,19 @@ export type Exercise =
 let seq = 0;
 const key = () => `x${++seq}`;
 
-const sameEn = (a: Word, b: Word) => a.en.trim().toLowerCase() === b.en.trim().toLowerCase();
+/** The meanings in an English gloss: "the time (of day) / hour" → the time of day, the time, hour. */
+function meanings(en: string): string[] {
+  const out = new Set<string>();
+  for (const part of en.toLowerCase().split(/\s*[/;]\s*/)) {
+    const p = part.trim();
+    if (!p) continue;
+    out.add(p.replace(/[()]/g, '').replace(/\s+/g, ' ').trim());
+    out.add(p.replace(/\s*\([^)]*\)/g, '').trim());
+  }
+  return [...out].filter(Boolean);
+}
+/** Two words share a meaning ("what" and "which / what"): never a wrong option for each other. */
+const sameEn = (a: Word, b: Word) => { const m = meanings(b.en); return meanings(a.en).some((x) => m.includes(x)); };
 
 /** Other course words that mean exactly the same in English: both are right answers. */
 export function synonymsOf(word: Word): string[] {
@@ -30,14 +42,17 @@ export function synonymsOf(word: Word): string[] {
 }
 
 function distractors(word: Word, pool: Word[], field: 'es' | 'en', n = 3): string[] {
-  const seen = new Set([word[field]]);
+  const seen = new Set([normalize(word[field])]);
   const out: string[] = [];
   for (const w of shuffle(pool)) {
     if (out.length >= n) break;
     // Never offer a synonym as a "wrong" option: it would also be right.
     if (sameEn(w, word)) continue;
-    if (!seen.has(w[field])) {
-      seen.add(w[field]);
+    // Nor the answer itself in another spelling ("français" next to "le français").
+    if (field === 'es' && (checkAnswer(w.es, word.es).ok || checkAnswer(word.es, w.es).ok)) continue;
+    const k = normalize(w[field]);
+    if (!seen.has(k)) {
+      seen.add(k);
       out.push(w[field]);
     }
   }
@@ -75,16 +90,19 @@ export function listen(word: Word): Exercise {
 
 export function build(sentence: Sentence, extraWords: Word[] = []): Exercise {
   const tokens = sentence.es.split(' ');
-  const lower = new Set(tokens.map((t) => t.toLowerCase()));
+  const lower = new Set(tokens.map((t) => normalize(t)));
   const extras = sample(extraWords, 8)
-    .map((w) => w.es.replace(/^(el|la|los|las|der|die|das) /, ''))
-    .filter((t) => !t.includes(' ') && !lower.has(t.toLowerCase()))
+    .map((w) => w.es.replace(/^(el|la|los|las|der|die|das|le|les|l') ?/i, ''))
+    .filter((t) => !t.includes(' ') && !lower.has(normalize(t)))
     .slice(0, 2);
   return { kind: 'build', key: key(), en: sentence.en, es: sentence.es, tiles: shuffle([...tokens, ...extras]) };
 }
 
 export function match(words: Word[]): Exercise {
-  return { kind: 'match', key: key(), pairs: words.map((w) => ({ es: w.es, en: w.en, wordId: w.id })) };
+  // Two words with the same meaning would make the pairs ambiguous: keep the first of them.
+  const kept: Word[] = [];
+  for (const w of words) if (!kept.some((k) => sameEn(k, w) || normalize(k.es) === normalize(w.es))) kept.push(w);
+  return { kind: 'match', key: key(), pairs: kept.map((w) => ({ es: w.es, en: w.en, wordId: w.id })) };
 }
 
 /** "yo hablo · tú hablas · …": every form of a verb, shown after a conjugation answer. */

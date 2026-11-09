@@ -200,7 +200,13 @@ function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'c
         </div>
         {ex.base && <p className="base-hint">Use: <strong lang={LANG}>{ex.base.split(' — ')[0]}</strong> <span className="muted">— {ex.base.split(' — ').slice(1).join(' — ')}</span></p>}
         {ex.hint && <p className="muted">{ex.hint}</p>}
-        <TextAnswer locked={locked} onSubmit={(v) => onResult({ ...feedbackFor(v, ex.answer, ex.accept), why: ex.why })} />
+        <TextAnswer locked={locked} onSubmit={(v) => {
+          // The wrong options are the typical mistakes this question is about (Fähr, levent…):
+          // typing one of them exactly is wrong, even if it looks like a small slip.
+          const trap = ex.options.find((o) => o !== ex.answer && normalize(o) === normalize(v));
+          if (trap) return onResult({ ok: false, answer: ex.answer, typed: v, note: `“${trap}” is the typical mistake here.`, why: ex.why });
+          onResult({ ...feedbackFor(v, ex.answer, ex.accept), why: ex.why });
+        }} />
         {!locked && !ex.typed && <button className="link small" onClick={toggle}>☰ Show options instead</button>}
       </>
     );
@@ -274,6 +280,7 @@ function feedbackFor(input: string, expected: string, accept: string[] = [], typ
   }
   const c = checkAnswer(input, expected, strict, { typos, isWord: (w) => !!lookupWord(w, false) || lookupForm(w).length > 0 });
   const notes = [
+    c.otherWord && `“${c.otherWord}” is a different word: the ${LANG === 'de' ? 'umlaut' : 'accent'} matters here.`,
     c.typo && 'Small typo — check the spelling.',
     c.accent && (LANG === 'de' ? 'Watch the special letters (ä ö ü ß).' : LANG === 'fr' ? 'Watch the accents (é è ê à ç ô…).' : LANG === 'ru' ? 'Watch the soft sign ь and the accents.' : 'Watch the accents (á é í ó ú ñ ü).'),
     c.letterCase && (LANG === 'de' ? 'Watch the capitals: nouns and Sie start with a capital letter.' : 'Watch the capital letters.'),

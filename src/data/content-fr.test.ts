@@ -180,4 +180,8 @@ describe('French course', () => {
     expect(c('le coeur', 'le cœur')).toBe(true);
     expect(c("j' ai faim", "J’ai faim.")).toBe(true);
   });
+  it('every generated exercise is fair: answers accepted, no wrong option that is also right, no look-alike tiles', async () => {
+    const { auditExercises } = await import('../test/exercise-audit');
+    expect(await auditExercises()).toEqual([]);
+  }, 60000);
 });

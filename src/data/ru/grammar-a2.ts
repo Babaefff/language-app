@@ -303,7 +303,7 @@ ${ex('Москва больше, чем Петербург.', 'Moscow is bigger 
     ],
     practice: {
       choice: [
-        q('Сегодня ___, чем вчера.', ['теплее', 'тёплый', 'теплый'], 'Comparative: тёплый → теплее.', "It's warmer today than yesterday."),
+        q('Сегодня ___, чем вчера.', ['теплее', 'тёплый', 'тёплая'], 'Comparative: тёплый → теплее.', "It's warmer today than yesterday."),
         q('Этот фильм ___ того.', ['лучше', 'хорошее', 'более хороший'], 'хороший → лучше (irregular).', 'This film is better than that one.'),
         q('Брат ___ меня на два года.', ['старше', 'старее', 'старый'], 'For people: старше.', 'My brother is two years older than me.'),
         q('Это ___ интересная книга.', ['самая', 'самый', 'самое'], 'книга is feminine: самая.', "It's the most interesting book."),
