@@ -176,4 +176,13 @@ describe('German course', () => {
     const { auditExercises } = await import('../test/exercise-audit');
     expect(await auditExercises()).toEqual([]);
   }, 60000);
+  it('grammar notes: German bits are read aloud, English is left out', async () => {
+    const f = await import('../lib/foreign');
+    expect(f.isForeign('13 dreizehn')).toBe(true);
+    expect(f.speakableForeign('haben (to have)')).toBe('haben');
+    expect(f.speakableForeign('liegen — to lie')).toBe('liegen');
+    expect(f.speakableForeign('Ich bin 25 (Jahre alt).')).toContain('Jahre alt');
+    expect(f.isForeign('units come first')).toBe(false);
+    expect(f.isForeign('you are (informal)')).toBe(false);
+  });
 });

@@ -53,4 +53,6 @@ export const SMALL_ES: Record<string, string> = {
   explico: 'I explain',
   mando: 'I send',
   falta: 'is missing / is needed',
+  yo: 'I', 'tú': 'you (informal)', 'él': 'he', ella: 'she', usted: 'you (formal)', nosotros: 'we', nosotras: 'we (f.)', vosotros: 'you all (Spain)', vosotras: 'you all (Spain, f.)', ellos: 'they', ellas: 'they (f.)', ustedes: 'you all',
+  estadounidense: 'American (from the USA)',
 };

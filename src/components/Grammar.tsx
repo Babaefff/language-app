@@ -1,5 +1,21 @@
 import type { ReactNode } from 'react';
 import { exampleTranslation } from '../data/grammar-translations';
+import { LANG } from '../data/lang';
+import { speak } from '../lib/speech';
+import { isForeign, speakableForeign } from '../lib/foreign';
+import { Icon } from './Icon';
+
+/** A bit of the language being learned: tap it to hear it. */
+function Say({ text, children }: { text: string; children: ReactNode }) {
+  const say = speakableForeign(text);
+  if (!isForeign(text)) return <>{children}</>;
+  return (
+    <span className="say" role="button" tabIndex={0} lang={LANG} title="Tap to hear it"
+      onClick={() => void speak(say)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); void speak(say); } }}>
+      {children}<Icon name="volume" size={14} />
+    </span>
+  );
+}
 
 const BOLD = /^\*\*([^*]+)\*\*$/;
 /** Bold is tried first, so "***Son** las tres*" is read as italics containing bold. */
@@ -11,14 +27,14 @@ function bold(text: string): ReactNode[] {
 
 function inline(text: string): ReactNode[] {
   return text.split(TOKENS).map((part, i) => {
-    if (BOLD.test(part)) return <strong key={i}>{part.slice(2, -2)}</strong>;
+    if (BOLD.test(part)) return <Say key={i} text={part.slice(2, -2)}><strong>{part.slice(2, -2)}</strong></Say>;
     if (part.length > 2 && part.startsWith('*') && part.endsWith('*')) {
       const inner = part.slice(1, -1);
       // Example sentences in the language being learned get their English right after them.
       const en = exampleTranslation(inner);
       return (
         <span key={i} className="ex-pair">
-          <em>{bold(inner)}</em>
+          <Say text={inner}><em>{bold(inner)}</em></Say>
           {en && <span className="ex-en"> ({en})</span>}
         </span>
       );
@@ -49,7 +65,7 @@ export function Grammar({ source }: { source: string }) {
           <table>
             <tbody>
               {rows.map((r, ri) => (
-                <tr key={ri}>{r.map((c, ci) => <td key={ci}>{inline(c)}</td>)}</tr>
+                <tr key={ri}>{r.map((c, ci) => <td key={ci}>{/\*/.test(c) ? inline(c) : <Say text={c}>{c}</Say>}</td>)}</tr>
               ))}
             </tbody>
           </table>
