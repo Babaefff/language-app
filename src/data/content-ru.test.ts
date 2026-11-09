@@ -128,7 +128,8 @@ describe('Russian course', () => {
     expect(c('быть', 'presente').every((f) => f === null)).toBe(true);
     expect(c('говорить', 'imperativo')).toEqual([null, 'говори', null, null, 'говорите', null]);
     expect(c('заниматься', 'imperativo')[1]).toBe('занимайся');
-    expect(m.text.checkAnswer('еще', 'ещё')).toEqual({ ok: true, accent: true });
+    // ё and е are the same letter (Russians usually write е): no slip, even in strict mode.
+    expect(m.text.checkAnswer('еще', 'ещё', true)).toEqual({ ok: true });
     expect(m.text.checkAnswer('чаи', 'чай').ok).toBe(false);
   });
 

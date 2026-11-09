@@ -273,7 +273,7 @@ function feedbackFor(input: string, expected: string, accept: string[] = []): Re
   }
   const c = checkAnswer(input, expected, strict);
   const notes = [
-    c.accent && (LANG === 'de' ? 'Watch the special letters (ä ö ü ß).' : LANG === 'fr' ? 'Watch the accents (é è ê à ç ô…).' : LANG === 'ru' ? 'Watch the letter ё (and the soft sign ь).' : 'Watch the accents (á é í ó ú ñ ü).'),
+    c.accent && (LANG === 'de' ? 'Watch the special letters (ä ö ü ß).' : LANG === 'fr' ? 'Watch the accents (é è ê à ç ô…).' : LANG === 'ru' ? 'Watch the soft sign ь and the accents.' : 'Watch the accents (á é í ó ú ñ ü).'),
     c.letterCase && (LANG === 'de' ? 'Watch the capitals: nouns and Sie start with a capital letter.' : 'Watch the capital letters.'),
     c.article && 'Remember the article.',
   ].filter(Boolean);

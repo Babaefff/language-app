@@ -156,4 +156,12 @@ describe('German course', () => {
     const t = await import('../lib/taught');
     for (const u of m.course.UNITS) expect(t.sentenceWords(u).length, u.id).toBe(t.untaughtInSentences(u).length);
   });
+  it('accepts contractions and any apostrophe: geht’s = geht”s = geht es', () => {
+    const c = (a: string, b: string) => m.text.checkAnswer(a, b).ok;
+    expect(c('Wie geht”s?', 'Wie geht’s?')).toBe(true);
+    expect(c("wie geht's", 'Wie geht’s?')).toBe(true);
+    expect(c('Wie geht es?', 'Wie geht’s?')).toBe(true);
+    expect(c('Wie geht’s?', 'Wie geht es Ihnen?')).toBe(false);
+    expect(c('Gibt es hier ein Café?', 'Gibt’s hier ein Café?')).toBe(true);
+  });
 });

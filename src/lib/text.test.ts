@@ -22,3 +22,20 @@ describe('checkAnswer', () => {
     expect(checkAnswer('car', 'caer').ok).toBe(false);
   });
 });
+
+describe('equivalent spellings count as the same answer', () => {
+  it('treats every apostrophe-like character the same', async () => {
+    const { equivalentForm } = await import('./text');
+    for (const ap of ['’', '‘', 'ʼ', '´', '`', '”', '“', "'"]) expect(equivalentForm(`s${ap}il`, 'fr')).toBe("s'il");
+  });
+  it('German: a contracted es is the full word', async () => {
+    const { equivalentForm } = await import('./text');
+    expect(equivalentForm('Wie geht”s?', 'de')).toBe(equivalentForm('Wie geht es?', 'de'));
+    expect(equivalentForm('Gibt’s hier Kaffee?', 'de')).toBe(equivalentForm('Gibt es hier Kaffee?', 'de'));
+    expect(equivalentForm("Ich hab' Zeit", 'de')).toBe(equivalentForm('Ich habe Zeit', 'de'));
+  });
+  it('Russian: ё and е are the same letter', async () => {
+    const { equivalentForm } = await import('./text');
+    expect(equivalentForm('Всё хорошо, ещё', 'ru')).toBe(equivalentForm('Все хорошо, еще', 'ru'));
+  });
+});

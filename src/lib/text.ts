@@ -3,9 +3,8 @@ const ARTICLES = /^(?:(?:el|la|los|las|un|una|unos|unas|der|die|das|ein|eine|le|
 
 /** Lower-case, trim, drop punctuation, collapse spaces. Keeps accents. */
 export function normalize(s: string): string {
-  return s
+  return equivalentForm(s)
     .toLowerCase()
-    .replace(/’/g, "'")
     .replace(/[¿?¡!.,;:"“”«»()…]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
@@ -39,8 +38,22 @@ export interface Check {
 }
 
 const ARTICLES_I = new RegExp(ARTICLES.source, 'i');
+
+/**
+ * Writes equivalent spellings one way, so they count as the same answer:
+ * - any apostrophe-like character between letters (’ ‘ ʼ ´ ` ” “) is an apostrophe: geht”s = geht's
+ * - German: a contracted "es" is the full word (geht's = geht es, gibt's = gibt es), hab' = habe
+ * - Russian: ё and е are the same letter (Russians usually write е)
+ * - every kind of dash is a hyphen
+ */
+export function equivalentForm(s: string, lang: string = LANG): string {
+  let t = s.replace(/(?<=\p{L})[’‘ʼ´`”“″′'](?=\p{L})/gu, "'").replace(/[–—‑]/g, '-');
+  if (lang === 'de') t = t.replace(/(\p{L}+)'s(?!\p{L})/gu, '$1 es').replace(/(?<!\p{L})(h)ab'?(?!\p{L})/giu, '$1abe');
+  if (lang === 'ru') t = t.replace(/ё/g, 'е').replace(/Ё/g, 'Е');
+  return t;
+}
 /** Drops punctuation but keeps letter case. */
-const clean = (s: string) => s.replace(/’/g, "'").replace(/[¿?¡!.,;:"“”«»()…]/g, ' ').replace(/\s+/g, ' ').trim();
+const clean = (s: string) => equivalentForm(s).replace(/[¿?¡!.,;:"“”«»()…]/g, ' ').replace(/\s+/g, ' ').trim();
 /** Lower case without accents; in German, ae/oe/ue typed for ä/ö/ü count as the same letter. */
 function fold(s: string) {
   const f = stripAccents(s.toLowerCase());
