@@ -161,4 +161,8 @@ describe('Russian course', () => {
       for (const raw of st.split(/\s+/)) { const w = raw.replace(/[¿?¡!.,;:"«»—–()]/g, ''); if (w && !/\d/.test(w) && gloss(w).meaning === '—') missing.add(w); }
     expect([...missing]).toEqual([]);
   });
+  it("words a lesson's sentences use beyond what it taught are listed with a meaning", async () => {
+    const t = await import('../lib/taught');
+    for (const u of m.course.UNITS) expect(t.sentenceWords(u).length, u.id).toBe(t.untaughtInSentences(u).length);
+  });
 });

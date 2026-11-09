@@ -3,6 +3,7 @@ import { L, LANG } from '../data/lang';
 import { canDoFor } from '../data/can-do';
 import { READINGS, SONGS } from '../data/readings';
 import { readyAfter } from '../lib/readiness';
+import { sentenceWords } from '../lib/taught';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Link } from '../components/Nav';
@@ -97,6 +98,7 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
           <span className="tag">Grammar</span>
           <Grammar source={unit.grammar} />
         </div>
+        <SentenceWords unitId={unit.id} />
         <RelatedLessons unitId={unit.id} />
         <div className="page-actions">
           <button className="btn primary" onClick={() => setMode({ name: 'quiz', step: 2, exercises: stepExercises(unit, 2) })}>Start exercises</button>
@@ -162,6 +164,7 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
             </li>
           ))}
         </ul>
+        <SentenceWords unitId={unit.id} bare />
       </section>
 
       <details className="card">
@@ -183,6 +186,31 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
       </section>
     </div>
   );
+}
+
+/**
+ * Words the lesson's sentences use beyond its word list (like "mir" in "Mir geht es gut"),
+ * taught with their meaning before the sentences are practised.
+ */
+function SentenceWords({ unitId, bare = false }: { unitId: string; bare?: boolean }) {
+  const words = sentenceWords(UNIT_MAP[unitId]);
+  if (!words.length) return null;
+  const body = (
+    <>
+      <h3>{bare ? 'Also in this lesson’s sentences' : 'New words in this lesson’s sentences'}</h3>
+      {!bare && <p className="muted small">Learn these before you build the sentences.</p>}
+      <ul className="word-list">
+        {words.map((w) => (
+          <li key={w.word}>
+            <span lang={LANG} className="es">{w.word}</span>
+            <span className="muted">{w.en}</span>
+            <SpeakButton text={w.word} />
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+  return bare ? body : <section className="card">{body}</section>;
 }
 
 function RelatedLessons({ unitId }: { unitId: string }) {
