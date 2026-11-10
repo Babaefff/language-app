@@ -157,6 +157,18 @@ export const VERBS_DE: VerbDe[] = [
   { inf: 'gefallen', en: 'to please (to like)', level: 'A2', insep: true, pres: 'gefäll', pret: 'gefiel', part: 'gefallen' },
   { inf: 'gehören', en: 'to belong to', level: 'A2', insep: true },
 
+  // Childhood and work (A2)
+  { inf: 'klettern', en: 'to climb', level: 'A2', sein: true },
+  { inf: 'zeichnen', en: 'to draw', level: 'A2' },
+  { inf: 'sammeln', en: 'to collect', level: 'A2' },
+  { inf: 'basteln', en: 'to make crafts', level: 'A2' },
+  { inf: 'wechseln', en: 'to change', level: 'A2' },
+  { inf: 'feiern', en: 'to celebrate', level: 'A2' },
+  { inf: 'probieren', en: 'to try (taste)', level: 'A2' },
+  { inf: 'übernachten', en: 'to stay the night', level: 'A2', insep: true },
+  { inf: 'behalten', en: 'to keep', level: 'A2', insep: true, pres: 'behält', pret: 'behielt', part: 'behalten' },
+  { inf: 'springen', en: 'to jump', level: 'A2', pret: 'sprang', part: 'gesprungen', sein: true },
+
   // --- B1 ---------------------------------------------------------------------
   { inf: 'planen', en: 'to plan', level: 'B1' },
   { inf: 'sparen', en: 'to save (money)', level: 'B1' },

@@ -42,8 +42,8 @@ function parse(def: VerbDe): Parsed {
   return { def, core, coreInf, prefix, stem, shortPlural };
 }
 
-/** arbeit-e-st, öffn-e-t: stems in d/t, or consonant + m/n, need a linking e. */
-const needsE = (stem: string) => /[dt]$/.test(stem) || /[^aeiouäöülrmnh][mn]$/.test(stem);
+/** arbeit-e-st, öffn-e-t, zeichn-e-t: stems in d/t, or consonant + m/n, need a linking e. */
+const needsE = (stem: string) => /[dt]$/.test(stem) || /(?:[^aeiouäöülrmnh]|ch)[mn]$/.test(stem);
 /** heiß-t, tanz-t, lies-t: du drops its s after s/ß/z/x. */
 const sibilant = (stem: string) => /(s|ß|z|x)$/.test(stem);
 
@@ -56,6 +56,10 @@ function presentCore(p: Parsed): string[] {
     const changed = (i === 1 || i === 2) && p.core.pres;
     const stem = changed ? p.core.pres! : p.stem;
     if (p.shortPlural && (i === 3 || i === 5)) return stem + 'n';
+    // ich sammle, ich wechsle: -eln verbs drop the e before -e.
+    if (i === 0 && p.shortPlural && stem.endsWith('el')) return stem.slice(0, -2) + 'le';
+    // er hält, er rät: a changed stem in -t takes no extra -t.
+    if (i === 2 && changed && stem.endsWith('t')) return stem;
     if (i === 1 && sibilant(stem)) return stem + 't';
     if ((i === 1 || i === 2 || i === 4) && needsE(stem) && !changed) return stem + 'e' + e;
     return stem + e;

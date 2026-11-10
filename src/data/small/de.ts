@@ -1,5 +1,6 @@
 /** German small words and forms not in the word lists, so every word in a sentence can be tapped. */
 export const SMALL_DE: Record<string, string> = {
+  denn: 'because (verb stays second) / then (in questions)', 'bäume': 'trees (der Baum)',
   in: 'in', im: 'in the (in + dem)', ins: 'into the (in + das)', am: 'at the / on the (an + dem)', an: 'at / on', um: 'at (time) / around', zum: 'to the (zu + dem)', zur: 'to the (zu + der)', vom: 'from the (von + dem)', beim: 'at the (bei + dem)',
   mir: '(to) me', mich: 'me', dir: '(to) you', dich: 'you', ihm: '(to) him', ihnen: '(to) them / (to) you (Ihnen, formal)', uns: 'us / (to) us', sich: 'oneself / himself / herself / themselves', man: 'one / people (in general)',
   den: 'the (masc. accusative)', dem: 'the (dative)', des: 'of the', einen: 'a (masc. accusative)', einem: 'a (dative)', einer: 'a (fem. dative)',

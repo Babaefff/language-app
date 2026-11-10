@@ -350,4 +350,12 @@ export const DE: Record<string, string> = {
   "Ich habe mich beworben.": "I've applied.",
   "Sehr geehrte Damen und Herren,": "Dear Sir or Madam,",
   "Mit freundlichen Grüßen": "Yours sincerely",
+  "Früher habe ich viel gezeichnet.": "I used to draw a lot.",
+  "Ich habe gezeichnet.": "I drew.",
+  "Ich bin Skateboard gefahren.": "I rode my skateboard.",
+  "Wir sind auf Bäume geklettert.": "We climbed trees.",
+  "Ich arbeite gern im Team, weil ich Menschen mag.": "I like working in a team because I like people.",
+  "…, weil er Reifen wechseln muss.": "…, because he has to change tyres.",
+  "Ich bin müde, denn ich habe Überstunden gemacht.": "I'm tired, because I worked overtime.",
+  "Warum bist du müde? – Weil ich Überstunden gemacht habe.": "Why are you tired? – Because I worked overtime.",
 };

@@ -125,6 +125,56 @@ Even in speech, Germans say:
     conj: { verbs: ['besuchen', 'machen', 'sein', 'haben'], tenses: ['perfecto', 'preterito'] },
   },
   {
+    id: 'de-a2-09', title: 'Childhood memories', titleEs: 'Kindheitserinnerungen', emoji: '🧸',
+    description: 'Say what you did as a child: Perfekt with haben or sein.',
+    words: [
+      ['früher', 'in the past / used to', 'Früher habe ich viel gezeichnet.', 'I used to draw a lot.'], ['als Kind', 'as a child'],
+      ['zeichnen', 'to draw'], ['basteln', 'to make crafts'], ['sammeln', 'to collect'], ['auf Bäume klettern', 'to climb trees'],
+      ['das Tagebuch', 'the diary'], ['die Puppe', 'the doll'], ['Seil springen', 'to skip rope'], ['die Süßigkeiten', 'the sweets'],
+      ['der Schneemann', 'the snowman'], ['übernachten', 'to stay the night'], ['draußen', 'outside'], ['das Skateboard', 'the skateboard'], ['der Comic', 'the comic'],
+      ['die Verwandten', 'the relatives'], ['das Jubiläum', 'the anniversary (of a firm, a club)'],
+      ['probieren', 'to try (taste)'], ['behalten', 'to keep'],
+    ],
+    sentences: [
+      ['Als Kind habe ich gern Comics gelesen.', 'As a child I liked reading comics.'],
+      ['Bist du früher auf Bäume geklettert?', 'Did you use to climb trees?'],
+      ['Im Winter haben wir einen Schneemann gebaut.', 'In winter we built a snowman.'],
+      ['Meine Schwester hat jeden Tag Tagebuch geschrieben.', 'My sister wrote in her diary every day.'],
+      ['Im Sommer haben wir draußen übernachtet.', 'In summer we slept outside.'],
+      ['Ich bin oft Skateboard gefahren.', 'I often rode my skateboard.'],
+      ['Letztes Jahr haben wir das Jubiläum gefeiert.', 'Last year we celebrated the anniversary.'],
+    ],
+    grammar: `
+## German has no "used to"
+Say **früher** or **als Kind** and use the Perfekt: *Früher habe ich viel gezeichnet.*
+
+## haben or sein?
+Most verbs take **haben**: *Ich habe gezeichnet.*
+**sein** is for moving from A to B and for changes: *Ich bin Skateboard gefahren.* · *Wir sind auf Bäume geklettert.*
+
+## How the participle is built
+| Verb | Rule | Participle |
+|---|---|---|
+| machen, zeichnen | ge- … -t | gemacht, gezeichnet |
+| lesen, schreiben | ge- … -en, often a new vowel | gelesen, geschrieben |
+| einkaufen, aufstehen | ge- goes in the middle | eingekauft, aufgestanden |
+| probieren, fotografieren | -ieren: no ge- | probiert, fotografiert |
+| besuchen, erzählen, verkaufen | be-, er-, ver-: no ge- | besucht, erzählt, verkauft |
+
+ge- is never stressed: *ge**MACHT***, *ge**LE**sen*.
+
+## letzt-, nächst-, jed-: like der, die, das
+| | der Monat | die Woche | das Jahr |
+|---|---|---|---|
+| last | letzten Monat | letzte Woche | letztes Jahr |
+| next | nächsten Monat | nächste Woche | nächstes Jahr |
+| every | jeden Monat | jede Woche | jedes Jahr |
+
+Why **-en** with der? For a point in time, German uses the accusative: *der → den → letzt**en***.
+`,
+    conj: { verbs: ['zeichnen', 'sammeln', 'probieren'], tenses: ['perfecto'] },
+  },
+  {
     id: 'de-a2-05', title: 'Work & jobs', titleEs: 'Arbeit und Beruf', emoji: '💼',
     description: 'Jobs, workplaces and applying for a job.',
     words: [
@@ -152,6 +202,46 @@ Even in speech, Germans say:
 *Ich arbeite **als** Ingenieur.* — I work as an engineer.
 `,
     conj: { verbs: ['arbeiten', 'verdienen', 'schreiben'], tenses: ['presente', 'perfecto'] },
+  },
+  {
+    id: 'de-a2-10', title: 'Working conditions', titleEs: 'Arbeitsbedingungen', emoji: '🦺',
+    description: 'Say how you work, what matters to you, and why: weil and denn.',
+    words: [
+      ['im Freien arbeiten', 'to work outdoors'], ['drinnen arbeiten', 'to work indoors'], ['allein arbeiten', 'to work alone'],
+      ['im Team arbeiten', 'to work in a team'], ['Schicht arbeiten', 'to work shifts'], ['Überstunden machen', 'to work overtime'],
+      ['im Ausland arbeiten', 'to work abroad'], ['gut verdienen', 'to earn well'], ['feste Arbeitszeiten', 'fixed working hours'],
+      ['flexible Arbeitszeiten', 'flexible working hours'], ['stressig', 'stressful'], ['anstrengend', 'tiring'], ['furchtbar', 'terrible'],
+      ['die Werkstatt', 'the (repair) garage / workshop'], ['der Reifen', 'the tyre'], ['die Panne', 'the breakdown'], ['die Kälte', 'the cold'], ['hart', 'hard'],
+      ['aufgeregt', 'excited / nervous'], ['Das macht mir nichts aus.', "I don't mind that."], ['Das ist mir wichtig.', "That's important to me."],
+    ],
+    sentences: [
+      ['Ich arbeite gern im Team, weil ich Menschen mag.', 'I like working in a team because I like people.'],
+      ['Er muss oft Überstunden machen.', 'He often has to work overtime.'],
+      ['Das Auto muss in die Werkstatt.', 'The car has to go to the garage.'],
+      ['Im Winter ist die Arbeit hart, weil es draußen kalt ist.', 'In winter the work is hard because it is cold outside.'],
+      ['Schicht arbeiten macht mir nichts aus.', "I don't mind working shifts."],
+      ['Ich bin müde, denn ich habe Überstunden gemacht.', "I'm tired, because I worked overtime."],
+    ],
+    grammar: `
+## weil: the verb goes to the end
+*Ich arbeite gern im Team, **weil** ich Menschen **mag**.*
+With two verbs, the one that changes with the person comes last: *…, weil er Reifen wechseln **muss**.*
+
+## denn: the verb stays second
+*Ich bin müde, **denn** ich **habe** Überstunden gemacht.*
+**denn** and **weil** both mean *because*. Only **weil** moves the verb.
+Only **weil** can answer a question alone: *Warum bist du müde? – Weil ich Überstunden gemacht habe.*
+
+## Saying what you think about it
+- **Das ist mir (total) wichtig.** — That's (really) important to me.
+- **Das macht mir Spaß.** — I enjoy that.
+- **Das macht mir nichts aus.** — I don't mind that.
+- **Das finde ich furchtbar.** — I find that terrible.
+- **Das mache ich überhaupt nicht gern.** — I don't like doing that at all.
+
+*mir* = to me: literally "that is important **to me**".
+`,
+    conj: { verbs: ['arbeiten', 'verdienen', 'wechseln'], tenses: ['presente', 'perfecto'] },
   },
   {
     id: 'de-a2-06', title: 'At the restaurant', titleEs: 'Im Restaurant', emoji: '🍽️',
@@ -294,6 +384,8 @@ export const DE_A2_UNIT_LESSONS: Record<string, string[]> = {
   'de-a2-03': ['de-g-twoway'],
   'de-a2-04': ['de-g-praeteritum', 'de-g-perfekt'],
   'de-a2-05': ['de-g-weil-dass'],
+  'de-a2-09': ['de-g-perfekt'],
+  'de-a2-10': ['de-g-weil-dass'],
   'de-a2-06': ['de-g-dative'],
   'de-a2-07': ['de-g-pronouns'],
   'de-a2-08': ['de-g-adjectives', 'de-g-comparison'],
