@@ -8,7 +8,7 @@
  * Options (env): TTS_VOICE (default es-ES-Neural2-A; Latin America: es-US-Neural2-A), TTS_LANG (from the voice).
  * Existing clips are skipped, so re-running only generates what's new.
  */
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { loadContent } from '../src/data/load';
 import { PRONUNCIATION } from '../src/data/pronunciation';
 import { VERBS } from '../src/data/verbs';
@@ -17,7 +17,7 @@ import { audioFile, audioKey, speakable, chunks } from '../src/lib/audioKey';
 
 // Courses are separate downloads: load the one for HABLO_LANG before reading it.
 await loadContent();
-const { WORDS, SENTENCES } = await import('../src/data/course');
+const { WORDS, SENTENCES, UNITS } = await import('../src/data/course');
 const { READINGS, SONGS } = await import('../src/data/readings');
 const { GRAMMAR } = await import('../src/data/grammar');
 const { EXAMS } = await import('../src/data/exams');
@@ -68,12 +68,30 @@ for (const g of GRAMMAR) {
   for (const q of g.practice.choice ?? []) if (q.q.includes('___')) add(q.q.replace(/_{2,}/, q.options[q.answer]));
 }
 for (const s of PRONUNCIATION) for (const it of s.items) it.examples.forEach(([w]) => add(w));
+// Grammar notes: every foreign bold / italic bit and table cell can be tapped to hear it.
+const { isForeign, speakableForeign } = await import('../src/lib/foreign');
+const noteBits = (md: string) => {
+  for (const m of md.matchAll(/\*\*([^*]+)\*\*|\*([^*]+)\*/g)) { const t = m[1] ?? m[2]; if (isForeign(t)) add(speakableForeign(t)); }
+  for (const line of md.split('\n')) if (line.trim().startsWith('|')) for (const c of line.trim().replace(/^\||\|$/g, '').split('|')) { const t = c.trim(); if (t && !t.includes('*') && isForeign(t)) add(speakableForeign(t)); }
+};
+for (const u of UNITS) noteBits(u.grammar);
+for (const g of GRAMMAR) for (const b of g.blocks) if ('md' in b) noteBits(b.md);
+// Fixed phrases ("Mir geht es gut.") have their own speak button.
+const { content } = await import('../src/data/content');
+for (const ph of content().phrases ?? []) add(ph.phrase);
 for (const e of EXAMS) for (const m of e.modules) for (const p of m.parts) { add(p.audio); p.items.forEach((it) => add(it.audio)); }
 // Every single word of readings, songs and sentences, so tapping a word always has a clip.
 const tokens = (t?: string) => t?.match(/\p{L}+/gu) ?? [];
 for (const r of [...READINGS, ...SONGS]) for (const p of r.paragraphs) tokens(p).forEach(add);
 for (const s of SENTENCES) tokens(s.es).forEach(add);
 for (const w of WORDS) tokens(w.ex).forEach(add);
+// Extra texts that aren't in the course code: one per line in scripts/extra-audio/<lang>.txt
+// (e.g. the words of personal material, which lives only in the database). Build it with
+// `npm run audio:extra -- path/to/material.json`.
+{
+  const extraFile = new URL(`./extra-audio/${LANG}.txt`, import.meta.url).pathname;
+  if (existsSync(extraFile)) for (const line of readFileSync(extraFile, 'utf8').split('\n')) { const t = line.trim(); if (t && !t.startsWith('#')) { add(t); tokens(t).forEach(add); } }
+}
 if (withVerbs) {
   for (const v of VERBS) {
     add(v.inf); add(participle(v)); add(gerund(v));
@@ -83,7 +101,13 @@ if (withVerbs) {
 
 const chars = [...texts.values()].reduce((a, t) => a + t.length, 0);
 console.log(`${texts.size} clips, ${chars.toLocaleString()} characters (voice ${voice}).`);
-if (dry) process.exit(0);
+if (dry) {
+  // What a real run would still have to make (and bill): the clips that don't exist yet.
+  const missing = [...texts].filter(([k]) => !existsSync(OUT + audioFile(k)));
+  const missingChars = missing.reduce((a, [, t]) => a + t.length, 0);
+  console.log(`Missing: ${missing.length} clips, ${missingChars.toLocaleString()} characters.`);
+  process.exit(0);
+}
 if (!key) {
   if (optional) {
     console.log('No GOOGLE_TTS_KEY set — skipping audio generation.');

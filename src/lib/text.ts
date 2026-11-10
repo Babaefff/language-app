@@ -1,11 +1,11 @@
 import { LANG } from '../data/lang';
+import { numbersToDigits } from './numbers';
 const ARTICLES = /^(?:(?:el|la|los|las|un|una|unos|unas|der|die|das|ein|eine|le|les|une|des)\s+|l['’])/;
 
 /** Lower-case, trim, drop punctuation, collapse spaces. Keeps accents. */
 export function normalize(s: string): string {
-  return s
+  return equivalentForm(s)
     .toLowerCase()
-    .replace(/’/g, "'")
     .replace(/[¿?¡!.,;:"“”«»()…]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
@@ -36,11 +36,55 @@ export interface Check {
   letterCase?: boolean;
   /** Right except the article was missing. */
   article?: boolean;
+  /** Partly correct: a sentence with one small slip in one word (not counted as correct). */
+  typo?: boolean;
+  /** Wrong, but only one letter off: shown as "almost" so the learner sees how close it was. */
+  nearMiss?: boolean;
+  /** Wrong: an accent or umlaut was left out and that makes a different word (el ≠ él, schlaft ≠ schläft). */
+  otherWord?: string;
 }
 
+/** Edit distance (insert, delete, replace, swap of two neighbours). */
+function distance(a: string, b: string): number {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) {
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+  }
+  return d[a.length][b.length];
+}
+
+/** Spanish usually leaves out the subject pronoun: "Soy estudiante" = "Yo soy estudiante". */
+const PRONOUN_ES = /^(yo|tú|tu|él|ella|usted|nosotros|nosotras|vosotros|vosotras|ellos|ellas|ustedes) /i;
+
 const ARTICLES_I = new RegExp(ARTICLES.source, 'i');
+
+/**
+ * Writes equivalent spellings one way, so they count as the same answer:
+ * - any apostrophe-like character between letters (’ ‘ ʼ ´ ` ” “) is an apostrophe: geht”s = geht's
+ * - German: a contracted "es" is the full word (geht's = geht es, gibt's = gibt es), hab' = habe
+ * - Russian: ё and е are the same letter (Russians usually write е)
+ * - every kind of dash is a hyphen
+ */
+export function equivalentForm(s: string, lang: string = LANG): string {
+  let t = s.replace(/(?<=\p{L})[’‘ʼ´`”“″′'](?=\p{L})/gu, "'").replace(/[–—‑]/g, '-');
+  if (lang === 'fr') {
+    // "j' ai" with a stray space is "j'ai"; œ / æ typed as oe / ae.
+    t = t.replace(/(?<![\p{L}])(j|l|d|n|m|t|s|c|qu|jusqu|lorsqu|puisqu)\s*[’‘ʼ´`'”“]\s+(?=\p{L})/giu, "$1'");
+    t = t.replace(/œ/g, 'oe').replace(/Œ/g, 'Oe').replace(/æ/g, 'ae');
+  }
+  if (lang === 'de') t = t.replace(/(\p{L}+)'s(?!\p{L})/gu, '$1 es').replace(/(?<!\p{L})(h)ab'?(?!\p{L})/giu, '$1abe');
+  if (lang === 'ru') {
+    t = t.replace(/ё/g, 'е').replace(/Ё/g, 'Е');
+    // A Latin look-alike typed by mistake inside a Russian word (o/о, a/а, p/р…) is the Cyrillic letter.
+    const LOOK: Record<string, string> = { a: 'а', e: 'е', o: 'о', p: 'р', c: 'с', x: 'х', y: 'у', k: 'к', A: 'А', B: 'В', E: 'Е', K: 'К', M: 'М', H: 'Н', O: 'О', P: 'Р', C: 'С', T: 'Т', X: 'Х' };
+    t = t.replace(/\p{L}+/gu, (w) => (/[а-яА-Я]/.test(w) ? w.replace(/[aeopcxykABEKMHOPCTX]/g, (ch) => LOOK[ch]) : w));
+  }
+  return t;
+}
 /** Drops punctuation but keeps letter case. */
-const clean = (s: string) => s.replace(/’/g, "'").replace(/[¿?¡!.,;:"“”«»()…]/g, ' ').replace(/\s+/g, ' ').trim();
+const clean = (s: string) => numbersToDigits(equivalentForm(s), LANG).replace(/[¿?¡!.,;:"“”«»()…]/g, ' ').replace(/\s+/g, ' ').trim();
 /** Lower case without accents; in German, ae/oe/ue typed for ä/ö/ü count as the same letter. */
 function fold(s: string) {
   const f = stripAccents(s.toLowerCase());
@@ -59,22 +103,51 @@ function caseSlip(a: string, b: string) {
  * Compares a typed answer with the expected text. Slips in accents, special letters, capital
  * letters or a missing article are accepted but flagged — or count as wrong when `strict`.
  */
-export function checkAnswer(input: string, expected: string, strict = false): Check {
-  const a = clean(input);
+export function checkAnswer(input: string, expected: string, strict = false, opts: { typos?: boolean; isWord?: (w: string) => boolean } = {}): Check {
+  const typed = clean(input);
+  const inputs = [typed];
   for (const alt of expected.split('/')) {
     const full = clean(alt);
     const variants: [string, boolean][] = [[full, false]];
     const noArt = full.replace(ARTICLES_I, '');
     if (noArt !== full) variants.push([noArt, true]);
-    for (const [b, article] of variants) {
+    // With or without the subject pronoun (but never one pronoun swapped for another).
+    if (LANG === 'es') {
+      if (PRONOUN_ES.test(full) && !PRONOUN_ES.test(typed)) variants.push([full.replace(PRONOUN_ES, ''), false]);
+      if (PRONOUN_ES.test(typed) && !PRONOUN_ES.test(full)) inputs.push(typed.replace(PRONOUN_ES, ''));
+    }
+    for (const [b, article] of variants) for (const a of inputs) {
       if (fold(a) !== fold(b)) continue;
       const accent = a.toLowerCase() !== b.toLowerCase();
+      // Without the accent / umlaut it is another real word or form: that's a mistake, not a slip.
+      if (accent && opts.isWord) {
+        const aw = a.toLowerCase().split(' '), bw = b.toLowerCase().split(' ');
+        const other = aw.find((w, i) => w !== bw[i] && opts.isWord!(w));
+        if (other) return { ok: false, otherWord: other };
+      }
       const letterCase = caseSlip(a, b);
       const r: Check = { ok: !(strict && (accent || letterCase)) };
       if (accent) r.accent = true;
       if (letterCase) r.letterCase = true;
       if (article) r.article = true;
       return r;
+    }
+  }
+  // A one-letter slip counts, with a note: in one word of 6+ letters only, and never when the
+  // typed word is itself a real word or verb form (vas for voy is a grammar mistake, not a typo).
+  {
+    const tw = fold(typed).split(' ');
+    for (const alt of expected.split('/').flatMap((x) => [clean(x), clean(x).replace(ARTICLES_I, '')])) {
+      const ew = fold(alt).split(' ');
+      if (ew.length !== tw.length) continue;
+      const diff = ew.map((_, i) => i).filter((i) => ew[i] !== tw[i]);
+      if (diff.length !== 1) continue;
+      const [x, y] = [tw[diff[0]], ew[diff[0]]];
+      if (y.length >= 4 && distance(x, y) === 1 && !opts.isWord?.(x)) {
+        // Never "correct" when it isn't: a sentence of 3+ words with one slip is "partly correct",
+        // a single word one letter off is "almost". Both come back in review later than a wrong answer.
+        return opts.typos && !strict && ew.length >= 3 && y.length >= 6 ? { ok: false, typo: true } : { ok: false, nearMiss: true };
+      }
     }
   }
   return { ok: false };

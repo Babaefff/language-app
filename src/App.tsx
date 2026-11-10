@@ -1,6 +1,10 @@
 import { Icon, type IconName } from './components/Icon';
 import { Daily } from './pages/Daily';
 import { Insights } from './pages/Insights';
+import { AdminFeedback, FeedbackThanks, MyFeedback } from './pages/FeedbackPages';
+import { Personal } from './pages/Personal';
+import { AdminPersonal } from './pages/AdminPersonal';
+import { usePersonal } from './lib/personal';
 import { ExamList, ExamPage } from './pages/Exam';
 import { Speaking } from './pages/Speaking';
 import { Account } from './pages/Account';
@@ -25,7 +29,7 @@ import { Settings } from './pages/Settings';
 import { GrammarLessonPage, GrammarList } from './pages/GrammarPage';
 import { useSync } from './lib/sync';
 import { WordTicker } from './components/WordTicker';
-import { streak, useProgress, applyShields } from './lib/store';
+import { goalStreak, useProgress, applyShields } from './lib/store';
 import { LANG, LANGS, switchLanguage, type LangId } from './data/lang';
 
 const NAV: { to: string; icon: IconName; label: string }[] = [
@@ -56,14 +60,20 @@ function Shell() {
   const navigate = useNavigate();
   const now = Date.now();
   const due = Object.values(p.cards).filter((c) => c.due <= now).length;
-  const days = streak(p.xp, p.frozen);
+  const st = goalStreak(p);
+  // Personal material shows as its own tab, only for the person it was given to.
+  const personal = usePersonal(user?.id);
+  const mine = personal?.find((s) => s.lang === LANG);
+  const mineItem = mine ? [{ to: '/mine', icon: 'heart' as const, label: mine.tabName }] : [];
+  const desktopNav = [...DESKTOP_NAV, ...mineItem];
+  const mobileNav = [...NAV, ...mineItem];
   return (
     <>
       <ScrollTop />
       <header className="topbar">
         <Link to="/" className="brand">Hablo<span>.</span></Link>
         <nav className="topnav" aria-label="Main navigation">
-          {DESKTOP_NAV.map((n) => (
+          {desktopNav.map((n) => (
             <NavLink key={n.to} to={n.to} end={n.to === '/'}>
               {n.label}
               {n.to === '/review' && due > 0 && <span className="count">{due}</span>}
@@ -81,17 +91,22 @@ function Shell() {
               <option key={l.id} value={l.id}>{l.flag} {l.name}</option>
             ))}
           </select>
-          <span className="streak" title="Day streak" aria-label={`${days} day streak`}><span className="streak-fire" aria-hidden="true">🔥</span><span>{days}</span></span>
+          <span className="streak" title={st.weekly ? 'Week streak' : 'Day streak'} aria-label={st.label}><span className="streak-fire" aria-hidden="true">🔥</span><span>{st.n}{st.weekly ? 'w' : ''}</span></span>
           <AccountButton />
         </div>
       </header>
       <WordTicker />
       <main>
+        <FeedbackThanks />
         <ErrorBoundary key={`${pathname}:${user?.id ?? 'guest'}`} onReset={() => navigate('/')}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/daily" element={<Daily />} />
           <Route path="/progress" element={<Insights />} />
+          <Route path="/feedback" element={<MyFeedback />} />
+          <Route path="/admin" element={<AdminFeedback />} />
+          <Route path="/admin/personal" element={<AdminPersonal />} />
+          <Route path="/mine" element={<Personal />} />
           <Route path="/course" element={<Course />} />
           <Route path="/unit/:id" element={<UnitPage />} />
           <Route path="/review" element={<Review />} />
@@ -119,7 +134,7 @@ function Shell() {
         </ErrorBoundary>
       </main>
       <nav className="bottomnav" aria-label="Mobile navigation">
-        {NAV.map((n) => (
+        {mobileNav.map((n) => (
           <NavLink key={n.to} to={n.to} end={n.to === '/'}>
             <span className="nav-icon" aria-hidden="true"><Icon name={n.icon} /></span>
             {n.label}

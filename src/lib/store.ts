@@ -26,6 +26,8 @@ export interface Settings {
   planTime: string;
   planCue: string;
   planMinutes: number;
+  /** Weekly goal: practise this many days a week (0 = aim for every day, with a daily streak). */
+  weeklyDays: number;
 }
 
 export interface ExamResult { at: number; scores: Record<string, number>; best: number }
@@ -70,7 +72,7 @@ const DEFAULT: Progress = {
   xp: {},
   frozen: {},
   conj: { right: 0, wrong: 0 },
-  settings: { rate: 0.9, voiceURI: null, accent: 'es-ES', autoplay: true, ticker: true, natural: true, dailyGoal: 50, typeChoices: false, strictSpelling: false, theme: 'system', avatarGlyph: '', avatarShuffle: 0, avatarAt: 0, planTime: '', planCue: '', planMinutes: 10 },
+  settings: { rate: 0.9, voiceURI: null, accent: 'es-ES', autoplay: true, ticker: true, natural: true, dailyGoal: 50, typeChoices: false, strictSpelling: false, theme: 'system', avatarGlyph: '', avatarShuffle: 0, avatarAt: 0, planTime: '', planCue: '', planMinutes: 10, weeklyDays: 0 },
 };
 
 /** The colour theme is one choice for the whole app, not per language. */
@@ -125,6 +127,7 @@ export function parseProgress(parsed: unknown): Progress {
     if (!['system', 'light', 'dark'].includes(settings.theme)) settings.theme = DEFAULT.settings.theme;
     if (!['es-ES', 'es-MX', 'any'].includes(settings.accent)) settings.accent = DEFAULT.settings.accent;
     settings.rate = Math.min(1.3, Math.max(0.5, settings.rate));
+    settings.weeklyDays = [0, 2, 3, 4, 5, 6].includes(settings.weeklyDays) ? settings.weeklyDays : 0;
     return {
       version: 1,
       learning: parseLearning(parsed.learning),
@@ -386,15 +389,65 @@ export function streak(xp: Record<string, number>, frozen: Record<string, number
  * that are not yet due are only touched when answered wrong, so extra practice can't inflate
  * intervals.
  */
-export function applyWordResults(words: Record<string, boolean>) {
+export function applyWordResults(words: Record<string, boolean>, close: Record<string, boolean> = {}) {
   const now = Date.now();
   const cards = { ...state.cards };
   for (const [id, ok] of Object.entries(words)) {
     const c = cards[id];
-    if (!c || c.due <= now) cards[id] = review(c, ok ? 2 : 0, now);
-    else if (!ok) cards[id] = review(c, 0, now);
+    // Right → "good"; almost (one letter off) → "hard": back sooner than right, later than wrong.
+    const grade = ok ? 2 : close[id] ? 1 : 0;
+    if (!c || c.due <= now) cards[id] = review(c, grade, now);
+    else if (!ok && !close[id]) cards[id] = review(c, 0, now);
   }
   set({ ...state, cards });
+}
+
+/** Days since the last practice before today (0 if practised today, yesterday, or never). */
+export function daysAway(xp: Record<string, number>, now = new Date()): number {
+  if ((xp[today(now)] ?? 0) > 0) return 0;
+  const days = Object.keys(xp).filter((k) => xp[k] > 0 && k < today(now)).sort();
+  if (!days.length) return 0;
+  const [y, m, d] = days[days.length - 1].split('-').map(Number);
+  const last = new Date(y, m - 1, d);
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.round((start.getTime() - last.getTime()) / 86_400_000);
+}
+
+/** Monday of the week that contains d (weeks run Monday to Sunday). */
+function weekStart(d: Date): Date {
+  const s = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  s.setDate(s.getDate() - ((s.getDay() + 6) % 7));
+  return s;
+}
+
+/** The 7 days (Monday–Sunday) of this week, as date keys. */
+export function thisWeek(now = new Date()): string[] {
+  const s = weekStart(now);
+  return Array.from({ length: 7 }, (_, i) => { const d = new Date(s); d.setDate(s.getDate() + i); return today(d); });
+}
+
+/** Practice days in the week containing `d`. */
+export function daysInWeek(xp: Record<string, number>, d = new Date()): number {
+  return thisWeek(d).filter((k) => (xp[k] ?? 0) > 0).length;
+}
+
+/**
+ * Weekly goal streak: consecutive weeks with at least `target` practice days. This week counts
+ * once the goal is met; until then the streak still stands on last week's result.
+ */
+export function weekStreak(xp: Record<string, number>, target: number, now = new Date()): number {
+  const d = weekStart(now);
+  if (daysInWeek(xp, d) < target) d.setDate(d.getDate() - 7);
+  let n = 0;
+  while (daysInWeek(xp, d) >= target) { n++; d.setDate(d.getDate() - 7); }
+  return n;
+}
+
+/** The streak that matches the learner's goal: days (daily goal) or weeks (weekly goal). */
+export function goalStreak(p: Pick<Progress, 'xp' | 'frozen' | 'settings'>): { n: number; weekly: boolean; label: string } {
+  const weekly = p.settings.weeklyDays > 0;
+  const n = weekly ? weekStreak(p.xp, p.settings.weeklyDays) : streak(p.xp, p.frozen);
+  return { n, weekly, label: `${n}-${weekly ? 'week' : 'day'} streak` };
 }
 
 /** Most streak shields you can hold at once. */

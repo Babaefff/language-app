@@ -1,0 +1,25 @@
+import type { Phrase } from './types';
+
+export const PHRASES_ES: Phrase[] = [
+  { re: '(me|te|le|nos|os|les) gusta|(me|te|le|nos|os|les) gustan', phrase: 'Me gusta …', en: 'I like …', literal: '… pleases me', note: 'The thing you like is the subject: me gusta el café, me gustan los libros (plural → gustan). Not “yo gusto”.' },
+  { re: '(me|te|le|nos|os|les) encanta', phrase: 'Me encanta …', en: 'I love …', literal: '… enchants me', note: 'Works like gustar: me encanta bailar.' },
+  { re: '(me|te|se) llam(o|as|a)|(cómo|como) te llamas', phrase: 'Me llamo …', en: 'My name is …', literal: 'I call myself …', note: 'llamarse = to be called. ¿Cómo te llamas? = What’s your name?' },
+  { re: '(tengo|tienes|tiene|tenemos|tienen) \\p{N}*\\s*\\p{L}* ?años|cuántos años', phrase: 'Tengo … años.', en: 'I’m … years old.', literal: 'I have … years', note: 'Spanish “has” years: tengo veinte años. Not “soy veinte”.' },
+  { re: '(tengo|tienes|tiene|tenemos|tienen) (mucha )?(hambre|sed|frío|calor|sueño|miedo|prisa|razón)', phrase: 'tener hambre / sed / frío …', en: 'to be hungry / thirsty / cold …', literal: 'to have hunger / thirst / cold', note: 'Feelings of the body use tener: tengo hambre (I’m hungry), tengo frío (I’m cold). Not “estoy hambre”.' },
+  { re: 'hace (mucho )?(frío|calor|sol|viento|buen tiempo|mal tiempo)', phrase: 'Hace frío / calor …', en: 'It’s cold / hot …', literal: 'it makes cold / heat', note: 'Weather uses hacer: hace sol (it’s sunny). For rain: llueve.' },
+  { re: '(qué|que) tal', phrase: '¿Qué tal?', en: 'How are you? / How was it?', literal: 'what such?', note: 'Very common greeting. ¿Qué tal el viaje? = How was the trip?' },
+  { re: '(me|te|le|nos|les) duele|(me|te|le|nos|les) duelen', phrase: 'Me duele …', en: 'My … hurts', literal: '… hurts me', note: 'Like gustar: me duele la cabeza; plural: me duelen los pies.' },
+  { re: '(?<![\\p{L}])hay(?![\\p{L}])(?! que)', phrase: 'hay', en: 'there is / there are', literal: '(it) has', note: 'One word for both singular and plural: hay un bar, hay dos bares.' },
+  { re: 'hay que', phrase: 'hay que + infinitive', en: 'you have to / one must', literal: 'there is that …', note: 'For general rules: hay que estudiar. For a person: tengo que estudiar.' },
+  { re: '(tengo|tienes|tiene|tenemos|tienen) que', phrase: 'tener que + infinitive', en: 'to have to', literal: 'to have that …', note: 'Tengo que trabajar = I have to work.' },
+  { re: '(voy|vas|va|vamos|van) a \\p{L}+r(?![\\p{L}])', phrase: 'ir a + infinitive', en: 'to be going to', literal: 'to go to …', note: 'The easy future: voy a comer = I’m going to eat.' },
+  { re: '(acabo|acabas|acaba|acabamos|acaban) de', phrase: 'acabar de + infinitive', en: 'to have just (done)', literal: 'to finish of …', note: 'Acabo de llegar = I’ve just arrived.' },
+  { re: 'vale la pena|merece la pena', phrase: 'vale la pena', en: 'it’s worth it', literal: 'it is worth the trouble', note: 'Vale la pena ver esta película.' },
+  { re: 'echo de menos|echa(s)? de menos|echamos de menos', phrase: 'echar de menos', en: 'to miss (someone)', literal: 'to throw as less', note: 'Echo de menos a mi familia = I miss my family.' },
+  { re: '(me|te|le|nos) alegra', phrase: 'Me alegra (que) …', en: 'I’m glad (that) …', literal: 'it gladdens me', note: 'Me alegra que vengas: after “que” the verb goes into the subjunctive.' },
+  { re: 'por favor', phrase: 'por favor', en: 'please', literal: 'for favour', note: 'De nada = you’re welcome.' },
+  { re: 'de repente', phrase: 'de repente', en: 'suddenly', literal: 'of sudden', note: 'Common in stories in the past.' },
+  { re: 'sin embargo', phrase: 'sin embargo', en: 'however', literal: 'without hindrance', note: 'A linking word for writing and speaking.' },
+  { re: 'a menudo', phrase: 'a menudo', en: 'often', literal: 'at small', note: 'Same as “con frecuencia”.' },
+  { re: 'dar un paseo|doy un paseo|damos un paseo', phrase: 'dar un paseo', en: 'to go for a walk', literal: 'to give a walk', note: 'Also: pasear.' },
+];

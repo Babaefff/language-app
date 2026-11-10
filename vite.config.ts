@@ -8,5 +8,7 @@ export default defineConfig({
   plugins: [react()],
   test: {
     include: ['src/**/*.test.ts'],
+    // Content audits walk every lesson; under a full parallel run they can need more than 5 s.
+    testTimeout: 30000,
   },
 });

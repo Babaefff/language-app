@@ -140,4 +140,56 @@ describe('French course', () => {
     expect(m.conj.lookupForm('prennent')[0]).toMatchObject({ inf: 'prendre' });
   });
 
+  it('never asks a typed gap the lesson did not prepare, and translates every lesson word', () => {
+    for (const g of m.grammar.GRAMMAR) {
+      for (const ex of m.ex.grammarExercises(g)) {
+        if (ex.kind !== 'choice' || !ex.typed) continue;
+        const ok = !!ex.base || m.ex.lessonText(g).includes(ex.answer.toLowerCase());
+        expect(ok, `${g.id}: typed "${ex.prompt}" → ${ex.answer}`).toBe(true);
+      }
+      for (const v of g.practice.conj?.verbs ?? []) expect(m.verbs.VERB_MAP[v]?.en, `${g.id}: ${v}`).toBeTruthy();
+      for (const w of m.ex.lessonGlossary(g)) expect(w.en, `${g.id}: ${w.word}`).toBeTruthy();
+    }
+  });
+  it('every reading and song is readable by the end of its level', async () => {
+    const r = await import('../lib/readiness');
+    const units = m.course.UNITS;
+    for (const x of [...m.readings.READINGS, ...m.readings.SONGS]) {
+      const gate = r.readyAfter(x);
+      const level = x.level === 'B1+' ? 'B1' : x.level;
+      expect(gate, `${x.id}: never reaches 95% known words`).toBeTruthy();
+      expect(units.indexOf(gate!), `${x.id}: ready only after ${gate!.title}`).toBeLessThanOrEqual(units.map((u) => u.level).lastIndexOf(level));
+    }
+  });
+  it('every word of every lesson sentence can be translated (tap a tile, "show meanings")', async () => {
+    const { gloss } = await import('../lib/gloss');
+    const missing = new Set<string>();
+    for (const u of m.course.UNITS) for (const st of [...u.sentences.map((x) => x.es), ...u.words.flatMap((w) => (w.ex ? [w.ex] : []))])
+      for (const raw of st.split(/\s+/)) { const w = raw.replace(/[¿?¡!.,;:"«»—–()]/g, ''); if (w && !/\d/.test(w) && gloss(w).meaning === '—') missing.add(w); }
+    expect([...missing]).toEqual([]);
+  });
+  it("words a lesson's sentences use beyond what it taught are listed with a meaning", async () => {
+    const t = await import('../lib/taught');
+    for (const u of m.course.UNITS) expect(t.sentenceWords(u).length, u.id).toBe(t.untaughtInSentences(u).length);
+  });
+  it('is comfortable to type: numbers as digits, œ as oe, stray spaces after an apostrophe', () => {
+    const c = (a: string, b: string) => m.text.checkAnswer(a, b).ok;
+    expect(c("J'ai 20 ans.", "J'ai vingt ans.")).toBe(true);
+    expect(c("J'ai 97 ans.", "J'ai quatre-vingt-dix-sept ans.")).toBe(true);
+    expect(c('Il a 71 ans.', 'Il a soixante et onze ans.')).toBe(true);
+    expect(c('le coeur', 'le cœur')).toBe(true);
+    expect(c("j' ai faim", "J’ai faim.")).toBe(true);
+  });
+  it('every generated exercise is fair: answers accepted, no wrong option that is also right, no look-alike tiles', async () => {
+    const { auditExercises } = await import('../test/exercise-audit');
+    expect(await auditExercises()).toEqual([]);
+  }, 60000);
+  it('explains words by their parts, every part with a meaning', async () => {
+    const { breakdown } = await import('../lib/breakdown');
+    for (const w of m.course.WORDS) {
+      const b = breakdown(w);
+      if (b) for (const p of b.parts) expect(p.text && p.en, `${w.es}: ${p.text}`).toBeTruthy();
+    }
+    expect(breakdown({ es: 'télécharger', en: 'to download' })?.parts.map((p) => p.text).join(' + ')).toBe('télé- + charger');
+  });
 });

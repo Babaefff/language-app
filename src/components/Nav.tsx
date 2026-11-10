@@ -12,6 +12,7 @@ interface Props {
   className?: string;
   children: ReactNode;
   'aria-label'?: string;
+  onClick?: () => void;
 }
 
 function usePseudoLink(to: string) {

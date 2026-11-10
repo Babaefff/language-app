@@ -1,0 +1,25 @@
+import type { Phrase } from './types';
+
+export const PHRASES_DE: Phrase[] = [
+  { re: '(mir|dir|ihnen|ihm|ihr|uns|euch) geht es|geht es (mir|dir|ihnen|ihm|ihr|uns|euch)|es geht (mir|dir|ihnen|ihm|ihr|uns|euch)', phrase: 'Mir geht es gut.', en: 'I’m fine.', literal: 'to me it goes well', note: 'German describes how things go *for* you: mir (to me), dir (to you), Ihnen (to you, formal). “Ich bin gut” means “I’m good at something”, not “I’m fine”.' },
+  { re: 'wie geht(’|\')?s|wie geht es', phrase: 'Wie geht’s? / Wie geht es Ihnen?', en: 'How are you?', literal: 'how goes it (to you)?', note: 'The answer uses the same pattern: Mir geht es gut. Geht’s is short for geht es.' },
+  { re: 'es gibt', phrase: 'es gibt', en: 'there is / there are', literal: 'it gives', note: 'Followed by the accusative: Es gibt einen Park. Never “es ist ein Park” for “there is a park”.' },
+  { re: 'tut (mir|dir|ihm|ihr) leid|es tut mir leid', phrase: 'Es tut mir leid.', en: 'I’m sorry.', literal: 'it does me sorrow', note: 'The person who is sorry is in the dative: mir, dir, ihm.' },
+  { re: 'tut (mir|dir|ihm|ihr|uns)? ?weh|tun (mir|dir|ihm|ihr|uns)? ?weh|tut weh', phrase: '… tut mir weh', en: '… hurts (me)', literal: '… does me pain', note: 'Mein Kopf tut mir weh = my head hurts. The thing that hurts is the subject.' },
+  { re: '(habe|hast|hat|haben|habt) (\\p{L}+ )?hunger', phrase: 'Hunger haben', en: 'to be hungry', literal: 'to have hunger', note: 'German “has” hunger and thirst: Ich habe Hunger, ich habe Durst. Not “ich bin hungrig” in everyday speech.' },
+  { re: '(habe|hast|hat|haben|habt) (\\p{L}+ )?durst', phrase: 'Durst haben', en: 'to be thirsty', literal: 'to have thirst', note: 'Like Hunger haben: Ich habe Durst.' },
+  { re: '(habe|hast|hat|haben|habt) (\\p{L}+ )?lust', phrase: 'Lust haben (auf / zu)', en: 'to feel like (doing) something', literal: 'to have desire', note: 'Hast du Lust, ins Kino zu gehen? = Do you feel like going to the cinema?' },
+  { re: 'gefällt (mir|dir|ihm|ihr|ihnen|uns)|gefallen (mir|dir|ihm|ihr|ihnen|uns)|(mir|dir|ihm|ihr|uns) gefällt', phrase: 'Das gefällt mir.', en: 'I like it.', literal: 'that pleases me', note: 'The thing you like is the subject; the person is in the dative (mir, dir).' },
+  { re: 'ich hätte gern|hätte gerne|hätten gern', phrase: 'Ich hätte gern …', en: 'I’d like … (ordering)', literal: 'I would have gladly …', note: 'The polite way to order in a shop or café.' },
+  { re: 'ich heiße|du heißt|heißt du|heißen sie|er heißt|sie heißt', phrase: 'Ich heiße …', en: 'My name is …', literal: 'I am called …', note: 'heißen = to be called. Wie heißt du? = What’s your name?' },
+  { re: 'freut mich', phrase: 'Freut mich!', en: 'Nice to meet you!', literal: '(it) pleases me', note: 'Short for “Es freut mich, Sie kennenzulernen.”' },
+  { re: 'freue (mich|dich) auf|freust dich auf|freuen uns auf', phrase: 'sich freuen auf', en: 'to look forward to', literal: 'to be glad onto', note: 'Ich freue mich auf das Wochenende. With über it means “to be glad about” something that happened.' },
+  { re: 'es geht um|geht es um', phrase: 'Es geht um …', en: 'It’s about …', literal: 'it goes around …', note: 'In dem Film geht es um … = The film is about …' },
+  { re: 'keine ahnung', phrase: 'Keine Ahnung!', en: 'No idea!', literal: 'no idea', note: 'Informal and very common.' },
+  { re: 'zu hause', phrase: 'zu Hause', en: 'at home', literal: 'at house', note: 'zu Hause = at home; nach Hause = (going) home.' },
+  { re: 'nach hause', phrase: 'nach Hause', en: '(going) home', literal: 'to house', note: 'Ich gehe nach Hause. For being there: zu Hause.' },
+  { re: 'herzlichen glückwunsch', phrase: 'Herzlichen Glückwunsch!', en: 'Congratulations! / Happy birthday!', literal: 'heartfelt good wish', note: 'Add “zum Geburtstag” for a birthday.' },
+  { re: 'guten appetit', phrase: 'Guten Appetit!', en: 'Enjoy your meal!', literal: 'good appetite', note: 'Said before eating.' },
+  { re: 'ich komme aus|kommst du aus|kommt aus|kommen aus', phrase: 'Ich komme aus …', en: 'I’m from …', literal: 'I come out of …', note: 'aus = from (a country or city). Ich komme aus Spanien = I’m from Spain.' },
+  { re: 'auf jeden fall', phrase: 'auf jeden Fall', en: 'definitely / in any case', literal: 'on every case', note: 'Very common in speech.' },
+];

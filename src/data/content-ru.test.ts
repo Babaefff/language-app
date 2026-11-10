@@ -128,9 +128,60 @@ describe('Russian course', () => {
     expect(c('быть', 'presente').every((f) => f === null)).toBe(true);
     expect(c('говорить', 'imperativo')).toEqual([null, 'говори', null, null, 'говорите', null]);
     expect(c('заниматься', 'imperativo')[1]).toBe('занимайся');
-    expect(m.text.checkAnswer('еще', 'ещё')).toEqual({ ok: true, accent: true });
+    // ё and е are the same letter (Russians usually write е): no slip, even in strict mode.
+    expect(m.text.checkAnswer('еще', 'ещё', true)).toEqual({ ok: true });
     expect(m.text.checkAnswer('чаи', 'чай').ok).toBe(false);
   });
 
 
+  it('never asks a typed gap the lesson did not prepare, and translates every lesson word', () => {
+    for (const g of m.grammar.GRAMMAR) {
+      for (const ex of m.ex.grammarExercises(g)) {
+        if (ex.kind !== 'choice' || !ex.typed) continue;
+        const ok = !!ex.base || m.ex.lessonText(g).includes(ex.answer.toLowerCase());
+        expect(ok, `${g.id}: typed "${ex.prompt}" → ${ex.answer}`).toBe(true);
+      }
+      for (const v of g.practice.conj?.verbs ?? []) expect(m.verbs.VERB_MAP[v]?.en, `${g.id}: ${v}`).toBeTruthy();
+      for (const w of m.ex.lessonGlossary(g)) expect(w.en, `${g.id}: ${w.word}`).toBeTruthy();
+    }
+  });
+  it('every reading and song is readable by the end of its level', async () => {
+    const r = await import('../lib/readiness');
+    const units = m.course.UNITS;
+    for (const x of [...m.readings.READINGS, ...m.readings.SONGS]) {
+      const gate = r.readyAfter(x);
+      const level = x.level === 'B1+' ? 'B1' : x.level;
+      expect(gate, `${x.id}: never reaches 95% known words`).toBeTruthy();
+      expect(units.indexOf(gate!), `${x.id}: ready only after ${gate!.title}`).toBeLessThanOrEqual(units.map((u) => u.level).lastIndexOf(level));
+    }
+  });
+  it('every word of every lesson sentence can be translated (tap a tile, "show meanings")', async () => {
+    const { gloss } = await import('../lib/gloss');
+    const missing = new Set<string>();
+    for (const u of m.course.UNITS) for (const st of [...u.sentences.map((x) => x.es), ...u.words.flatMap((w) => (w.ex ? [w.ex] : []))])
+      for (const raw of st.split(/\s+/)) { const w = raw.replace(/[¿?¡!.,;:"«»—–()]/g, ''); if (w && !/\d/.test(w) && gloss(w).meaning === '—') missing.add(w); }
+    expect([...missing]).toEqual([]);
+  });
+  it("words a lesson's sentences use beyond what it taught are listed with a meaning", async () => {
+    const t = await import('../lib/taught');
+    for (const u of m.course.UNITS) expect(t.sentenceWords(u).length, u.id).toBe(t.untaughtInSentences(u).length);
+  });
+  it('is comfortable to type: numbers as digits, Latin look-alike letters', () => {
+    const c = (a: string, b: string) => m.text.checkAnswer(a, b).ok;
+    expect(c('Мне 25 лет.', 'Мне двадцать пять лет.')).toBe(true);
+    expect(c('Moлoкo', 'Молоко')).toBe(true);
+    expect(c('мама', 'папа')).toBe(false);
+  });
+  it('every generated exercise is fair: answers accepted, no wrong option that is also right, no look-alike tiles', async () => {
+    const { auditExercises } = await import('../test/exercise-audit');
+    expect(await auditExercises()).toEqual([]);
+  }, 60000);
+  it('explains words by their parts, every part with a meaning', async () => {
+    const { breakdown } = await import('../lib/breakdown');
+    for (const w of m.course.WORDS) {
+      const b = breakdown(w);
+      if (b) for (const p of b.parts) expect(p.text && p.en, `${w.es}: ${p.text}`).toBeTruthy();
+    }
+    expect(breakdown({ es: 'подушка', en: 'pillow' })?.parts.map((p) => p.text).join(' + ')).toBe('под- + ушко');
+  });
 });

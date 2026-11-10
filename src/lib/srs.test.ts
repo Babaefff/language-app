@@ -43,3 +43,15 @@ describe('FSRS scheduler', () => {
     expect(recallChance(old, 10 * DAY)).toBeGreaterThan(0.8);
   });
 });
+
+describe('graded outcomes', () => {
+  it('a wrong answer comes back first, "almost" later, a right answer last', () => {
+    const DAY = 86_400_000;
+    const now = Date.now();
+    const c = review(undefined, 2, now - 3 * DAY);
+    const due = c.due + 1;
+    const [wrong, almost, right] = ([0, 1, 2] as const).map((g) => review(c, g, due).due);
+    expect(wrong).toBeLessThan(almost);
+    expect(almost).toBeLessThan(right);
+  });
+});

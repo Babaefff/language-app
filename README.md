@@ -99,6 +99,75 @@ Choose another voice with `TTS_VOICE`, e.g. `es-US-Neural2-A` (Latin American) o
 - Speaking practice with speech recognition
 - More languages: the data model is language-agnostic
 
+## Lesson feedback (needs accounts)
+
+Signed-in learners can press the flag button in any exercise, lesson, grammar lesson or text to
+report a problem. The report carries where it happened (lesson, step, the exercise, the expected
+answer and what they typed). They see their reports under **My feedback**; when an admin marks one
+fixed, they get a thank-you in the app.
+
+Setup, once, in Supabase → SQL Editor:
+1. Run `supabase/schema.sql` again (it is safe to re-run).
+2. Make yourself an admin (use the email you sign in with):
+   ```sql
+   insert into public.admins (user_id)
+   select id from auth.users where email = 'YOUR-EMAIL' on conflict do nothing;
+   ```
+Then the account menu shows **Feedback inbox (admin)**: open a report, press **Open this lesson**
+to go there (in the right language), fix it, and press **Mark fixed & thank**.
+
+## Personal material (needs accounts)
+
+Lessons and tests made for **one learner**, e.g. from their own worksheets. They are kept in Supabase,
+never in this (public) repository, and only the learner it is given to and admins can read them.
+
+1. Run `supabase/schema.sql` (it creates `personal_sets`, `personal_access`, `personal_results`).
+2. The learner signs in to the app once, so their account exists.
+3. As admin: account menu → **Personal material (admin)** → upload a JSON file → **Give it to** their
+   email, with the tab name (default "Mu kalli jaoks").
+4. The learner now sees that tab, in that language only. Lessons are taught like the course (cards →
+   practice → sentences); tests save each attempt, and the admin page shows the score and every answer.
+
+File format:
+
+```json
+{
+  "title": "Worksheets", "lang": "de",
+  "lessons": [{
+    "id": "family", "title": "Family", "titleDe": "Die Familie", "emoji": "👪", "level": "A1",
+    "words": [["die Mutter", "the mother", "Das ist meine Mutter.", "This is my mother."]],
+    "sentences": [["Das ist meine Mutter.", "This is my mother."]],
+    "notes": "## Mein or meine?\n**meine** before feminine words: *meine Mutter*."
+  }],
+  "tests": [{
+    "id": "t1", "title": "Family test", "lesson": "family",
+    "questions": [
+      { "type": "choice", "q": "Das ist ___ Mutter.", "options": ["mein", "meine"], "answer": 1, "why": "Mutter is feminine." },
+      { "type": "type", "q": "the father", "answer": "der Vater", "accept": ["Vater"] },
+      { "type": "build", "q": "This is my mother.", "answer": "Das ist meine Mutter." }
+    ]
+  }]
+}
+```
+
+**Audio for personal material:** the material lives only in the database, so the audio script can't see it.
+`npm run audio:extra -- path/to/material.json` adds its texts (only the words and sentences — no names,
+emails or titles) to `scripts/extra-audio/<lang>.txt`. Committing that file makes those texts public, and
+the next deploy records their clips.
+
+**Word drill:** the tab drills all lesson words 10 at a time; a wrong word comes back until it is right.
+A word answered wrong 3+ times is a *danger word* until it is right twice in a row. Every attempt is
+saved, so the admin page shows the drills too.
+
+**Other languages for the tab:** a file can carry `"i18n": { "et": { "strings": { "<English>": "<Estonian>" },
+"notes": { "<lesson id>": "<notes>" } } }`; the tab then offers English / Eesti.
+
+A test becomes a **mock exam** with `"exam": { "minutes": 20, "pass": 60 }`: questions come in random order,
+a timer runs, and the result says passed / not passed and how long it took (the admin page shows the same).
+
+`answer` in a choice question is the position of the right option (0 = first). `type` questions are
+asked in English and answered in the language; `build` makes the learner put the sentence together.
+
 ## Accounts (optional, Supabase)
 
 Without these settings the app saves progress only in the browser. To let learners sign in and sync progress across devices:

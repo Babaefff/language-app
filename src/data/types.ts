@@ -116,6 +116,8 @@ export interface Reading {
   translation: string[];
   /** Lower-case word form → English, checked before the course dictionary. */
   glossary: Record<string, string>;
+  /** Key words to learn before reading (shown first; see key-words.ts). */
+  keyWords?: string[];
   questions: { q: string; options: string[]; answer: number }[];
 }
 

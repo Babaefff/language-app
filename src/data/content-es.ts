@@ -1,4 +1,8 @@
 import type { LangContent } from './content';
+import { MORPH_ES } from './morph/es';
+import { PHRASES_ES } from './phrases/es';
+import { SMALL_ES } from './small/es';
+import { KEY_WORDS_ES, withKeyWords } from './key-words';
 import { ES_COURSE, ES_UNIT_LESSONS } from './units-es';
 import { GRAMMAR_ES_COURSE } from './grammar-es';
 import { READINGS_ES, SONGS_ES } from './readings-es';
@@ -8,5 +12,5 @@ import { ES as WHY } from './why-es';
 
 export const CONTENT: LangContent = {
   units: ES_COURSE, unitLessons: ES_UNIT_LESSONS, grammar: GRAMMAR_ES_COURSE,
-  readings: READINGS_ES, songs: SONGS_ES, exams: EXAMS_ES, translations: TRANSLATIONS, why: WHY,
+  readings: withKeyWords(READINGS_ES, KEY_WORDS_ES), songs: withKeyWords(SONGS_ES, KEY_WORDS_ES), exams: EXAMS_ES, translations: TRANSLATIONS, smallWords: SMALL_ES, phrases: PHRASES_ES, morphology: MORPH_ES, why: WHY,
 };

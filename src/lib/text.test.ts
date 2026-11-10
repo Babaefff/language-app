@@ -22,3 +22,39 @@ describe('checkAnswer', () => {
     expect(checkAnswer('car', 'caer').ok).toBe(false);
   });
 });
+
+describe('equivalent spellings count as the same answer', () => {
+  it('treats every apostrophe-like character the same', async () => {
+    const { equivalentForm } = await import('./text');
+    for (const ap of ['’', '‘', 'ʼ', '´', '`', '”', '“', "'"]) expect(equivalentForm(`s${ap}il`, 'fr')).toBe("s'il");
+  });
+  it('German: a contracted es is the full word', async () => {
+    const { equivalentForm } = await import('./text');
+    expect(equivalentForm('Wie geht”s?', 'de')).toBe(equivalentForm('Wie geht es?', 'de'));
+    expect(equivalentForm('Gibt’s hier Kaffee?', 'de')).toBe(equivalentForm('Gibt es hier Kaffee?', 'de'));
+    expect(equivalentForm("Ich hab' Zeit", 'de')).toBe(equivalentForm('Ich habe Zeit', 'de'));
+  });
+  it('Russian: ё and е are the same letter', async () => {
+    const { equivalentForm } = await import('./text');
+    expect(equivalentForm('Всё хорошо, ещё', 'ru')).toBe(equivalentForm('Все хорошо, еще', 'ru'));
+  });
+});
+
+describe('comfortable Spanish answers', () => {
+  it('accepts numbers as digits and an optional subject pronoun', () => {
+    expect(checkAnswer('Tengo 25 años.', 'Tengo veinticinco años.').ok).toBe(true);
+    expect(checkAnswer('Tengo 31 años.', 'Tengo treinta y un años.').ok).toBe(true);
+    expect(checkAnswer('Tengo 21 años.', 'Tengo veintiún años.').ok).toBe(true);
+    expect(checkAnswer('Soy estudiante.', 'Yo soy estudiante.').ok).toBe(true);
+    expect(checkAnswer('Yo soy estudiante.', 'Soy estudiante.').ok).toBe(true);
+    expect(checkAnswer('Él habla español.', 'Ella habla español.').ok).toBe(false);
+  });
+  it('a one-letter slip: wrong (but "almost") for a word, accepted in a sentence, never a real other form', () => {
+    const isWord = (w: string) => ['vas', 'hablas'].includes(w);
+    expect(checkAnswer('la biblioteka', 'la biblioteca', false, { typos: true, isWord })).toEqual({ ok: false, nearMiss: true });
+    expect(checkAnswer('biblioteka', 'la biblioteca', false, { typos: true, isWord })).toEqual({ ok: false, nearMiss: true });
+    expect(checkAnswer('Estudio en la biblioteka.', 'Estudio en la biblioteca.', false, { typos: true, isWord })).toEqual({ ok: false, typo: true });
+    expect(checkAnswer('Mañana vas a la playa.', 'Mañana voy a la playa.', false, { typos: true, isWord }).ok).toBe(false);
+    expect(checkAnswer('el gado', 'el gato', false, { typos: true, isWord }).ok).toBe(false);
+  });
+});

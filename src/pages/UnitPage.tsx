@@ -1,5 +1,12 @@
 import { Icon } from '../components/Icon';
-import { LANG } from '../data/lang';
+import { L, LANG } from '../data/lang';
+import { canDoFor } from '../data/can-do';
+import { READINGS, SONGS } from '../data/readings';
+import { readyAfter } from '../lib/readiness';
+import { phrasesOfUnit, sentenceWords } from '../lib/taught';
+import { PhraseNote } from '../components/PhraseNote';
+import { useFeedbackPage } from '../lib/feedback';
+import { FeedbackButton } from '../components/FeedbackButton';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Link } from '../components/Nav';
@@ -20,7 +27,7 @@ type Mode =
   | { name: 'learn' }
   | { name: 'grammar' }
   | { name: 'quiz'; step: number; exercises: Exercise[] }
-  | { name: 'done'; step: number; summary: SessionSummary; xp: number };
+  | { name: 'done'; step: number; summary: SessionSummary; xp: number; canDo?: string };
 
 export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string; initialStep?: number; onComplete?: () => void } = {}) {
   const { id = '' } = useParams();
@@ -28,6 +35,9 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
   const p = useProgress();
   const navigate = useNavigate();
   const [mode, setMode] = useState<Mode>(() => initialStep === 0 ? { name: 'learn' } : initialStep === 2 ? { name: 'grammar' } : initialStep === 1 && unit ? { name: 'quiz', step: 1, exercises: stepExercises(unit, 1) } : { name: 'overview' });
+
+  const stepName = mode.name === 'learn' ? STEPS[0].title : mode.name === 'quiz' || mode.name === 'done' ? STEPS[mode.step].title : mode.name === 'grammar' ? STEPS[2].title : undefined;
+  useFeedbackPage(unit ? `${unit.level} · ${unit.title}` : undefined, stepName, unit ? `Course · ${unit.level} · Lesson ${UNITS.indexOf(unit) + 1} of ${UNITS.length}` : undefined);
 
   if (!unit) return <div className="page"><p>Unit not found. <Link to="/course">Back to the course</Link></p></div>;
 
@@ -40,10 +50,13 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
   const finish = (step: number, summary: SessionSummary) => {
     const score = Math.round((summary.correct / Math.max(1, summary.total)) * 100);
     const xp = summary.correct + 10;
-    applyWordResults(summary.words);
+    applyWordResults(summary.words, summary.close);
+    const wasDone = !!getProgress().units[unit.id];
     completeStep(unit.id, step, score, STEPS.length);
     addXp(xp);
-    setMode({ name: 'done', step, summary, xp });
+    // Finishing the whole lesson: name the new ability, not just the score.
+    const canDo = !wasDone && getProgress().units[unit.id] ? canDoFor(unit, L.name) : undefined;
+    setMode({ name: 'done', step, summary, xp, canDo });
   };
 
   if (mode.name === 'learn') {
@@ -60,6 +73,17 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
         <Summary
           summary={mode.summary}
           xp={mode.xp}
+          canDo={mode.canDo}
+          extra={(() => {
+            // Finishing this lesson makes these texts readable: say so, with a link.
+            const ready = mode.canDo ? [...READINGS, ...SONGS].filter((r) => readyAfter(r)?.id === unit.id) : [];
+            return ready.length > 0 && (
+              <div className="can-do reading-unlocked">
+                <strong>New to read:</strong> you now know the words for{' '}
+                {ready.map((r, i) => <span key={r.id}>{i > 0 && ', '}<Link to={`/${r.song ? 'songs' : 'reading'}/${r.id}`}><span lang={LANG}>{r.title}</span></Link></span>)}.
+              </div>
+            );
+          })()}
           onRetry={() => start(mode.step)}
           doneLabel={onComplete ? 'Finish lesson step' : nextStep !== null ? `Next: ${STEPS[nextStep].title}` : nextUnit ? `Next unit: ${nextUnit.title}` : 'Back to course'}
           onDone={() => {
@@ -80,10 +104,12 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
           <span className="tag">Grammar</span>
           <Grammar source={unit.grammar} />
         </div>
+        <SentenceWords unitId={unit.id} />
         <RelatedLessons unitId={unit.id} />
         <div className="page-actions">
           <button className="btn primary" onClick={() => setMode({ name: 'quiz', step: 2, exercises: stepExercises(unit, 2) })}>Start exercises</button>
         </div>
+        <p className="center-text"><FeedbackButton /></p>
       </div>
     );
   }
@@ -103,6 +129,7 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
           <p className="muted" lang={LANG}>{unit.titleEs} · {unit.description}</p>
         </div>
       </header>
+      {p.units[unit.id] && <p className="can-do"><strong>You can now</strong> {canDoFor(unit, L.name)}.</p>}
 
       <div className="lesson-actions">
         <p className="small muted">{completedSteps}/{STEPS.length} steps completed</p>
@@ -144,6 +171,7 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
             </li>
           ))}
         </ul>
+        <SentenceWords unitId={unit.id} bare />
       </section>
 
       <details className="card">
@@ -163,8 +191,42 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
           ))}
         </ul>
       </section>
+      <p className="center-text"><FeedbackButton /></p>
     </div>
   );
+}
+
+/**
+ * Words the lesson's sentences use beyond its word list (like "mir" in "Mir geht es gut"),
+ * taught with their meaning before the sentences are practised.
+ */
+function SentenceWords({ unitId, bare = false }: { unitId: string; bare?: boolean }) {
+  const words = sentenceWords(UNIT_MAP[unitId]);
+  const phrases = phrasesOfUnit(UNIT_MAP[unitId]);
+  if (!words.length && !phrases.length) return null;
+  const body = (
+    <>
+      {phrases.length > 0 && <>
+        <h3>Phrases in this lesson</h3>
+        <p className="muted small">Fixed expressions: learn them as a whole. The words don’t add up word for word.</p>
+        {phrases.map((ph) => <PhraseNote key={ph.phrase} p={ph} />)}
+      </>}
+      {words.length > 0 && <>
+      <h3>{bare ? 'Also in this lesson’s sentences' : 'New words in this lesson’s sentences'}</h3>
+      {!bare && <p className="muted small">Learn these before you build the sentences.</p>}
+      <ul className="word-list">
+        {words.map((w) => (
+          <li key={w.word}>
+            <span lang={LANG} className="es">{w.word}</span>
+            <span className="muted">{w.en}</span>
+            <SpeakButton text={w.word} />
+          </li>
+        ))}
+      </ul>
+      </>}
+    </>
+  );
+  return bare ? body : <section className="card">{body}</section>;
 }
 
 function RelatedLessons({ unitId }: { unitId: string }) {
@@ -176,7 +238,7 @@ function RelatedLessons({ unitId }: { unitId: string }) {
       <p className="muted small">Step-by-step lessons that explain the logic behind this unit.</p>
       <div className="steps">
         {lessons.map((g) => (
-          <Link key={g.id} to={`/grammar/${g.id}`} className="card step">
+          <Link key={g.id} to={`/grammar/${g.id}?from=${unitId}`} className="card step">
             <div>
               <strong>{g.title}</strong>
               <span className="muted small">{g.summary}</span>

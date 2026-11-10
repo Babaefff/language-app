@@ -9,7 +9,7 @@
   --primary: #145a4a;
   --primary-ink: #ffffff;
   --primary-soft: #cbdbd1;
-  --accent: #9a7432;
+  --accent: #85622a;
   --good: #227447;
   --good-soft: #cde3d3;
   --bad: #ab3434;
@@ -134,7 +134,7 @@ input:focus, select:focus { outline: 2px solid var(--primary); outline-offset: 1
 }
 .bottomnav {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;
-  display: grid; grid-template-columns: repeat(5, 1fr);
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
   background: var(--surface); border-top: 1px solid var(--border);
   padding-bottom: env(safe-area-inset-bottom);
 }
@@ -160,7 +160,7 @@ main { max-width: 980px; margin: 0 auto; padding: 1rem; }
 .ticker-content > .icon { align-self: center; }
 .ticker-es, .ticker-en { display: block; font-size: inherit; line-height: inherit; overflow-wrap: anywhere; text-align: left; }
 .ticker-es { font-weight: 600; }
-.ticker-en { color: var(--muted); opacity: 0; transition: opacity 0.6s; }
+.ticker-en { color: var(--muted); opacity: 0; transition: opacity 0.4s; }
 .ticker-en.show { opacity: 1; }
 @keyframes fade-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
 
@@ -800,3 +800,158 @@ body:has(.session) .ticker { display: none; }
 .dashboard-review .stats { margin: 0.5rem 0 0.25rem; }
 .daily-note { display: flex; align-items: center; gap: 0.35rem; margin: 0.25rem 0 0.5rem !important; }
 @media (max-width: 760px) { .dashboard-sidebar { grid-template-columns: 1fr !important; } }
+
+/* Level badges keep their size inside column cards. */
+.card.action > .badge, .card > .badge:first-child { align-self: flex-start; }
+
+/* Home: next milestone and the 7-day chain. */
+.milestone { display: grid; gap: 0.3rem; width: 100%; max-width: 420px; margin: 0.1rem 0 0.6rem; }
+.week { list-style: none; display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.25rem; padding: 0; margin: 0.75rem 0 0; }
+.week li { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
+.week .dot { width: 1.6rem; height: 1.6rem; border-radius: 50%; display: grid; place-items: center; font-size: 0.75rem; font-weight: 800; background: var(--surface-2); color: var(--primary-ink); }
+.week .on .dot { background: var(--primary); }
+.week .shield .dot { background: var(--primary-soft); font-size: 0.8rem; }
+.week li.today:not(.on) .dot { box-shadow: inset 0 0 0 2px var(--primary); }
+.week .day { font-size: 0.68rem; color: var(--muted); }
+
+/* Practice: grouped, compact tiles that scan quickly on a phone. */
+.practice-group { margin: 1.25rem 0 0; }
+.practice-group .eyebrow { margin-bottom: 0.5rem; }
+.practice-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.6rem; }
+.card.practice-tile { display: flex; align-items: center; gap: 0.85rem; padding: 0.85rem 1rem; color: inherit; text-decoration: none; transition: border-color 0.12s, transform 0.12s; }
+.card.practice-tile:hover { border-color: var(--primary); transform: translateY(-1px); }
+.practice-tile strong { display: block; }
+.practice-tile .small { display: block; }
+.tile-icon { flex: 0 0 auto; width: 2.5rem; height: 2.5rem; border-radius: 12px; display: grid; place-items: center; background: var(--primary-soft); color: var(--primary); }
+
+.summary-streak { margin: 0.25rem 0 0.4rem; font-weight: 600; }
+.summary-goal { flex: none; width: 100%; max-width: 320px; margin: 0 auto 0.75rem; }
+
+/* "You can now…": the new ability, highlighted. */
+.can-do { background: var(--primary-soft); border-left: 4px solid var(--primary); border-radius: 10px; padding: 0.7rem 0.9rem; margin: 0.5rem 0; text-align: left; }
+.can-do strong { color: var(--primary); }
+.can-do-list { list-style: none; padding: 0; margin: 0.5rem 0 0; display: grid; gap: 0.4rem; }
+.can-do-list li { display: flex; gap: 0.5rem; align-items: baseline; }
+.can-do-list li::before { content: '✓'; color: var(--primary); font-weight: 800; }
+
+.welcome-back { border: 1px solid var(--primary); background: color-mix(in srgb, var(--primary-soft) 70%, var(--surface)); }
+.welcome-back h2 { margin-top: 0; }
+
+/* Typed gap: the base word to use, like "(tanzen)" in a grammar book. */
+.base-hint { display: inline-flex; flex-wrap: wrap; gap: 0.35rem; align-items: baseline; background: var(--primary-soft); border-radius: 8px; padding: 0.3rem 0.65rem; margin: 0.25rem 0; }
+.glossary-list { display: flex; flex-wrap: wrap; gap: 0.4rem; list-style: none; padding: 0; margin: 0.5rem 0 0; }
+.glossary-list li { background: var(--surface-2); border-radius: 999px; padding: 0.25rem 0.7rem; font-size: 0.9rem; }
+.glossary-list li span { color: var(--muted); }
+
+.ready-tag { font-size: 0.8rem; color: var(--muted); }
+.ready-tag.on { color: var(--primary); font-weight: 700; }
+.key-words h3 { margin: 0; }
+.reading-unlocked { text-align: left; width: 100%; }
+.reading-unlocked a { font-weight: 700; }
+
+/* Sentence builder: drag to reorder, optional meanings under the word tiles. */
+.tile.placed { touch-action: none; user-select: none; cursor: grab; transition: transform 0.08s; }
+.tile.placed.dragging { cursor: grabbing; position: relative; z-index: 5; transition: none; box-shadow: 0 6px 16px rgb(0 0 0 / 0.18); border-color: var(--primary); }
+.tile.has-meaning, .tiles.with-meanings .tile { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.2; }
+.tile-meaning { font-size: 0.72rem; font-weight: 500; color: var(--muted); max-width: 9rem; white-space: normal; text-align: center; }
+.build-help { margin: 0.25rem 0 0; }
+.drop-marker { width: 3px; align-self: stretch; min-height: 2.2rem; border-radius: 2px; background: var(--primary); }
+.tile-new { color: var(--primary); font-weight: 800; text-transform: uppercase; font-size: 0.62rem; letter-spacing: 0.05em; }
+
+/* Fixed phrases: meaning, literal meaning, why. */
+.phrase-note { background: color-mix(in srgb, var(--accent) 12%, var(--surface)); border-left: 4px solid var(--accent); border-radius: 10px; padding: 0.6rem 0.8rem; margin: 0.5rem 0; text-align: left; }
+.phrase-note .phrase-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; }
+.phrase-note p { margin: 0.15rem 0 0; }
+.phrase-note.compact { margin-top: 0.6rem; font-size: 0.92rem; }
+.tile-phrase { font-style: normal; color: var(--accent); }
+
+/* Feedback: report button, dialog, inbox. */
+.feedback-btn { margin-left: auto; opacity: 0.7; }
+.feedback-btn:hover { opacity: 1; }
+.feedback-link { display: inline-flex; align-items: center; gap: 0.3rem; color: var(--muted); }
+.modal-backdrop { position: fixed; inset: 0; background: rgb(0 0 0 / 0.35); display: grid; place-items: center; z-index: 50; padding: 1rem; }
+.modal { width: min(520px, 100%); max-height: 90vh; overflow: auto; }
+.modal h2 { margin: 0; }
+.fb-context { background: var(--surface-2); border-radius: 10px; padding: 0.5rem 0.7rem; margin: 0.6rem 0; }
+.fb-cats { border: 0; padding: 0; margin: 0.5rem 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.fb-cats legend { margin-bottom: 0.3rem; }
+.chip { display: inline-flex; align-items: center; gap: 0.3rem; border: 1px solid var(--border); border-radius: 999px; padding: 0.3rem 0.7rem; font-size: 0.88rem; cursor: pointer; background: var(--surface); }
+.chip.on { border-color: var(--primary); background: var(--primary-soft); }
+.chip input { position: absolute; opacity: 0; pointer-events: none; }
+.fb-item { display: grid; gap: 0.4rem; }
+.fb-status { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.15rem 0.55rem; border-radius: 999px; background: var(--surface-2); }
+.fb-status.resolved { background: var(--good-soft); color: var(--good); }
+.fb-status.open { background: var(--primary-soft); color: var(--primary); }
+.fb-reply { background: var(--good-soft); border-radius: 10px; padding: 0.5rem 0.7rem; margin: 0; }
+.fb-thanks { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap; border: 1px solid var(--good); background: var(--good-soft); margin: 0 auto 1rem; max-width: 1080px; }
+textarea { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.5rem 0.65rem; width: 100%; }
+
+/* Grammar notes: foreign words and table cells can be tapped to hear them. */
+.say { cursor: pointer; border-radius: 4px; text-decoration: underline dotted color-mix(in srgb, var(--primary) 45%, transparent); text-underline-offset: 3px; }
+.say:hover, .say:focus-visible { background: var(--primary-soft); outline: none; }
+.say .icon { margin-left: 0.2rem; color: var(--primary); opacity: 0.75; vertical-align: -0.1em; }
+td .say { display: inline-flex; align-items: center; gap: 0.15rem; text-decoration: none; }
+.feedback.close { background: color-mix(in srgb, var(--accent) 16%, var(--surface)); color: var(--accent); border-color: var(--accent); }
+
+/* Word parts: Brief (letter) + Träger (carrier) → literally "letter carrier". */
+.word-parts { display: flex; gap: 0.45rem; align-items: baseline; background: color-mix(in srgb, var(--accent) 10%, var(--surface)); border-radius: 10px; padding: 0.45rem 0.7rem; margin: 0.5rem 0; text-align: left; font-size: 0.95rem; color: var(--text); }
+.word-parts.compact { font-size: 0.85rem; padding: 0.35rem 0.6rem; }
+.wp-en { color: var(--muted); }
+.wp-plus { color: var(--accent); font-weight: 800; }
+.wp-link strong { color: var(--muted); font-weight: 600; }
+.wp-literal { color: var(--muted); font-style: italic; }
+
+/* Speaking in lessons; "can't listen / speak now". */
+.speak-row { display: flex; justify-content: center; margin: 1rem 0 0.5rem; }
+.mic-btn { display: inline-flex; align-items: center; gap: 0.5rem; }
+.mic-btn.on { animation: mic-pulse 1.2s ease-in-out infinite; }
+@keyframes mic-pulse { 50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--primary) 25%, transparent); } }
+.quiet-btn { display: block; margin: 0.8rem auto 0; color: var(--muted); }
+.quiet-note { text-align: center; margin: -0.25rem 0 0.5rem; }
+@media (prefers-reduced-motion: reduce) { .mic-btn.on { animation: none; } }
+
+.fb-problem { margin: 0; font-size: 1.05rem; }
+.fb-where { display: grid; grid-template-columns: max-content 1fr; gap: 0.25rem 0.9rem; margin: 0; font-size: 0.92rem; }
+.fb-where dt { color: var(--muted); }
+.fb-where dd { margin: 0; }
+@media (max-width: 480px) { .fb-where { grid-template-columns: 1fr; } .fb-where dt { margin-top: 0.35rem; } }
+
+/* Personal material */
+.personal-set { display: grid; gap: 14px; margin-bottom: 24px; }
+.personal-lesson, .admin-set { display: grid; gap: 10px; align-content: start; }
+/* A card whose neighbour opens its word list must not stretch its own buttons. */
+.personal-set .grid-2 { align-items: start; }
+.answer-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.answer-list li { padding: 8px 10px; border-radius: 10px; background: var(--surface-2, rgba(127,127,127,.08)); }
+.bad-text { color: var(--bad); }
+.result-row summary { cursor: pointer; padding: 6px 0; }
+.answers-table { width: 100%; border-collapse: collapse; font-size: .92rem; margin-top: 6px; }
+.answers-table th, .answers-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.answers-table tr.wrong td { background: var(--bad-soft); }
+.assign-form { gap: 8px; align-items: center; }
+.assign-form input { flex: 1 1 180px; min-width: 0; }
+@media (max-width: 640px) { .answers-table { display: block; overflow-x: auto; } }
+
+/* A long tab name (personal tab) may take two short lines instead of widening the bar. */
+.bottomnav > a[href$='/mine'] { white-space: normal; text-align: center; line-height: 1.1; padding-inline: 2px; }
+
+/* Mock exams */
+.exam-clock { display: block; width: max-content; margin: 10px auto -6px; position: relative; z-index: 5;
+  padding: 4px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); font-weight: 700; font-size: .85rem; font-variant-numeric: tabular-nums; }
+.exam-clock.low { color: var(--bad); border-color: var(--bad); }
+.exam-verdict.pass h2 { color: var(--primary); }
+.exam-verdict.fail h2 { color: var(--bad); }
+.mixed-card { margin-bottom: 14px; }
+
+/* Personal tab: language switch, word drill */
+.personal-head { justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+.seg button { border: 0; background: transparent; padding: 6px 14px; font: inherit; font-weight: 600; color: var(--muted); cursor: pointer; }
+.seg button.on { background: var(--primary); color: var(--surface); }
+.drill-card { display: grid; gap: 8px; margin-bottom: 18px; }
+.drill-bar { height: 8px; border-radius: 999px; background: var(--border); overflow: hidden; }
+.drill-bar > div { height: 100%; background: var(--primary); transition: width .3s; }
+.danger-btn { border: 1px solid var(--bad); color: var(--bad); background: transparent; }
+.danger-list summary { cursor: pointer; color: var(--bad); font-weight: 600; }
+.code-input { letter-spacing: .25em; font-variant-numeric: tabular-nums; max-width: 12rem; }
+.email-code { display: grid; gap: 8px; }

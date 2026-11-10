@@ -1,4 +1,8 @@
 import type { LangContent } from './content';
+import { MORPH_RU } from './morph/ru';
+import { PHRASES_RU } from './phrases/ru';
+import { SMALL_RU } from './small/ru';
+import { KEY_WORDS_RU, withKeyWords } from './key-words';
 import { withLevelledEssentials } from './essentials';
 import { MORE_RU } from './ru/more-words';
 import { RU_A1_UNITS, RU_A1_UNIT_LESSONS } from './ru/units';
@@ -14,5 +18,5 @@ import { RU_TRANSLATIONS, RU_WHY } from './ru/registry';
 
 export const CONTENT: LangContent = {
   units: withLevelledEssentials([...RU_A1_UNITS, ...RU_A2_UNITS, ...RU_B1_UNITS], MORE_RU), unitLessons: { ...RU_A1_UNIT_LESSONS, ...RU_A2_UNIT_LESSONS, ...RU_B1_UNIT_LESSONS }, grammar: [...GRAMMAR_RU_A1, ...GRAMMAR_RU_A2, ...GRAMMAR_RU_B1],
-  readings: READINGS_RU, songs: SONGS_RU, exams: EXAMS_RU, translations: RU_TRANSLATIONS, why: RU_WHY,
+  readings: withKeyWords(READINGS_RU, KEY_WORDS_RU), songs: withKeyWords(SONGS_RU, KEY_WORDS_RU), exams: EXAMS_RU, translations: RU_TRANSLATIONS, smallWords: SMALL_RU, phrases: PHRASES_RU, morphology: MORPH_RU, why: RU_WHY,
 };

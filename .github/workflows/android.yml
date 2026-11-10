@@ -1,0 +1,42 @@
+# Builds the Android app (a debug APK you can install on your phone).
+# Download it from the run's "Artifacts" section on GitHub → Actions.
+name: Android app
+
+# Manual for now (Actions → Android app → Run workflow), so pushes don't start builds while
+# GitHub Actions isn't available on this account.
+on:
+  workflow_dispatch:
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The recorded clips are not part of the app (it streams them), so skip LFS-sized history.
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - run: npm ci
+      - run: npm test
+      - run: npm run build:app
+
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hablo-android-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30

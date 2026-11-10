@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 import { LANG } from '../data/lang';
+import { isNative } from './native';
 import { getProgress, mergeProgress, onProgressChange, parseProgress, replaceProgress, selectProgressAccount, updateSettings } from './store';
 
 /**
@@ -34,7 +35,9 @@ export const configProblem: string | null = (() => {
 /** Safe-to-show summary of the configuration, to compare with the Supabase dashboard. */
 export const configSummary = URL_ && KEY ? `${URL_.replace('https://', '')} · ${KEY.slice(0, 18)}…` : '';
 const ANON = configProblem?.includes('secret') || configProblem?.includes('service_role') ? undefined : KEY;
-export const accountsEnabled = !!(URL_ && KEY);
+// In the Android/iOS app, Google's web sign-in and email links (which open the website) don't
+// work yet: accounts arrive there with native sign-in. Until then the app saves on the phone.
+export const accountsEnabled = !!(URL_ && KEY) && !isNative;
 export const googleEnabled = clean(import.meta.env.VITE_SUPABASE_GOOGLE) === '1';
 
 type SyncState = { user: User | null; status: 'off' | 'idle' | 'syncing' | 'synced' | 'error'; lastSync: number | null; error?: string };
@@ -56,12 +59,22 @@ async function getClient() {
   return client;
 }
 
+/** The Supabase client for other features (feedback); only when accounts are enabled. */
+export const supabase = () => getClient();
+
 const redirectTo = () => window.location.origin + window.location.pathname;
 
 export async function signInWithEmail(email: string) {
   const sb = await getClient();
   const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo() } });
   if (error) throw error;
+}
+
+/** The code from the sign-in email (works in any app or browser, unlike the link on phones). */
+export async function verifyEmailCode(email: string, code: string) {
+  const sb = await getClient();
+  const { error } = await sb.auth.verifyOtp({ email, token: code.replace(/\s+/g, ''), type: 'email' });
+  if (error) throw new Error(/expired|invalid/i.test(error.message) ? 'That code is wrong or has expired. Ask for a new email.' : error.message);
 }
 
 /** Google's own sign-in button (Google Identity Services): sign-in happens on this site, so Google

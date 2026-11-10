@@ -5,6 +5,7 @@ import { Link } from './Nav';
 import { LinguaBloom, useBloomData } from './LinguaBloom';
 import { accountsEnabled, configProblem, signOut, useSync } from '../lib/sync';
 import { updateSettings, useProgress } from '../lib/store';
+import { isAdmin } from '../lib/feedback';
 
 const THEMES = { system: 'Theme: System', light: 'Theme: Light', dark: 'Theme: Dark' } as const;
 const NEXT = { system: 'dark', dark: 'light', light: 'system' } as const;
@@ -18,6 +19,8 @@ export function AccountButton() {
   const { settings } = useProgress();
   const bloom = useBloomData();
   const [open, setOpen] = useState(false);
+  const [admin, setAdmin] = useState(false);
+  useEffect(() => { if (user) void isAdmin().then(setAdmin); else setAdmin(false); }, [user]);
   const box = useRef<HTMLDivElement>(null);
   const { pathname } = useLocation();
 
@@ -52,6 +55,9 @@ export function AccountButton() {
           </div>
           <Link to="/account" className="menu-item"><Icon name="chart" /> Profile &amp; progress</Link>
           <Link to="/settings" className="menu-item"><Icon name="settings" /> Settings</Link>
+          <Link to="/feedback" className="menu-item"><Icon name="flag" /> My feedback</Link>
+          {admin && <Link to="/admin" className="menu-item"><Icon name="inbox" /> Feedback inbox (admin)</Link>}
+          {admin && <Link to="/admin/personal" className="menu-item"><Icon name="heart" /> Personal material (admin)</Link>}
           <button className="menu-item" role="menuitem" onClick={() => updateSettings({ theme: NEXT[settings.theme] })}><Icon name="settings" /> {THEMES[settings.theme]}</button>
           <a href="./privacy.html" className="menu-item" role="menuitem"><Icon name="shield" /> Privacy</a>
           <button className="menu-item" role="menuitem" onClick={() => { setOpen(false); void signOut(); }}><Icon name="logout" /> Sign out</button>

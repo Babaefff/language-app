@@ -47,7 +47,7 @@ export function WritingList() {
   return (
     <div className="page">
       <Link className="link" to="/practice">← Practice</Link>
-      <h1>✍️ Writing</h1>
+      <h1>Writing</h1>
       <p className="muted">Write your own texts. The app checks length, whether you covered each point, which topic words you used and common mistakes — then compare with a model answer. Your draft is saved on this device.</p>
       <div className="grid-2">
         {WRITING.map((w) => (

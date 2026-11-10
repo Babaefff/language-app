@@ -56,8 +56,8 @@ export function Review() {
         title="Review"
         onExit={() => setMode({ name: 'menu' })}
         onFinish={(summary) => {
-          if (mode.grade) applyWordResults(summary.words);
-          else applyWordResults(Object.fromEntries(Object.entries(summary.words).filter(([, ok]) => !ok)));
+          if (mode.grade) applyWordResults(summary.words, summary.close);
+          else applyWordResults(Object.fromEntries(Object.entries(summary.words).filter(([, ok]) => !ok)), summary.close);
           addXp(summary.correct);
           setMode({ name: 'done', summary, xp: summary.correct });
         }}
@@ -84,6 +84,7 @@ export function Review() {
           <div className="card review-due">
             <div className="big-number">{due.length}</div>
             <div>{due.length === 1 ? 'word is' : 'words are'} due now · {total} in your deck</div>
+            {due.length > BATCH && <p className="small muted">No need to do them all today: {BATCH} at a time is plenty. The most overdue come first, and the rest wait safely.</p>}
           </div>
           {due.length > 0 ? (
             <div className="grid-2">

@@ -1,9 +1,12 @@
 import { L, LANG } from '../data/lang';
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { UNIT_LESSONS, UNIT_MAP } from '../data/course';
 import { GRAMMAR, GRAMMAR_MAP } from '../data/grammar';
 import { LEVEL_INFO, LEVELS } from '../data/types';
-import { grammarExercises, type Exercise } from '../lib/exercises';
+import { grammarExercises, lessonGlossary, type Exercise } from '../lib/exercises';
+import { useFeedbackPage } from '../lib/feedback';
+import { FeedbackButton } from '../components/FeedbackButton';
 import { addXp, completeGrammar, useProgress } from '../lib/store';
 import { Link } from '../components/Nav';
 import { Grammar } from '../components/Grammar';
@@ -19,7 +22,7 @@ export function GrammarList() {
       <h1>Grammar</h1>
       <p className="muted">Short lessons that explain the logic behind {L.name}: why verbs change, which ones behave alike, and when to use what. Each ends with practice.</p>
       <Link to="/pronunciation" className="card action pron-link">
-        <h2>🔤 Pronunciation</h2>
+        <h2>Pronunciation</h2>
         <p className="muted small">Start here: how every letter and letter combination sounds, with examples to hear.</p>
       </Link>
       {LEVELS.map((level) => (
@@ -48,13 +51,23 @@ export function GrammarList() {
 export function GrammarLessonPage() {
   const { id = '' } = useParams();
   const lesson = GRAMMAR_MAP[id];
+  const [params] = useSearchParams();
+  const fromUnit = params.get('from');
+  const navigate = useNavigate();
   const { grammar } = useProgress();
   const [session, setSession] = useState<Exercise[] | null>(null);
   const [done, setDone] = useState<{ summary: SessionSummary; xp: number } | null>(null);
 
+  useFeedbackPage(lesson ? `Grammar · ${lesson.title}` : undefined, session ? 'Practice' : undefined, lesson ? `Grammar · ${lesson.level} · Lesson ${GRAMMAR.indexOf(lesson) + 1} of ${GRAMMAR.length}${fromUnit ? ' (opened from a course lesson)' : ''}` : undefined);
   if (!lesson) return <div className="page"><p>Lesson not found. <Link to="/grammar">Back to grammar</Link></p></div>;
   const index = GRAMMAR.indexOf(lesson);
-  const next = GRAMMAR[index + 1];
+  // Opened from a course lesson: stay in the course. "Next" is that lesson's next grammar topic,
+  // or back to the course lesson; only the Grammar section walks through grammar in order.
+  const unit = fromUnit ? UNIT_MAP[fromUnit] : undefined;
+  const related = unit ? UNIT_LESSONS[unit.id] ?? [] : [];
+  const nextRelated = unit ? related[related.indexOf(lesson.id) + 1] : undefined;
+  const next = unit ? (nextRelated ? GRAMMAR_MAP[nextRelated] : undefined) : GRAMMAR[index + 1];
+  const nextHref = (g: { id: string }) => `/grammar/${g.id}${unit ? `?from=${unit.id}` : ''}`;
 
   const start = () => { setDone(null); setSession(grammarExercises(lesson)); };
 
@@ -77,7 +90,7 @@ export function GrammarLessonPage() {
 
   return (
     <div className="page narrow">
-      <Link className="link" to="/grammar">← Grammar</Link>
+      {unit ? <Link className="link" to={`/unit/${unit.id}`}>← {unit.title}</Link> : <Link className="link" to="/grammar">← Grammar</Link>}
       <header>
         <span className={`badge ${lesson.level}`}>{lesson.level}</span>
         <h1>{lesson.title}</h1>
@@ -89,18 +102,28 @@ export function GrammarLessonPage() {
           summary={done.summary}
           xp={done.xp}
           onRetry={start}
-          onDone={() => setDone(null)}
-          doneLabel="Back to the lesson"
+          onDone={() => (unit && !next ? navigate(`/unit/${unit.id}`) : setDone(null))}
+          doneLabel={unit && !next ? `Back to ${unit.title}` : 'Back to the lesson'}
         />
       )}
 
       <article className="card lesson">
+        {(() => {
+          // Every word the lesson and its practice use, with its meaning: nothing appears untranslated.
+          const words = lessonGlossary(lesson);
+          return words.length > 0 && (
+            <section className="lesson-words">
+              <h3>Words in this lesson</h3>
+              <ul className="glossary-list">{words.map((w) => <li key={w.word}><strong lang={LANG}>{w.word}</strong> <span>{w.en}</span></li>)}</ul>
+            </section>
+          );
+        })()}
         {lesson.blocks.map((b, i) => {
           switch (b.t) {
             case 'text':
               return <Grammar key={i} source={b.md} />;
             case 'logic':
-              return <div key={i} className="logic"><h3>🧠 The logic</h3><Grammar source={b.md} /></div>;
+              return <div key={i} className="logic"><h3>The logic</h3><Grammar source={b.md} /></div>;
             case 'tip':
               return <div key={i} className="tip"><Grammar source={b.md} /></div>;
             case 'table':
@@ -141,9 +164,11 @@ export function GrammarLessonPage() {
         <span className="muted small">{grammar[lesson.id] !== undefined ? `Best score: ${grammar[lesson.id]}%` : 'Practice to complete this lesson'}</span>
         <div className="row wrap">
           <button className="btn primary" onClick={start}>Practise</button>
-          {next && <Link className="btn" to={`/grammar/${next.id}`}>Next lesson →</Link>}
+          {next && <Link className="btn" to={nextHref(next)}>{unit ? `Next: ${next.title}` : 'Next lesson'} →</Link>}
+          {unit && !next && <Link className="btn" to={`/unit/${unit.id}`}>Back to {unit.title} →</Link>}
         </div>
       </div>
+      <p className="center-text"><FeedbackButton /></p>
     </div>
   );
 }

@@ -124,4 +124,76 @@ describe('German course', () => {
     expect([...m.text.wrongWords('das haus ist gross', 'Das Haus ist groß.')]).toEqual([1, 3]);
     expect(m.conj.lookupForm('fährt')[0]).toMatchObject({ inf: 'fahren' });
   });
+  it('never asks a typed gap the lesson did not prepare, and translates every lesson word', () => {
+    for (const g of m.grammar.GRAMMAR) {
+      for (const ex of m.ex.grammarExercises(g)) {
+        if (ex.kind !== 'choice' || !ex.typed) continue;
+        const ok = !!ex.base || m.ex.lessonText(g).includes(ex.answer.toLowerCase());
+        expect(ok, `${g.id}: typed "${ex.prompt}" → ${ex.answer}`).toBe(true);
+      }
+      for (const v of g.practice.conj?.verbs ?? []) expect(m.verbs.VERB_MAP[v]?.en, `${g.id}: ${v}`).toBeTruthy();
+      for (const w of m.ex.lessonGlossary(g)) expect(w.en, `${g.id}: ${w.word}`).toBeTruthy();
+    }
+  });
+  it('every reading and song is readable by the end of its level', async () => {
+    const r = await import('../lib/readiness');
+    const units = m.course.UNITS;
+    for (const x of [...m.readings.READINGS, ...m.readings.SONGS]) {
+      const gate = r.readyAfter(x);
+      const level = x.level === 'B1+' ? 'B1' : x.level;
+      expect(gate, `${x.id}: never reaches 95% known words`).toBeTruthy();
+      expect(units.indexOf(gate!), `${x.id}: ready only after ${gate!.title}`).toBeLessThanOrEqual(units.map((u) => u.level).lastIndexOf(level));
+    }
+  });
+  it('every word of every lesson sentence can be translated (tap a tile, "show meanings")', async () => {
+    const { gloss } = await import('../lib/gloss');
+    const missing = new Set<string>();
+    for (const u of m.course.UNITS) for (const st of [...u.sentences.map((x) => x.es), ...u.words.flatMap((w) => (w.ex ? [w.ex] : []))])
+      for (const raw of st.split(/\s+/)) { const w = raw.replace(/[¿?¡!.,;:"«»—–()]/g, ''); if (w && !/\d/.test(w) && gloss(w).meaning === '—') missing.add(w); }
+    expect([...missing]).toEqual([]);
+  });
+  it("words a lesson's sentences use beyond what it taught are listed with a meaning", async () => {
+    const t = await import('../lib/taught');
+    for (const u of m.course.UNITS) expect(t.sentenceWords(u).length, u.id).toBe(t.untaughtInSentences(u).length);
+  });
+  it('accepts contractions and any apostrophe: geht’s = geht”s = geht es', () => {
+    const c = (a: string, b: string) => m.text.checkAnswer(a, b).ok;
+    expect(c('Wie geht”s?', 'Wie geht’s?')).toBe(true);
+    expect(c("wie geht's", 'Wie geht’s?')).toBe(true);
+    expect(c('Wie geht es?', 'Wie geht’s?')).toBe(true);
+    expect(c('Wie geht’s?', 'Wie geht es Ihnen?')).toBe(false);
+    expect(c('Gibt es hier ein Café?', 'Gibt’s hier ein Café?')).toBe(true);
+  });
+  it('is comfortable to type: numbers as digits, small typos', () => {
+    const c = (a: string, b: string, o = {}) => m.text.checkAnswer(a, b, false, o);
+    expect(c('Ich bin 20 Jahre alt.', 'Ich bin zwanzig Jahre alt.').ok).toBe(true);
+    expect(c('Er ist 25.', 'Er ist fünfundzwanzig.').ok).toBe(true);
+    // A sentence with one slip is "partly correct": not counted as right.
+    expect(c('Ich habe Kopfschmerzn.', 'Ich habe Kopfschmerzen.', { typos: true })).toEqual({ ok: false, typo: true });
+    expect(c('Ich habe Kopfschmerzn.', 'Ich habe Kopfschmerzen.').ok).toBe(false);
+    // A single word is what's being learned: one letter off is wrong (shown as "almost").
+    expect(c('die schwister', 'die Schwester', { typos: true })).toEqual({ ok: false, nearMiss: true });
+    expect(m.text.checkAnswer('Ich habe Kopfschmerzn.', 'Ich habe Kopfschmerzen.', true, { typos: true }).ok).toBe(false);
+  });
+  it('every generated exercise is fair: answers accepted, no wrong option that is also right, no look-alike tiles', async () => {
+    const { auditExercises } = await import('../test/exercise-audit');
+    expect(await auditExercises()).toEqual([]);
+  }, 60000);
+  it('grammar notes: German bits are read aloud, English is left out', async () => {
+    const f = await import('../lib/foreign');
+    expect(f.isForeign('13 dreizehn')).toBe(true);
+    expect(f.speakableForeign('haben (to have)')).toBe('haben');
+    expect(f.speakableForeign('liegen — to lie')).toBe('liegen');
+    expect(f.speakableForeign('Ich bin 25 (Jahre alt).')).toContain('Jahre alt');
+    expect(f.isForeign('units come first')).toBe(false);
+    expect(f.isForeign('you are (informal)')).toBe(false);
+  });
+  it('explains words by their parts, every part with a meaning', async () => {
+    const { breakdown } = await import('../lib/breakdown');
+    for (const w of m.course.WORDS) {
+      const b = breakdown(w);
+      if (b) for (const p of b.parts) expect(p.text && p.en, `${w.es}: ${p.text}`).toBeTruthy();
+    }
+    expect(breakdown({ es: 'der Briefträger', en: 'the postman' })?.parts.map((p) => p.text).join(' + ')).toBe('Brief + Träger');
+  });
 });

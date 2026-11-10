@@ -1,5 +1,7 @@
-import { L } from '../data/lang';
+import { L, LANG } from '../data/lang';
+import { numbersToDigits } from './numbers';
 import { normalize, stripAccents } from './text';
+import { isNative } from './native';
 
 // Browser speech recognition (Chrome, Edge, Safari). Free and on-device or browser-provided;
 // it tells us what was understood, not how good the pronunciation sounded.
@@ -11,12 +13,13 @@ function ctor(): (new () => Rec) | null {
   return (w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null) as (new () => Rec) | null;
 }
 
-export const recognitionSupported = () => !!ctor();
+export const recognitionSupported = () => isNative || !!ctor();
 
 let active: Rec | null = null;
 
 /** Listens for one utterance and resolves with the recognised alternatives (best first). */
 export function listenOnce(): Promise<string[]> {
+  if (isNative) return listenNative();
   const C = ctor();
   if (!C) return Promise.reject(new Error('unsupported'));
   active?.abort?.();
@@ -43,9 +46,11 @@ export function listenOnce(): Promise<string[]> {
 export function stopListening() {
   active?.abort?.();
   active = null;
+  if (isNative) void import('@capacitor-community/speech-recognition').then(({ SpeechRecognition }) => SpeechRecognition.stop()).catch(() => {});
 }
 
-const words = (s: string): string[] => stripAccents(normalize(s)).match(/\p{L}+/gu) ?? [];
+// Recognisers write numbers as digits ("20"): compare number words as digits too.
+const words = (s: string): string[] => stripAccents(normalize(numbersToDigits(s, LANG))).match(/[\p{L}\p{N}]+/gu) ?? [];
 
 /** Which target words were heard, and the share of the sentence that was understood. */
 export function compareSpeech(target: string, heard: string[]) {
@@ -73,3 +78,12 @@ export const RECOGNITION_ERRORS: Record<string, string> = {
   network: 'Speech recognition needs an internet connection in this browser.',
   unsupported: 'Speech recognition is not available in this browser. Use Chrome, Edge or Safari.',
 };
+
+/** Android/iOS: the WebView has no speech recognition, so use the phone's recogniser. */
+async function listenNative(): Promise<string[]> {
+  const { SpeechRecognition } = await import('@capacitor-community/speech-recognition');
+  const perm = await SpeechRecognition.requestPermissions();
+  if (perm.speechRecognition !== 'granted') throw new Error('not-allowed');
+  const { matches } = await SpeechRecognition.start({ language: L.tts, maxResults: 5, partialResults: false, popup: false });
+  return matches ?? [];
+}

@@ -8,7 +8,7 @@ await loadContent('es');
 const { SENTENCES, UNIT_LESSONS, UNITS, WORDS } = await import('./course');
 const { GRAMMAR, GRAMMAR_MAP } = await import('./grammar');
 const { READINGS, SONGS } = await import('./readings');
-const { grammarExercises, stepExercises } = await import('../lib/exercises');
+const { grammarExercises, lessonGlossary, lessonText, stepExercises } = await import('../lib/exercises');
 
 describe('course content', () => {
   it('has unique word ids', () => {
@@ -111,5 +111,48 @@ describe('course content', () => {
 
   it('sentences end with punctuation', () => {
     for (const s of SENTENCES) expect(s.es, s.es).toMatch(/[.?!]$/);
+  });
+  it('never asks a typed gap the lesson did not prepare, and translates every lesson word', () => {
+    for (const g of GRAMMAR) {
+      for (const ex of grammarExercises(g)) {
+        if (ex.kind !== 'choice' || !ex.typed) continue;
+        const ok = !!ex.base || lessonText(g).includes(ex.answer.toLowerCase());
+        expect(ok, `${g.id}: typed "${ex.prompt}" → ${ex.answer}`).toBe(true);
+      }
+      for (const v of g.practice.conj?.verbs ?? []) expect(VERB_MAP[v]?.en, `${g.id}: ${v}`).toBeTruthy();
+      for (const w of lessonGlossary(g)) expect(w.en, `${g.id}: ${w.word}`).toBeTruthy();
+    }
+  });
+  it('every reading and song is readable by the end of its level', async () => {
+    const r = await import('../lib/readiness');
+    for (const x of [...READINGS, ...SONGS]) {
+      const gate = r.readyAfter(x);
+      const level = x.level === 'B1+' ? 'B1' : x.level;
+      expect(gate, `${x.id}: never reaches 95% known words`).toBeTruthy();
+      expect(UNITS.indexOf(gate!), `${x.id}: ready only after ${gate!.title}`).toBeLessThanOrEqual(UNITS.map((u) => u.level).lastIndexOf(level));
+    }
+  });
+  it('every word of every lesson sentence can be translated (tap a tile, "show meanings")', async () => {
+    const { gloss } = await import('../lib/gloss');
+    const missing = new Set<string>();
+    for (const u of UNITS) for (const st of [...u.sentences.map((x) => x.es), ...u.words.flatMap((w) => (w.ex ? [w.ex] : []))])
+      for (const raw of st.split(/\s+/)) { const w = raw.replace(/[¿?¡!.,;:"«»—–()]/g, ''); if (w && !/\d/.test(w) && gloss(w).meaning === '—') missing.add(w); }
+    expect([...missing]).toEqual([]);
+  });
+  it("words a lesson's sentences use beyond what it taught are listed with a meaning", async () => {
+    const t = await import('../lib/taught');
+    for (const u of UNITS) expect(t.sentenceWords(u).length, u.id).toBe(t.untaughtInSentences(u).length);
+  });
+  it('every generated exercise is fair: answers accepted, no wrong option that is also right, no look-alike tiles', async () => {
+    const { auditExercises } = await import('../test/exercise-audit');
+    expect(await auditExercises()).toEqual([]);
+  }, 60000);
+  it('explains words by their parts, every part with a meaning', async () => {
+    const { breakdown } = await import('../lib/breakdown');
+    for (const w of WORDS) {
+      const b = breakdown(w);
+      if (b) for (const p of b.parts) expect(p.text && p.en, `${w.es}: ${p.text}`).toBeTruthy();
+    }
+    expect(breakdown({ es: 'el tenedor', en: 'the fork' })?.parts.map((p) => p.text).join(' + ')).toBe('tene + -dor');
   });
 });
