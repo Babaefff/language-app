@@ -70,6 +70,13 @@ export async function signInWithEmail(email: string) {
   if (error) throw error;
 }
 
+/** The code from the sign-in email (works in any app or browser, unlike the link on phones). */
+export async function verifyEmailCode(email: string, code: string) {
+  const sb = await getClient();
+  const { error } = await sb.auth.verifyOtp({ email, token: code.replace(/\s+/g, ''), type: 'email' });
+  if (error) throw new Error(/expired|invalid/i.test(error.message) ? 'That code is wrong or has expired. Ask for a new email.' : error.message);
+}
+
 /** Google's own sign-in button (Google Identity Services): sign-in happens on this site, so Google
  * shows this site's address instead of the Supabase project's. Needs VITE_GOOGLE_CLIENT_ID. */
 export const googleClientId = clean(import.meta.env.VITE_GOOGLE_CLIENT_ID);

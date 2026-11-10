@@ -953,3 +953,5 @@ td .say { display: inline-flex; align-items: center; gap: 0.15rem; text-decorati
 .drill-bar > div { height: 100%; background: var(--primary); transition: width .3s; }
 .danger-btn { border: 1px solid var(--bad); color: var(--bad); background: transparent; }
 .danger-list summary { cursor: pointer; color: var(--bad); font-weight: 600; }
+.code-input { letter-spacing: .25em; font-variant-numeric: tabular-nums; max-width: 12rem; }
+.email-code { display: grid; gap: 8px; }

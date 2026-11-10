@@ -1,12 +1,13 @@
 import { useCallback, useState, type ReactNode } from 'react';
 import { GoogleButton } from './GoogleButton';
-import { accountsEnabled, configProblem, configSummary, deleteAccount, deleteCloudData, googleClientId, googleEnabled, signInWithEmail, signInWithGoogle, signOut, useSync } from '../lib/sync';
+import { accountsEnabled, configProblem, configSummary, deleteAccount, deleteCloudData, googleClientId, googleEnabled, signInWithEmail, signInWithGoogle, signOut, verifyEmailCode, useSync } from '../lib/sync';
 
 /** Optional sign-in so progress is saved in the cloud and follows you to other devices. */
 export function AccountCard({ bare = false }: { bare?: boolean } = {}) {
   const { user, status, lastSync, error } = useSync();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
+  const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
   const onGoogleError = useCallback((m: string) => setMsg(m), []);
@@ -64,11 +65,18 @@ export function AccountCard({ bare = false }: { bare?: boolean } = {}) {
         </>
       )}
       {sent ? (
-        <p>📧 Check your inbox: we sent a sign-in link to <strong>{email}</strong>. Open it on this device and browser.</p>
+        <div className="email-code">
+          <p>📧 We sent an email to <strong>{email}</strong>. Type the code from it here — this works in the app too:</p>
+          <form className="row wrap" onSubmit={(e) => { e.preventDefault(); void run(() => verifyEmailCode(email.trim(), code)); }}>
+            <input inputMode="numeric" autoComplete="one-time-code" pattern="[0-9 ]{6,12}" required placeholder="123456" value={code} onChange={(e) => setCode(e.target.value)} className="account-email code-input" aria-label="Sign-in code" />
+            <button className="btn primary" disabled={busy || code.replace(/\s/g, '').length < 6}>Sign in</button>
+          </form>
+          <p className="muted small">Or tap the link in the email on this same device and browser. <button className="link small" onClick={() => { setSent(false); setCode(''); }}>Use another email / send again</button></p>
+        </div>
       ) : (
         <form className="row wrap" onSubmit={(e) => { e.preventDefault(); void run(async () => { await signInWithEmail(email.trim()); setSent(true); }); }}>
           <input type="email" required placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="account-email" autoComplete="email" />
-          <button className="btn primary" disabled={busy || !email.includes('@')}>Email me a sign-in link</button>
+          <button className="btn primary" disabled={busy || !email.includes('@')}>Email me a sign-in code</button>
         </form>
       )}
       {msg && <p className="warn small">{msg}</p>}
