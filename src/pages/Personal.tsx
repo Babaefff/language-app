@@ -29,6 +29,7 @@ type Mode =
 // ---- Interface language of this tab: English or Estonian -----------------------------------
 type UiLang = 'en' | 'et';
 const UI_KEY = 'hablo:personal-ui';
+const PICK_KEY = 'hablo:personal-material';
 const readUi = (): UiLang => { try { return localStorage.getItem(UI_KEY) === 'et' ? 'et' : 'en'; } catch { return 'en'; } };
 const saveUi = (v: UiLang) => { try { localStorage.setItem(UI_KEY, v); } catch { /* private mode: just this visit */ } };
 
@@ -76,10 +77,12 @@ export function Personal() {
   const [mode, setMode] = useState<Mode>({ name: 'list' });
   const [results, setResults] = useState<PersonalResult[]>([]);
   const [ui, setUi] = useState<UiLang>(readUi);
+  // Several materials (e.g. one per chapter): one is shown at a time, with a switch at the top.
+  const [pick, setPick] = useState<string | null>(() => { try { return localStorage.getItem(PICK_KEY); } catch { return null; } });
   useEffect(() => { if (user) void myResults().then(setResults); }, [user, mode.name]);
   // The exercise screens follow this tab's language while it is open, and go back to English after.
   useEffect(() => { setUiText(ui === 'et' ? ET : null); return () => setUiText(null); }, [ui]);
-  const raw = useMemo(() => (sets ?? []).filter((s) => s.lang === LANG), [sets]);
+  const raw = useMemo(() => (sets ?? []).filter((s) => s.lang === LANG).sort((a, b) => a.title.localeCompare(b.title, undefined, { numeric: true })), [sets]);
   const hasEt = raw.some((s) => s.content.i18n?.et);
   const mine = useMemo(() => raw.map((s) => (ui === 'et' ? { ...s, content: localize(s.content, 'et') } : s)), [raw, ui]);
   const tr = (s: string) => (ui === 'et' ? ET[s] ?? s : s);
@@ -160,10 +163,16 @@ export function Personal() {
     );
   }
 
+  const shown = mine.find((s) => s.id === pick) ?? mine[mine.length - 1];
   const tries = (n: number) => `${n} ${tr(n === 1 ? 'try' : 'tries')}`;
   return (
     <div className="page">
-      {mine.map((set) => {
+      {mine.length > 1 && (
+        <nav className="material-tabs" aria-label="Materials">
+          {mine.map((s) => <button key={s.id} className={s.id === shown.id ? 'on' : ''} aria-pressed={s.id === shown.id} onClick={() => { setPick(s.id); try { localStorage.setItem(PICK_KEY, s.id); } catch { /* just this visit */ } }}>{s.title.split(/\s[–-]\s/).pop()}</button>)}
+        </nav>
+      )}
+      {[shown].map((set) => {
         const drill = drillState(set.content, results, set.id);
         const knownN = drill.filter((w) => w.known).length;
         const danger = drill.filter((w) => w.danger);

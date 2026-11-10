@@ -955,3 +955,8 @@ td .say { display: inline-flex; align-items: center; gap: 0.15rem; text-decorati
 .danger-list summary { cursor: pointer; color: var(--bad); font-weight: 600; }
 .code-input { letter-spacing: .25em; font-variant-numeric: tabular-nums; max-width: 12rem; }
 .email-code { display: grid; gap: 8px; }
+
+/* Personal tab: one tab per uploaded material */
+.material-tabs { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 14px; padding-bottom: 2px; }
+.material-tabs button { flex: 0 0 auto; border: 1px solid var(--border); background: var(--surface); color: var(--muted); border-radius: 999px; padding: 7px 14px; font: inherit; font-weight: 600; cursor: pointer; }
+.material-tabs button.on { background: var(--primary); border-color: var(--primary); color: var(--surface); }
