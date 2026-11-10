@@ -21,6 +21,7 @@ import { SpeakButton } from './SpeakButton';
 import { AccentKeys } from './AccentKeys';
 import { VerbTable } from './VerbTable';
 import { gloss } from '../lib/gloss';
+import { t } from '../lib/ui-text';
 
 export interface Result {
   ok: boolean;
@@ -69,7 +70,7 @@ function adapt(ex: Exercise): Exercise | null {
 }
 const adaptAll = (list: Exercise[]) => list.map(adapt).filter((e): e is Exercise => !!e);
 
-export function Session({ exercises, onFinish, onExit, title, test = false }: { exercises: Exercise[]; onFinish: (s: SessionSummary) => void; onExit: () => void; title?: string; /** A test: wrong answers aren't asked again. */ test?: boolean }) {
+export function Session({ exercises, onFinish, onExit, title, test = false, untilRight = false }: { exercises: Exercise[]; onFinish: (s: SessionSummary) => void; onExit: () => void; title?: string; /** A test: wrong answers aren't asked again. */ test?: boolean; /** A drill: a wrong answer comes back until it is right, and every attempt is recorded. */ untilRight?: boolean }) {
   const [queue, setQueue] = useState(() => adaptAll(exercises));
   const [total, setTotal] = useState(() => adaptAll(exercises).filter((e) => e.kind !== 'study').length);
   const [quiet, setQuietState] = useState({ listen: isQuiet('listen'), speak: isQuiet('speak') });
@@ -126,12 +127,12 @@ export function Session({ exercises, onFinish, onExit, title, test = false }: { 
       s.words[id] = (s.words[id] ?? true) && ok;
     }
     // Speaking isn't repeated: speech recognition can miss words, so no endless retries.
-    if (firstTry) {
+    if (firstTry || untilRight) {
       const q = ex.kind === 'build' ? ex.en : ex.kind === 'speak' ? ex.en : ex.kind === 'listen' ? `(audio) ${ex.en}` : ex.kind === 'match' ? 'Match the pairs' : ex.kind === 'study' ? '' : ex.kind === 'conj' ? `${personLabel(ex.tense, ex.person)} · ${ex.inf}` : ex.prompt;
       const expected = ex.kind === 'build' || ex.kind === 'speak' ? ex.es : 'answer' in ex ? ex.answer : '';
       if (q) s.answers.push({ q, expected, given: r.typed ?? r.picked ?? '', ok: r.ok });
     }
-    if (!test && !r.ok && firstTry && ex.kind !== 'match' && ex.kind !== 'speak') {
+    if (!test && !r.ok && (firstTry || untilRight) && ex.kind !== 'match' && ex.kind !== 'speak') {
       s.retried.add(ex.key);
       setQueue((q) => [...q, ex]);
     }
@@ -197,20 +198,20 @@ export function Session({ exercises, onFinish, onExit, title, test = false }: { 
       {result && (
         <div role="status" className={`feedback ${result.ok ? 'good' : result.grade ? 'close' : 'bad'}`}>
           <div>
-            <strong>{result.ok ? 'Correct' : result.grade === 'almost' ? 'Almost' : result.grade === 'partly' ? 'Partly correct' : 'Incorrect'}</strong>
+            <strong>{t(result.ok ? 'Correct' : result.grade === 'almost' ? 'Almost' : result.grade === 'partly' ? 'Partly correct' : 'Incorrect')}</strong>
             {!result.ok && (
               <div className="feedback-answer">
-                Correct answer: <span lang={LANG}>{result.answer}</span> <SpeakButton text={result.answer} />
+                {t('Correct answer:')} <span lang={LANG}>{result.answer}</span> <SpeakButton text={result.answer} />
               </div>
             )}
             {/* After a slip, seeing how the word is built helps it stick (Brief + Träger). */}
             {!result.ok && 'wordId' in ex && ex.wordId && WORD_MAP[ex.wordId] && <WordParts word={WORD_MAP[ex.wordId]} compact />}
             {result.note && <div className="small">{result.note}</div>}
             {result.typed && result.note && <Highlight typed={result.typed} expected={result.answer} />}
-            {!result.ok && <p className="small">Saved for review.</p>}
-            {result.why && <details className="why"><summary>Why?</summary><p>{result.why}</p></details>}
+            {!result.ok && <p className="small">{t('Saved for review.')}</p>}
+            {result.why && <details className="why"><summary>{t('Why?')}</summary><p>{result.why}</p></details>}
           </div>
-          <button className="btn primary" onClick={next} autoFocus>Continue</button>
+          <button className="btn primary" onClick={next} autoFocus>{t('Continue')}</button>
         </div>
       )}
     </div>
@@ -269,7 +270,7 @@ function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'c
   if (canType && typing) {
     return (
       <>
-        <p className="ex-label">{ex.promptSpanish ? 'Type the missing word' : `Type it in ${L.name}`}</p>
+        <p className="ex-label">{t(ex.promptSpanish ? 'Type the missing word' : `Type it in ${L.name}`)}</p>
         <div className="ex-prompt">
           <span lang={ex.audio || ex.promptSpanish ? LANG : 'en'}>{ex.prompt}</span>
           {ex.audio && <SpeakButton text={ex.audio} />}
@@ -289,7 +290,7 @@ function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'c
   }
   return (
     <>
-      <p className="ex-label">{ex.label}</p>
+      <p className="ex-label">{t(ex.label)}</p>
       <div className="ex-prompt">
         <span lang={ex.audio || ex.promptSpanish ? LANG : 'en'}>{ex.prompt}</span>
         {ex.audio && <SpeakButton text={ex.audio} />}
@@ -309,7 +310,7 @@ function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'c
           </button>
         ))}
       </div>
-      {canType && !locked && <button className="link small" onClick={toggle}>⌨️ Type the answer instead</button>}
+      {canType && !locked && <button className="link small" onClick={toggle}>⌨️ {t('Type the answer instead')}</button>}
     </>
   );
 }
@@ -337,11 +338,11 @@ function TextAnswer({ onSubmit, locked, placeholder }: { onSubmit: (v: string) =
         spellCheck={false}
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder={placeholder ?? `Type in ${L.name}…`}
+        placeholder={placeholder ?? t(`Type in ${L.name}…`)}
         disabled={locked}
       />
       <AccentKeys onKey={(ch) => { setValue((v) => (ch === '\b' ? v.slice(0, -1) : v + ch)); input.current?.focus(); }} disabled={locked} />
-      <button className="btn primary" disabled={locked || !value.trim()}>Check</button>
+      <button className="btn primary" disabled={locked || !value.trim()}>{t('Check')}</button>
     </form>
   );
 }
@@ -352,16 +353,16 @@ function feedbackFor(input: string, expected: string, accept: string[] = [], typ
   const alt = accept.find((a) => checkAnswer(input, a, strict).ok && !checkAnswer(input, a, strict).article);
   if (alt && !checkAnswer(input, expected, strict).ok) {
     speak(alt);
-    return { ok: true, answer: alt, note: `Also right: ${expected}.`, typed: input };
+    return { ok: true, answer: alt, note: `${t('Also right:')} ${expected}.`, typed: input };
   }
   const c = checkAnswer(input, expected, strict, { typos, isWord: (w) => !!lookupWord(w, false) || lookupForm(w).length > 0 });
   const notes = [
     c.otherWord && `“${c.otherWord}” is a different word: the ${LANG === 'de' ? 'umlaut' : 'accent'} matters here.`,
-    c.typo && 'One small slip in the spelling — the rest is right.',
-    c.nearMiss && 'Almost — just one letter off. Look at the spelling and it’ll come back soon.',
-    c.accent && (LANG === 'de' ? 'Watch the special letters (ä ö ü ß).' : LANG === 'fr' ? 'Watch the accents (é è ê à ç ô…).' : LANG === 'ru' ? 'Watch the soft sign ь and the accents.' : 'Watch the accents (á é í ó ú ñ ü).'),
-    c.letterCase && (LANG === 'de' ? 'Watch the capitals: nouns and Sie start with a capital letter.' : 'Watch the capital letters.'),
-    c.article && 'Remember the article.',
+    c.typo && t('One small slip in the spelling — the rest is right.'),
+    c.nearMiss && t('Almost — just one letter off. Look at the spelling and it’ll come back soon.'),
+    c.accent && t(LANG === 'de' ? 'Watch the special letters (ä ö ü ß).' : LANG === 'fr' ? 'Watch the accents (é è ê à ç ô…).' : LANG === 'ru' ? 'Watch the soft sign ь and the accents.' : 'Watch the accents (á é í ó ú ñ ü).'),
+    c.letterCase && t(LANG === 'de' ? 'Watch the capitals: nouns and Sie start with a capital letter.' : 'Watch the capital letters.'),
+    c.article && t('Remember the article.'),
   ].filter(Boolean);
   if (c.ok) speak(expected);
   return { ok: c.ok, answer: expected, note: notes.length ? notes.join(' ') : undefined, typed: input, ...(c.nearMiss ? { grade: 'almost' as const } : c.typo ? { grade: 'partly' as const } : {}) };
@@ -380,7 +381,7 @@ function Highlight({ typed, expected }: { typed: string; expected: string }) {
 function TypeView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'type' }>; onResult: (r: Result) => void; locked: boolean }) {
   return (
     <>
-      <p className="ex-label">{ex.label}</p>
+      <p className="ex-label">{t(ex.label)}</p>
       <div className="ex-prompt"><span lang="en">{ex.prompt}</span></div>
       <TextAnswer locked={locked} onSubmit={(v) => onResult({ ...feedbackFor(v, ex.answer, ex.accept, true), why: ex.why })} />
     </>
@@ -495,10 +496,10 @@ function BuildView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'bu
 
   return (
     <>
-      <p className="ex-label">Build the sentence in {L.name}</p>
+      <p className="ex-label">{t(`Build the sentence in ${L.name}`)}</p>
       <div className="ex-prompt"><span lang="en">{ex.en}</span></div>
       <div className="build-line" lang={LANG} ref={line}>
-        {picked.length === 0 && <span className="muted">Tap the words below…</span>}
+        {picked.length === 0 && <span className="muted">{t('Tap the words below…')}</span>}
         {picked.map((i, pos) => {
           const dragging = drag?.moved && drag.tile === i;
           const marker = drag?.moved && !dragging && others.indexOf(i) === drag.to;
@@ -548,10 +549,10 @@ function BuildView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'bu
         ))}
       </div>
       <div className="row between wrap">
-        <button className="link small" onClick={toggleMeanings} aria-pressed={meanings}>{meanings ? 'Hide word meanings' : 'Show word meanings'}</button>
+        <button className="link small" onClick={toggleMeanings} aria-pressed={meanings}>{t(meanings ? 'Hide word meanings' : 'Show word meanings')}</button>
         <div className="row">
-          <button className="btn" disabled={locked || !picked.length} onClick={() => setPicked([])}>Clear</button>
-          <button className="btn primary" disabled={locked || !picked.length} onClick={check}>Check</button>
+          <button className="btn" disabled={locked || !picked.length} onClick={() => setPicked([])}>{t('Clear')}</button>
+          <button className="btn primary" disabled={locked || !picked.length} onClick={check}>{t('Check')}</button>
         </div>
       </div>
       {picked.length > 1 && !locked && <p className="small muted build-help">Drag a word to move it, or tap it to send it back.</p>}

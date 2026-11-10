@@ -31,7 +31,9 @@ export type PersonalQuestion =
   | { type: 'build'; q: string; answer: string };
 /** exam: a mock exam with a time limit (minutes) and a pass mark (percent); questions come in random order. */
 export interface PersonalTest { id: string; title: string; lesson?: string; exam?: { minutes: number; pass: number }; questions: PersonalQuestion[] }
-export interface PersonalContent { lessons: PersonalLesson[]; tests: PersonalTest[] }
+/** Another language for the English texts: English text → translation, plus whole lesson notes by lesson id. */
+export interface PersonalI18n { strings: Record<string, string>; notes?: Record<string, string> }
+export interface PersonalContent { lessons: PersonalLesson[]; tests: PersonalTest[]; i18n?: Record<string, PersonalI18n> }
 export interface PersonalSet { id: string; lang: string; title: string; content: PersonalContent; tabName: string }
 export interface PersonalResult { id: string; user_id: string; set_id: string; test_id: string; score: number; total: number; answers: TestAnswer[]; seconds?: number | null; created_at: string }
 export interface TestAnswer { q: string; expected: string; given: string; ok: boolean }
@@ -59,7 +61,8 @@ export function validateContent(v: unknown): { ok: true; title: string; lang: st
       if (!['choice', 'type', 'build'].includes(q?.type)) return { ok: false, error: `${where}: "type" must be choice, type or build.` };
     }
   }
-  return { ok: true, title: o.title, lang: o.lang as string, content: { lessons, tests } as PersonalContent };
+  const i18n = o.i18n && typeof o.i18n === 'object' ? (o.i18n as PersonalContent['i18n']) : undefined;
+  return { ok: true, title: o.title, lang: o.lang as string, content: { lessons, tests, ...(i18n ? { i18n } : {}) } as PersonalContent };
 }
 
 /** A personal lesson as an app lesson, so it is taught exactly like the course (cards, practice, sentences). */
@@ -120,7 +123,7 @@ export async function myResults(): Promise<PersonalResult[]> {
   const sb = await supabase();
   const { data: u } = await sb.auth.getUser();
   if (!u.user) return [];
-  const { data } = await sb.from('personal_results').select('*').eq('user_id', u.user.id).order('created_at', { ascending: false }).limit(200);
+  const { data } = await sb.from('personal_results').select('*').eq('user_id', u.user.id).order('created_at', { ascending: false }).limit(1000);
   return (data ?? []) as PersonalResult[];
 }
 
@@ -175,3 +178,63 @@ export function mixedTest(c: PersonalContent, size = 20): PersonalTest {
 
 /** "12:05" */
 export const clock = (sec: number) => `${Math.floor(sec / 60)}:${String(Math.max(0, sec) % 60).padStart(2, '0')}`;
+
+/** The set with its English texts in another language (e.g. "et"), where the file has them. */
+export function localize(c: PersonalContent, lang: string): PersonalContent {
+  const tr = c.i18n?.[lang];
+  if (!tr) return c;
+  const T = (x?: string) => (x ? (tr.strings[x] ?? x) : x);
+  return {
+    ...c,
+    lessons: c.lessons.map((l) => ({
+      ...l, title: T(l.title)!, description: T(l.description),
+      words: l.words.map(([de, en, ex, exEn]) => [de, T(en)!, ...(ex ? [ex, T(exEn) ?? ''] : [])] as typeof l.words[number]),
+      sentences: l.sentences?.map(([de, en]) => [de, T(en)!] as [string, string]),
+      notes: tr.notes?.[l.id] ?? l.notes,
+    })),
+    tests: c.tests.map((t) => ({
+      ...t, title: T(t.title)!,
+      questions: t.questions.map((q): PersonalQuestion => q.type === 'choice' ? { ...q, q: T(q.q)!, en: T(q.en), why: T(q.why) } : q.type === 'type' ? { ...q, q: T(q.q)!, why: T(q.why) } : { ...q, q: T(q.q)! }),
+    })),
+  };
+}
+
+// ---- Word drill: 10 words at a time, wrong ones come back until right ----------------------
+export const DRILL_ID = 'drill';
+export const DANGER_ID = 'drill-danger';
+export interface DrillWord { de: string; en: string; right: number; wrong: number; seen: boolean; known: boolean; danger: boolean }
+
+/** Every lesson word with how it went in earlier drills (from the saved drill rounds, so it follows the learner across devices). */
+export function drillState(c: PersonalContent, results: PersonalResult[], setId: string): DrillWord[] {
+  const hist = new Map<string, boolean[]>();
+  const rounds = results.filter((r) => r.set_id === setId && (r.test_id === DRILL_ID || r.test_id === DANGER_ID)).sort((a, b) => a.created_at.localeCompare(b.created_at));
+  for (const r of rounds) for (const a of r.answers) { const h = hist.get(a.expected) ?? []; h.push(a.ok); hist.set(a.expected, h); }
+  const seen = new Set<string>();
+  const out: DrillWord[] = [];
+  for (const l of c.lessons) for (const [de, en] of l.words) {
+    if (seen.has(de)) continue;
+    seen.add(de);
+    const h = hist.get(de) ?? [];
+    const wrong = h.filter((x) => !x).length;
+    // Known: the last time it was asked, it was right at once (a round ends with every word right,
+    // so look at the answer before the final, corrected one).
+    const lastRound = rounds.filter((r) => r.answers.some((a) => a.expected === de)).at(-1);
+    const firstInLast = lastRound?.answers.find((a) => a.expected === de);
+    const known = !!firstInLast?.ok;
+    // Danger: wrong again and again — 3 or more mistakes, until it is right at once twice in a row.
+    const firsts = rounds.map((r) => r.answers.find((a) => a.expected === de)).filter(Boolean).map((a) => a!.ok);
+    const cleared = firsts.length >= 2 && firsts.slice(-2).every(Boolean);
+    out.push({ de, en, right: h.length - wrong, wrong, seen: h.length > 0, known, danger: wrong >= 3 && !cleared });
+  }
+  return out;
+}
+
+/** The next 10: words answered wrong last time first, then new ones. Danger mode: only danger words. */
+export function drillTest(words: DrillWord[], danger = false, size = 10): PersonalTest {
+  const pool = danger ? words.filter((w) => w.danger) : [...words.filter((w) => w.seen && !w.known), ...words.filter((w) => !w.seen)];
+  const pick = (pool.length ? pool : words).slice(0, size);
+  return {
+    id: danger ? DANGER_ID : DRILL_ID, title: danger ? 'Danger words' : 'Word drill',
+    questions: shuffle(pick).map((w): PersonalQuestion => ({ type: 'type', q: w.en, answer: w.de })),
+  };
+}

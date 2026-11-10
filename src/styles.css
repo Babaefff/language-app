@@ -942,3 +942,14 @@ td .say { display: inline-flex; align-items: center; gap: 0.15rem; text-decorati
 .exam-verdict.pass h2 { color: var(--primary); }
 .exam-verdict.fail h2 { color: var(--bad); }
 .mixed-card { margin-bottom: 14px; }
+
+/* Personal tab: language switch, word drill */
+.personal-head { justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+.seg button { border: 0; background: transparent; padding: 6px 14px; font: inherit; font-weight: 600; color: var(--muted); cursor: pointer; }
+.seg button.on { background: var(--primary); color: var(--surface); }
+.drill-card { display: grid; gap: 8px; margin-bottom: 18px; }
+.drill-bar { height: 8px; border-radius: 999px; background: var(--border); overflow: hidden; }
+.drill-bar > div { height: 100%; background: var(--primary); transition: width .3s; }
+.danger-btn { border: 1px solid var(--bad); color: var(--bad); background: transparent; }
+.danger-list summary { cursor: pointer; color: var(--bad); font-weight: 600; }

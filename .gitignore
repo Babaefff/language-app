@@ -5,5 +5,3 @@ dist
 ios
 sample.mp3
 
-# Word lists made from personal material: commit only if you accept that the texts become public.
-scripts/extra-audio/*.txt

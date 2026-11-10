@@ -150,6 +150,18 @@ File format:
 }
 ```
 
+**Audio for personal material:** the material lives only in the database, so the audio script can't see it.
+`npm run audio:extra -- path/to/material.json` adds its texts (only the words and sentences — no names,
+emails or titles) to `scripts/extra-audio/<lang>.txt`. Committing that file makes those texts public, and
+the next deploy records their clips.
+
+**Word drill:** the tab drills all lesson words 10 at a time; a wrong word comes back until it is right.
+A word answered wrong 3+ times is a *danger word* until it is right twice in a row. Every attempt is
+saved, so the admin page shows the drills too.
+
+**Other languages for the tab:** a file can carry `"i18n": { "et": { "strings": { "<English>": "<Estonian>" },
+"notes": { "<lesson id>": "<notes>" } } }`; the tab then offers English / Eesti.
+
 A test becomes a **mock exam** with `"exam": { "minutes": 20, "pass": 60 }`: questions come in random order,
 a timer runs, and the result says passed / not passed and how long it took (the admin page shows the same).
 
