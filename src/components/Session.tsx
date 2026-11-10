@@ -48,6 +48,8 @@ export interface SessionSummary {
   words: Record<string, boolean>;
   /** wordId → wrong only by "almost" (one letter): it comes back later than a real mistake. */
   close?: Record<string, boolean>;
+  /** Every first answer (tests save these for the teacher to see). */
+  answers?: { q: string; expected: string; given: string; ok: boolean }[];
 }
 
 const wordsOf = (ex: Exercise): string[] =>
@@ -67,7 +69,7 @@ function adapt(ex: Exercise): Exercise | null {
 }
 const adaptAll = (list: Exercise[]) => list.map(adapt).filter((e): e is Exercise => !!e);
 
-export function Session({ exercises, onFinish, onExit, title }: { exercises: Exercise[]; onFinish: (s: SessionSummary) => void; onExit: () => void; title?: string }) {
+export function Session({ exercises, onFinish, onExit, title, test = false }: { exercises: Exercise[]; onFinish: (s: SessionSummary) => void; onExit: () => void; title?: string; /** A test: wrong answers aren't asked again. */ test?: boolean }) {
   const [queue, setQueue] = useState(() => adaptAll(exercises));
   const [total, setTotal] = useState(() => adaptAll(exercises).filter((e) => e.kind !== 'study').length);
   const [quiet, setQuietState] = useState({ listen: isQuiet('listen'), speak: isQuiet('speak') });
@@ -86,7 +88,7 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
   };
   const [index, setIndex] = useState(0);
   const [result, setResult] = useState<Result | null>(null);
-  const stats = useRef({ correct: 0, words: {} as Record<string, boolean>, close: {} as Record<string, boolean>, retried: new Set<string>(), exposed: new Set<string>() });
+  const stats = useRef({ correct: 0, words: {} as Record<string, boolean>, close: {} as Record<string, boolean>, retried: new Set<string>(), exposed: new Set<string>(), answers: [] as NonNullable<SessionSummary['answers']> });
   const ex = queue[index];
 
   const answer = (r: Result) => {
@@ -124,7 +126,12 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
       s.words[id] = (s.words[id] ?? true) && ok;
     }
     // Speaking isn't repeated: speech recognition can miss words, so no endless retries.
-    if (!r.ok && firstTry && ex.kind !== 'match' && ex.kind !== 'speak') {
+    if (firstTry) {
+      const q = ex.kind === 'build' ? ex.en : ex.kind === 'speak' ? ex.en : ex.kind === 'listen' ? `(audio) ${ex.en}` : ex.kind === 'match' ? 'Match the pairs' : ex.kind === 'study' ? '' : ex.kind === 'conj' ? `${personLabel(ex.tense, ex.person)} · ${ex.inf}` : ex.prompt;
+      const expected = ex.kind === 'build' || ex.kind === 'speak' ? ex.es : 'answer' in ex ? ex.answer : '';
+      if (q) s.answers.push({ q, expected, given: r.typed ?? r.picked ?? '', ok: r.ok });
+    }
+    if (!test && !r.ok && firstTry && ex.kind !== 'match' && ex.kind !== 'speak') {
       s.retried.add(ex.key);
       setQueue((q) => [...q, ex]);
     }
@@ -132,7 +139,7 @@ export function Session({ exercises, onFinish, onExit, title }: { exercises: Exe
 
   const next = () => {
     setResult(null);
-    if (index + 1 >= queue.length) onFinish({ correct: stats.current.correct, total, words: stats.current.words, close: stats.current.close });
+    if (index + 1 >= queue.length) onFinish({ correct: stats.current.correct, total, words: stats.current.words, close: stats.current.close, answers: stats.current.answers });
     else setIndex(index + 1);
   };
 
@@ -456,7 +463,7 @@ function BuildView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'bu
     if (ok) speak(ex.es);
     // Explain fixed phrases after every answer: "Mir geht es gut = I'm fine (literally: to me it goes well)".
     const ph = phrasesIn(ex.es).map((x) => `${x.phrase} = ${x.en} (literally “${x.literal}”). ${x.note.replace(/\*/g, '')}`).join(' ');
-    onResult({ ok, answer: ex.es, ...(ph ? { why: ph } : {}) });
+    onResult({ ok, answer: ex.es, picked: attempt, ...(ph ? { why: ph } : {}) });
   };
 
   // Drag to reorder: press a placed word and move it; a short tap still sends it back.

@@ -2,6 +2,9 @@ import { Icon, type IconName } from './components/Icon';
 import { Daily } from './pages/Daily';
 import { Insights } from './pages/Insights';
 import { AdminFeedback, FeedbackThanks, MyFeedback } from './pages/FeedbackPages';
+import { Personal } from './pages/Personal';
+import { AdminPersonal } from './pages/AdminPersonal';
+import { usePersonal } from './lib/personal';
 import { ExamList, ExamPage } from './pages/Exam';
 import { Speaking } from './pages/Speaking';
 import { Account } from './pages/Account';
@@ -58,13 +61,19 @@ function Shell() {
   const now = Date.now();
   const due = Object.values(p.cards).filter((c) => c.due <= now).length;
   const st = goalStreak(p);
+  // Personal material shows as its own tab, only for the person it was given to.
+  const personal = usePersonal(user?.id);
+  const mine = personal?.find((s) => s.lang === LANG);
+  const mineItem = mine ? [{ to: '/mine', icon: 'heart' as const, label: mine.tabName }] : [];
+  const desktopNav = [...DESKTOP_NAV, ...mineItem];
+  const mobileNav = [...NAV, ...mineItem];
   return (
     <>
       <ScrollTop />
       <header className="topbar">
         <Link to="/" className="brand">Hablo<span>.</span></Link>
         <nav className="topnav" aria-label="Main navigation">
-          {DESKTOP_NAV.map((n) => (
+          {desktopNav.map((n) => (
             <NavLink key={n.to} to={n.to} end={n.to === '/'}>
               {n.label}
               {n.to === '/review' && due > 0 && <span className="count">{due}</span>}
@@ -96,6 +105,8 @@ function Shell() {
           <Route path="/progress" element={<Insights />} />
           <Route path="/feedback" element={<MyFeedback />} />
           <Route path="/admin" element={<AdminFeedback />} />
+          <Route path="/admin/personal" element={<AdminPersonal />} />
+          <Route path="/mine" element={<Personal />} />
           <Route path="/course" element={<Course />} />
           <Route path="/unit/:id" element={<UnitPage />} />
           <Route path="/review" element={<Review />} />
@@ -123,7 +134,7 @@ function Shell() {
         </ErrorBoundary>
       </main>
       <nav className="bottomnav" aria-label="Mobile navigation">
-        {NAV.map((n) => (
+        {mobileNav.map((n) => (
           <NavLink key={n.to} to={n.to} end={n.to === '/'}>
             <span className="nav-icon" aria-hidden="true"><Icon name={n.icon} /></span>
             {n.label}

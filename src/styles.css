@@ -134,7 +134,7 @@ input:focus, select:focus { outline: 2px solid var(--primary); outline-offset: 1
 }
 .bottomnav {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;
-  display: grid; grid-template-columns: repeat(5, 1fr);
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
   background: var(--surface); border-top: 1px solid var(--border);
   padding-bottom: env(safe-area-inset-bottom);
 }
@@ -915,3 +915,20 @@ td .say { display: inline-flex; align-items: center; gap: 0.15rem; text-decorati
 .fb-where dt { color: var(--muted); }
 .fb-where dd { margin: 0; }
 @media (max-width: 480px) { .fb-where { grid-template-columns: 1fr; } .fb-where dt { margin-top: 0.35rem; } }
+
+/* Personal material */
+.personal-set { display: grid; gap: 14px; margin-bottom: 24px; }
+.personal-lesson, .admin-set { display: grid; gap: 10px; }
+.answer-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.answer-list li { padding: 8px 10px; border-radius: 10px; background: var(--surface-2, rgba(127,127,127,.08)); }
+.bad-text { color: var(--bad); }
+.result-row summary { cursor: pointer; padding: 6px 0; }
+.answers-table { width: 100%; border-collapse: collapse; font-size: .92rem; margin-top: 6px; }
+.answers-table th, .answers-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.answers-table tr.wrong td { background: var(--bad-soft); }
+.assign-form { gap: 8px; align-items: center; }
+.assign-form input { flex: 1 1 180px; min-width: 0; }
+@media (max-width: 640px) { .answers-table { display: block; overflow-x: auto; } }
+
+/* A long tab name (personal tab) may take two short lines instead of widening the bar. */
+.bottomnav > a[href$='/mine'] { white-space: normal; text-align: center; line-height: 1.1; padding-inline: 2px; }

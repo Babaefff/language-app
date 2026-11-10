@@ -57,6 +57,7 @@ export function AccountButton() {
           <Link to="/settings" className="menu-item"><Icon name="settings" /> Settings</Link>
           <Link to="/feedback" className="menu-item"><Icon name="flag" /> My feedback</Link>
           {admin && <Link to="/admin" className="menu-item"><Icon name="inbox" /> Feedback inbox (admin)</Link>}
+          {admin && <Link to="/admin/personal" className="menu-item"><Icon name="heart" /> Personal material (admin)</Link>}
           <button className="menu-item" role="menuitem" onClick={() => updateSettings({ theme: NEXT[settings.theme] })}><Icon name="settings" /> {THEMES[settings.theme]}</button>
           <a href="./privacy.html" className="menu-item" role="menuitem"><Icon name="shield" /> Privacy</a>
           <button className="menu-item" role="menuitem" onClick={() => { setOpen(false); void signOut(); }}><Icon name="logout" /> Sign out</button>

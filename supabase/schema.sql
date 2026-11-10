@@ -119,3 +119,86 @@ returns void language sql security definer set search_path = '' as $$
 $$;
 revoke all on function public.feedback_mark_seen(uuid) from public, anon;
 grant execute on function public.feedback_mark_seen(uuid) to authenticated;
+
+-- ============================================================================================
+-- Personal material: lessons and tests made for one learner (e.g. from their own worksheets).
+-- Stored here, not in the app code, so only that learner (and admins) can read it. Re-runnable.
+-- ============================================================================================
+create table if not exists public.personal_sets (
+  id uuid primary key default gen_random_uuid(),
+  lang text not null check (lang in ('es', 'de', 'fr', 'ru')),
+  title text not null check (char_length(title) <= 200),
+  -- Lessons (words, sentences, notes) and tests, in the format described in README.
+  content jsonb not null,
+  created_at timestamptz not null default now(),
+  constraint personal_sets_size check (octet_length(content::text) < 2000000)
+);
+create table if not exists public.personal_access (
+  set_id uuid not null references public.personal_sets (id) on delete cascade,
+  user_id uuid not null references auth.users (id) on delete cascade,
+  -- The name of the learner's tab, e.g. "Mu kalli jaoks".
+  tab_name text not null default 'Mu kalli jaoks' check (char_length(tab_name) <= 60),
+  created_at timestamptz not null default now(),
+  primary key (set_id, user_id)
+);
+create table if not exists public.personal_results (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  set_id uuid not null references public.personal_sets (id) on delete cascade,
+  test_id text not null check (char_length(test_id) <= 100),
+  score int not null check (score >= 0),
+  total int not null check (total > 0),
+  -- Every question: what was asked, the expected answer, what was answered, right or not.
+  answers jsonb not null default '[]'::jsonb,
+  created_at timestamptz not null default now(),
+  constraint personal_results_size check (octet_length(answers::text) < 200000)
+);
+create index if not exists personal_results_user_idx on public.personal_results (user_id, created_at desc);
+
+alter table public.personal_sets enable row level security;
+alter table public.personal_access enable row level security;
+alter table public.personal_results enable row level security;
+
+drop policy if exists "personal sets: assigned or admin" on public.personal_sets;
+drop policy if exists "personal sets: admin writes" on public.personal_sets;
+create policy "personal sets: assigned or admin" on public.personal_sets for select using (
+  public.is_admin() or exists (select 1 from public.personal_access a where a.set_id = personal_sets.id and a.user_id = auth.uid()));
+create policy "personal sets: admin writes" on public.personal_sets for all using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists "personal access: own or admin" on public.personal_access;
+drop policy if exists "personal access: admin writes" on public.personal_access;
+create policy "personal access: own or admin" on public.personal_access for select using (auth.uid() = user_id or public.is_admin());
+create policy "personal access: admin writes" on public.personal_access for all using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists "personal results: own insert" on public.personal_results;
+drop policy if exists "personal results: own or admin read" on public.personal_results;
+-- Learners save their own results, only for material assigned to them; nobody edits results.
+create policy "personal results: own insert" on public.personal_results for insert with check (
+  auth.uid() = user_id and exists (select 1 from public.personal_access a where a.set_id = personal_results.set_id and a.user_id = auth.uid()));
+create policy "personal results: own or admin read" on public.personal_results for select using (auth.uid() = user_id or public.is_admin());
+
+-- Admins assign material by the learner's email (they must have signed in once).
+create or replace function public.personal_assign(set_uuid uuid, learner_email text, tab text)
+returns text language plpgsql security definer set search_path = '' as $$
+declare uid uuid;
+begin
+  if not public.is_admin() then raise exception 'Only admins can assign material.'; end if;
+  select id into uid from auth.users where lower(email) = lower(trim(learner_email));
+  if uid is null then raise exception 'No account with that email yet: ask them to sign in to Hablo once.'; end if;
+  insert into public.personal_access (set_id, user_id, tab_name) values (set_uuid, uid, coalesce(nullif(trim(tab), ''), 'Mu kalli jaoks'))
+  on conflict (set_id, user_id) do update set tab_name = excluded.tab_name;
+  return uid::text;
+end $$;
+revoke all on function public.personal_assign(uuid, text, text) from public, anon;
+grant execute on function public.personal_assign(uuid, text, text) to authenticated;
+
+-- Admins see who has which material and the results, with the learner's email.
+create or replace function public.personal_overview()
+returns table (set_id uuid, user_id uuid, email text, tab_name text)
+language plpgsql stable security definer set search_path = '' as $$
+begin
+  if not public.is_admin() then raise exception 'Only admins.'; end if;
+  return query select a.set_id, a.user_id, u.email::text, a.tab_name from public.personal_access a join auth.users u on u.id = a.user_id;
+end $$;
+revoke all on function public.personal_overview() from public, anon;
+grant execute on function public.personal_overview() to authenticated;

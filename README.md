@@ -116,6 +116,43 @@ Setup, once, in Supabase → SQL Editor:
 Then the account menu shows **Feedback inbox (admin)**: open a report, press **Open this lesson**
 to go there (in the right language), fix it, and press **Mark fixed & thank**.
 
+## Personal material (needs accounts)
+
+Lessons and tests made for **one learner**, e.g. from their own worksheets. They are kept in Supabase,
+never in this (public) repository, and only the learner it is given to and admins can read them.
+
+1. Run `supabase/schema.sql` (it creates `personal_sets`, `personal_access`, `personal_results`).
+2. The learner signs in to the app once, so their account exists.
+3. As admin: account menu → **Personal material (admin)** → upload a JSON file → **Give it to** their
+   email, with the tab name (default "Mu kalli jaoks").
+4. The learner now sees that tab, in that language only. Lessons are taught like the course (cards →
+   practice → sentences); tests save each attempt, and the admin page shows the score and every answer.
+
+File format:
+
+```json
+{
+  "title": "Worksheets", "lang": "de",
+  "lessons": [{
+    "id": "family", "title": "Family", "titleDe": "Die Familie", "emoji": "👪", "level": "A1",
+    "words": [["die Mutter", "the mother", "Das ist meine Mutter.", "This is my mother."]],
+    "sentences": [["Das ist meine Mutter.", "This is my mother."]],
+    "notes": "## Mein or meine?\n**meine** before feminine words: *meine Mutter*."
+  }],
+  "tests": [{
+    "id": "t1", "title": "Family test", "lesson": "family",
+    "questions": [
+      { "type": "choice", "q": "Das ist ___ Mutter.", "options": ["mein", "meine"], "answer": 1, "why": "Mutter is feminine." },
+      { "type": "type", "q": "the father", "answer": "der Vater", "accept": ["Vater"] },
+      { "type": "build", "q": "This is my mother.", "answer": "Das ist meine Mutter." }
+    ]
+  }]
+}
+```
+
+`answer` in a choice question is the position of the right option (0 = first). `type` questions are
+asked in English and answered in the language; `build` makes the learner put the sentence together.
+
 ## Accounts (optional, Supabase)
 
 Without these settings the app saves progress only in the browser. To let learners sign in and sync progress across devices:
