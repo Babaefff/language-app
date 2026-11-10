@@ -14,6 +14,7 @@
     "audio:de": "HABLO_LANG=de tsx scripts/generate-audio.ts --verbs",
     "audio:fr": "HABLO_LANG=fr tsx scripts/generate-audio.ts --verbs",
     "audio:ru": "HABLO_LANG=ru tsx scripts/generate-audio.ts --verbs",
+    "audio:extra": "tsx scripts/extra-audio-from.ts",
     "audio:deploy": "tsx scripts/generate-audio.ts --verbs --optional && HABLO_LANG=de tsx scripts/generate-audio.ts --verbs --optional && HABLO_LANG=fr tsx scripts/generate-audio.ts --verbs --optional && HABLO_LANG=ru tsx scripts/generate-audio.ts --verbs --optional",
     "build:app": "tsc && vite build && node -e \"require('fs').rmSync('dist/audio',{recursive:true,force:true})\" && cap sync android"
   },

@@ -8,7 +8,7 @@
  * Options (env): TTS_VOICE (default es-ES-Neural2-A; Latin America: es-US-Neural2-A), TTS_LANG (from the voice).
  * Existing clips are skipped, so re-running only generates what's new.
  */
-import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { loadContent } from '../src/data/load';
 import { PRONUNCIATION } from '../src/data/pronunciation';
 import { VERBS } from '../src/data/verbs';
@@ -85,6 +85,13 @@ const tokens = (t?: string) => t?.match(/\p{L}+/gu) ?? [];
 for (const r of [...READINGS, ...SONGS]) for (const p of r.paragraphs) tokens(p).forEach(add);
 for (const s of SENTENCES) tokens(s.es).forEach(add);
 for (const w of WORDS) tokens(w.ex).forEach(add);
+// Extra texts that aren't in the course code: one per line in scripts/extra-audio/<lang>.txt
+// (e.g. the words of personal material, which lives only in the database). Build it with
+// `npm run audio:extra -- path/to/material.json`.
+{
+  const extraFile = new URL(`./extra-audio/${LANG}.txt`, import.meta.url).pathname;
+  if (existsSync(extraFile)) for (const line of readFileSync(extraFile, 'utf8').split('\n')) { const t = line.trim(); if (t && !t.startsWith('#')) { add(t); tokens(t).forEach(add); } }
+}
 if (withVerbs) {
   for (const v of VERBS) {
     add(v.inf); add(participle(v)); add(gerund(v));

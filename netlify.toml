@@ -3,7 +3,9 @@
 # each build first creates natural-voice clips for any new words, then builds the site.
 # The key is only used during the build; it never reaches the website.
 [build]
-  command = "npm run audio:deploy && npm run build"
+  # Clips recorded by earlier deploys are kept in Netlify's build cache (scripts/audio-cache.mjs),
+  # so every deploy only records what is still missing.
+  command = "node scripts/audio-cache.mjs restore && npm run audio:deploy && node scripts/audio-cache.mjs save && npm run build"
   publish = "dist"
 
 [build.environment]
