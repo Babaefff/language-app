@@ -70,6 +70,17 @@ function adapt(ex: Exercise): Exercise | null {
 }
 const adaptAll = (list: Exercise[]) => list.map(adapt).filter((e): e is Exercise => !!e);
 
+/**
+ * Typing the answer to a multiple-choice question: the wrong option it matches, if any.
+ * The right answer typed exactly is never a trap, and when a wrong option differs from the
+ * answer only in capitals or accents (Ihre / ihre), only that exact spelling counts as the trap.
+ */
+export function typedTrap(options: string[], answer: string, typed: string): string | undefined {
+  const v = typed.trim();
+  if (v === answer.trim()) return undefined;
+  return options.find((o) => o !== answer && (normalize(o) === normalize(answer) ? o.trim() === v : normalize(o) === normalize(v)));
+}
+
 export function Session({ exercises, onFinish, onExit, title, test = false, untilRight = false }: { exercises: Exercise[]; onFinish: (s: SessionSummary) => void; onExit: () => void; title?: string; /** A test: wrong answers aren't asked again. */ test?: boolean; /** A drill: a wrong answer comes back until it is right, and every attempt is recorded. */ untilRight?: boolean }) {
   const [queue, setQueue] = useState(() => adaptAll(exercises));
   const [total, setTotal] = useState(() => adaptAll(exercises).filter((e) => e.kind !== 'study').length);
@@ -280,8 +291,8 @@ function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'c
         <TextAnswer locked={locked} onSubmit={(v) => {
           // The wrong options are the typical mistakes this question is about (Fähr, levent…):
           // typing one of them exactly is wrong, even if it looks like a small slip.
-          const trap = ex.options.find((o) => o !== ex.answer && normalize(o) === normalize(v));
-          if (trap) return onResult({ ok: false, answer: ex.answer, typed: v, note: `“${trap}” is the typical mistake here.`, why: ex.why });
+          const trap = typedTrap(ex.options, ex.answer, v);
+          if (trap) return onResult({ ok: false, answer: ex.answer, typed: v, note: `“${trap}” ${t('is the typical mistake here.')}`, why: ex.why });
           onResult({ ...feedbackFor(v, ex.answer, ex.accept), why: ex.why });
         }} />
         {!locked && !ex.typed && <button className="link small" onClick={toggle}>☰ Show options instead</button>}
