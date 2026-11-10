@@ -150,6 +150,9 @@ File format:
 }
 ```
 
+A test becomes a **mock exam** with `"exam": { "minutes": 20, "pass": 60 }`: questions come in random order,
+a timer runs, and the result says passed / not passed and how long it took (the admin page shows the same).
+
 `answer` in a choice question is the position of the right option (0 = first). `type` questions are
 asked in English and answered in the language; `build` makes the learner put the sentence together.
 

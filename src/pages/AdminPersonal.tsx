@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { LANGS, type LangId } from '../data/lang';
 import { isAdmin } from '../lib/feedback';
 import { useSync } from '../lib/sync';
-import { adminSets, assignSet, deleteSet, replaceSet, unassign, uploadSet, validateContent, type PersonalContent } from '../lib/personal';
+import { adminSets, clock, assignSet, deleteSet, replaceSet, unassign, uploadSet, validateContent, type PersonalContent } from '../lib/personal';
 
 type Data = Awaited<ReturnType<typeof adminSets>>;
 const when = (iso: string) => new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
@@ -48,7 +48,7 @@ export function AdminPersonal() {
               const pct = Math.round((r.score / r.total) * 100);
               return (
                 <details key={r.id} className="result-row">
-                  <summary><strong>{t?.title ?? r.test_id}</strong> · {r.score}/{r.total} ({pct}%) · {who} · <span className="muted">{when(r.created_at)}</span></summary>
+                  <summary>{t?.exam && <span className="tag">Mock exam</span>} <strong>{t?.title ?? r.test_id}</strong> · {r.score}/{r.total} ({pct}%){t?.exam ? (pct >= t.exam.pass ? ' ✓ passed' : ' ✗ not passed') : ''}{r.seconds != null ? ` · ${clock(r.seconds)} min` : ''} · {who} · <span className="muted">{when(r.created_at)}</span></summary>
                   <table className="answers-table">
                     <thead><tr><th>Question</th><th>Expected</th><th>Answered</th><th /></tr></thead>
                     <tbody>{r.answers.map((a, i) => <tr key={i} className={a.ok ? '' : 'wrong'}><td>{a.q}</td><td>{a.expected}</td><td>{a.given || '—'}</td><td>{a.ok ? '✓' : '✗'}</td></tr>)}</tbody>

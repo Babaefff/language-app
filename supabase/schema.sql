@@ -153,6 +153,8 @@ create table if not exists public.personal_results (
   created_at timestamptz not null default now(),
   constraint personal_results_size check (octet_length(answers::text) < 200000)
 );
+-- How long a test took, in seconds (mock exams show it against their time limit).
+alter table public.personal_results add column if not exists seconds int check (seconds >= 0);
 create index if not exists personal_results_user_idx on public.personal_results (user_id, created_at desc);
 
 alter table public.personal_sets enable row level security;

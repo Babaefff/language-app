@@ -29,10 +29,11 @@ export type PersonalQuestion =
   | { type: 'choice'; q: string; options: string[]; answer: number; en?: string; why?: string }
   | { type: 'type'; q: string; answer: string; accept?: string[]; why?: string }
   | { type: 'build'; q: string; answer: string };
-export interface PersonalTest { id: string; title: string; lesson?: string; questions: PersonalQuestion[] }
+/** exam: a mock exam with a time limit (minutes) and a pass mark (percent); questions come in random order. */
+export interface PersonalTest { id: string; title: string; lesson?: string; exam?: { minutes: number; pass: number }; questions: PersonalQuestion[] }
 export interface PersonalContent { lessons: PersonalLesson[]; tests: PersonalTest[] }
 export interface PersonalSet { id: string; lang: string; title: string; content: PersonalContent; tabName: string }
-export interface PersonalResult { id: string; user_id: string; set_id: string; test_id: string; score: number; total: number; answers: TestAnswer[]; created_at: string }
+export interface PersonalResult { id: string; user_id: string; set_id: string; test_id: string; score: number; total: number; answers: TestAnswer[]; seconds?: number | null; created_at: string }
 export interface TestAnswer { q: string; expected: string; given: string; ok: boolean }
 
 /** Checks an uploaded file and says exactly what's wrong, so the admin can fix it. */
@@ -50,6 +51,7 @@ export function validateContent(v: unknown): { ok: true; title: string; lang: st
   }
   for (const [i, t] of tests.entries()) {
     if (!t?.id || !t?.title || !Array.isArray(t.questions) || !t.questions.length) return { ok: false, error: `Test ${i + 1}: needs "id", "title" and "questions".` };
+    if (t.exam && !(t.exam.minutes >= 1 && t.exam.minutes <= 180 && t.exam.pass >= 1 && t.exam.pass <= 100)) return { ok: false, error: `Test "${t.title}": "exam" needs "minutes" (1–180) and "pass" (1–100, percent).` };
     for (const [j, q] of t.questions.entries()) {
       const where = `Test "${t.title}", question ${j + 1}`;
       if (q?.type === 'choice' && (!Array.isArray(q.options) || typeof q.answer !== 'number' || !q.options[q.answer])) return { ok: false, error: `${where}: "answer" must be the number of the right option (0 = first).` };
@@ -70,7 +72,7 @@ export function lessonUnit(set: PersonalSet, l: PersonalLesson): Unit {
 
 /** A test as exercises: multiple choice, typing (English → German) and sentence building. */
 export function testExercises(t: PersonalTest): Exercise[] {
-  return t.questions.map((q, i): Exercise => {
+  return (t.exam ? shuffle(t.questions) : t.questions).map((q, i): Exercise => {
     const key = `ptest-${t.id}-${i}`;
     if (q.type === 'choice') {
       const gap = q.q.includes('___');
@@ -107,11 +109,11 @@ export function usePersonal(userId: string | undefined): PersonalSet[] | null {
   return v;
 }
 
-export async function saveResult(setId: string, testId: string, score: number, total: number, answers: TestAnswer[]) {
+export async function saveResult(setId: string, testId: string, score: number, total: number, answers: TestAnswer[], seconds?: number) {
   const sb = await supabase();
   const { data: u } = await sb.auth.getUser();
   if (!u.user) throw new Error('Sign in to save your result.');
-  const { error } = await sb.from('personal_results').insert({ user_id: u.user.id, set_id: setId, test_id: testId, score, total, answers });
+  const { error } = await sb.from('personal_results').insert({ user_id: u.user.id, set_id: setId, test_id: testId, score, total, answers, ...(seconds != null ? { seconds } : {}) });
   if (error) throw new Error(error.message);
 }
 export async function myResults(): Promise<PersonalResult[]> {
@@ -161,3 +163,6 @@ export async function unassign(setId: string, userId: string) {
   const { error } = await sb.from('personal_access').delete().eq('set_id', setId).eq('user_id', userId);
   if (error) throw new Error(error.message);
 }
+
+/** "12:05" */
+export const clock = (sec: number) => `${Math.floor(sec / 60)}:${String(Math.max(0, sec) % 60).padStart(2, '0')}`;

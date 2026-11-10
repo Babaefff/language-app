@@ -932,3 +932,10 @@ td .say { display: inline-flex; align-items: center; gap: 0.15rem; text-decorati
 
 /* A long tab name (personal tab) may take two short lines instead of widening the bar. */
 .bottomnav > a[href$='/mine'] { white-space: normal; text-align: center; line-height: 1.1; padding-inline: 2px; }
+
+/* Mock exams */
+.exam-clock { display: block; width: max-content; margin: 10px auto -6px; position: relative; z-index: 5;
+  padding: 4px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); font-weight: 700; font-size: .85rem; font-variant-numeric: tabular-nums; }
+.exam-clock.low { color: var(--bad); border-color: var(--bad); }
+.exam-verdict.pass h2 { color: var(--primary); }
+.exam-verdict.fail h2 { color: var(--bad); }
