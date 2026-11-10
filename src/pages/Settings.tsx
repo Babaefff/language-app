@@ -11,7 +11,8 @@ export function Settings() {
   const [msg, setMsg] = useState('');
   const [confirmReset, setConfirmReset] = useState(false);
   const file = useRef<HTMLInputElement>(null);
-  useEffect(() => { const off = onVoicesChanged(() => setVoices(spanishVoices())); return () => { off(); }; }, []);
+  const [, setClipsTick] = useState(0);
+  useEffect(() => { const off = onVoicesChanged(() => { setVoices(spanishVoices()); setClipsTick((n) => n + 1); }); return () => { off(); }; }, []);
 
   const download = () => {
     const blob = new Blob([exportProgress()], { type: 'application/json' });

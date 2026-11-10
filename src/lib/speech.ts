@@ -81,6 +81,8 @@ async function loadSet(lang: string) {
       const keys = (await r.json()) as string[];
       if (Array.isArray(keys) && keys.length) {
         clipSets[lang] = { base, keys: new Set(keys) };
+        // Settings shows how many clips there are: tell it the list has arrived.
+        voiceListeners.forEach((l) => l());
         return;
       }
     } catch {
