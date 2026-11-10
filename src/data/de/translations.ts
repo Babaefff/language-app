@@ -358,4 +358,5 @@ export const DE: Record<string, string> = {
   "…, weil er Reifen wechseln muss.": "…, because he has to change tyres.",
   "Ich bin müde, denn ich habe Überstunden gemacht.": "I'm tired, because I worked overtime.",
   "Warum bist du müde? – Weil ich Überstunden gemacht habe.": "Why are you tired? – Because I worked overtime.",
+  "Weißt du was?": "You know what?",
 };

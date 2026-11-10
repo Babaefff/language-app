@@ -164,5 +164,14 @@ export async function unassign(setId: string, userId: string) {
   if (error) throw new Error(error.message);
 }
 
+/** A fresh mixed test each time: questions from all tests of the set, plus words from every lesson (English → German). */
+export const MIXED_ID = 'mixed';
+export function mixedTest(c: PersonalContent, size = 20): PersonalTest {
+  const fromTests = shuffle(c.tests.flatMap((t) => t.questions)).slice(0, Math.ceil(size * 0.7));
+  const words = shuffle(c.lessons.flatMap((l) => l.words)).slice(0, size - fromTests.length)
+    .map(([de, en]): PersonalQuestion => ({ type: 'type', q: en, answer: de, accept: /^(der|die|das) /.test(de) ? [de.replace(/^(der|die|das) /, '')] : undefined }));
+  return { id: MIXED_ID, title: 'Mixed test', questions: shuffle([...fromTests, ...words]) };
+}
+
 /** "12:05" */
 export const clock = (sec: number) => `${Math.floor(sec / 60)}:${String(Math.max(0, sec) % 60).padStart(2, '0')}`;

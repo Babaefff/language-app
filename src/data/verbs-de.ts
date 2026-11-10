@@ -167,6 +167,7 @@ export const VERBS_DE: VerbDe[] = [
   { inf: 'probieren', en: 'to try (taste)', level: 'A2' },
   { inf: 'übernachten', en: 'to stay the night', level: 'A2', insep: true },
   { inf: 'behalten', en: 'to keep', level: 'A2', insep: true, pres: 'behält', pret: 'behielt', part: 'behalten' },
+  { inf: 'kennenlernen', en: 'to get to know / to meet (for the first time)', level: 'A2', prefix: 'kennen' },
   { inf: 'springen', en: 'to jump', level: 'A2', pret: 'sprang', part: 'gesprungen', sein: true },
 
   // --- B1 ---------------------------------------------------------------------

@@ -244,6 +244,42 @@ Only **weil** can answer a question alone: *Warum bist du müde? – Weil ich Ü
     conj: { verbs: ['arbeiten', 'verdienen', 'wechseln'], tenses: ['presente', 'perfecto'] },
   },
   {
+    id: 'de-a2-11', title: 'Telling a story', titleEs: 'Eine Geschichte erzählen', emoji: '💬',
+    description: 'Start a story, keep it going and react to one.',
+    words: [
+      ['Stell dir vor!', 'Imagine! (to a friend)'], ['Weißt du was?', 'You know what?'], ['Also, pass auf!', 'So, listen!'],
+      ['Echt?', 'Really?'], ['Das ist ja verrückt!', "That's crazy!"], ['verrückt', 'crazy'], ['kennenlernen', 'to get to know / to meet (for the first time)'],
+      ['die Pannenhilfe', 'the breakdown service'], ['die Batterie', 'the battery'],
+      ['in Eile', 'in a hurry'], ['das Casting', 'the audition'], ['die Hauptrolle', 'the leading role'], ['die Freikarte', 'the free ticket'],
+      ['die Oper', 'the opera'], ['zum ersten Mal', 'for the first time'], ['die Messe', 'the trade fair'],
+    ],
+    sentences: [
+      ['Weißt du was? Ich habe die Hauptrolle bekommen!', 'You know what? I got the leading role!'],
+      ['Stell dir vor, mein Auto war kaputt.', 'Imagine, my car was broken.'],
+      ['Ich habe die Pannenhilfe angerufen.', 'I called the breakdown service.'],
+      ['Es war nur die Batterie.', 'It was only the battery.'],
+      ['Wir haben uns vor zwei Jahren kennengelernt.', 'We met two years ago.'],
+      ['Zum ersten Mal war ich in der Oper.', 'For the first time I was at the opera.'],
+    ],
+    grammar: `
+## du weißt: always -st
+*wissen* is irregular: ich **weiß**, du **weißt**, er **weiß**.
+So it is *Weißt du was?*, never "Weiß du was?".
+
+## Stell dir vor!
+An order to one friend: **Stell dir vor!** — literally "put it in front of yourself": *Imagine!*
+
+## kennenlernen or treffen?
+- **kennenlernen** — to meet someone for the first time.
+- **treffen** — to meet someone you already know.
+
+## Words made of words
+**Pannenhilfe** = Panne + Hilfe · **Hauptrolle** = Haupt (main) + Rolle · **Freikarte** = frei + Karte.
+The last part decides der, die or das.
+`,
+    conj: { verbs: ['kennenlernen', 'anrufen', 'wissen'], tenses: ['presente', 'perfecto'] },
+  },
+  {
     id: 'de-a2-06', title: 'At the restaurant', titleEs: 'Im Restaurant', emoji: '🍽️',
     description: 'Order politely and pay the bill.',
     words: [
@@ -386,6 +422,7 @@ export const DE_A2_UNIT_LESSONS: Record<string, string[]> = {
   'de-a2-05': ['de-g-weil-dass'],
   'de-a2-09': ['de-g-perfekt'],
   'de-a2-10': ['de-g-weil-dass'],
+  'de-a2-11': ['de-g-perfekt'],
   'de-a2-06': ['de-g-dative'],
   'de-a2-07': ['de-g-pronouns'],
   'de-a2-08': ['de-g-adjectives', 'de-g-comparison'],

@@ -43,7 +43,7 @@ export function AdminPersonal() {
             <h3>Test results</h3>
             {results.length === 0 && <p className="small muted">No tests taken yet.</p>}
             {results.map((r) => {
-              const t = c.tests.find((x) => x.id === r.test_id);
+              const t = r.test_id === 'mixed' ? { title: 'Mixed test', exam: undefined } : c.tests.find((x) => x.id === r.test_id);
               const who = data.access.find((a) => a.user_id === r.user_id)?.email ?? 'a learner';
               const pct = Math.round((r.score / r.total) * 100);
               return (

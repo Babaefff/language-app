@@ -11,7 +11,7 @@ import { stepExercises, type Exercise } from '../lib/exercises';
 import { addXp, applyWordResults, completeStep, useProgress } from '../lib/store';
 import { strength } from '../lib/srs';
 import { useSync } from '../lib/sync';
-import { clock, lessonUnit, myResults, saveResult, testExercises, usePersonal, type PersonalResult, type PersonalSet, type PersonalTest } from '../lib/personal';
+import { MIXED_ID, clock, lessonUnit, mixedTest, myResults, saveResult, testExercises, usePersonal, type PersonalResult, type PersonalSet, type PersonalTest } from '../lib/personal';
 import type { Unit } from '../data/types';
 
 const STEP_NAMES = ['Learn the words', 'Practise', 'Sentences'];
@@ -132,6 +132,17 @@ export function Personal() {
               );
             })}
           </div>
+          {set.content.tests.length > 0 && (() => {
+            const mineR = results.filter((r) => r.set_id === set.id && r.test_id === MIXED_ID);
+            const last = mineR[0];
+            return (
+              <section className="card mixed-card">
+                <h3>🔀 Mixed test</h3>
+                <p className="small muted">20 questions from all lessons, different every time{last ? ` · last ${Math.round((last.score / last.total) * 100)}% (${mineR.length} ${mineR.length === 1 ? 'try' : 'tries'})` : ''}</p>
+                <button className="btn primary" onClick={() => { const t = mixedTest(set.content); setMode({ name: 'test', set, test: t, exercises: testExercises(t), started: Date.now() }); }}>Start a mixed test</button>
+              </section>
+            );
+          })()}
           {(['exam', 'test'] as const).map((kind) => {
             const list = set.content.tests.filter((t) => (kind === 'exam') === !!t.exam);
             if (!list.length) return null;

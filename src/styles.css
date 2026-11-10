@@ -918,7 +918,9 @@ td .say { display: inline-flex; align-items: center; gap: 0.15rem; text-decorati
 
 /* Personal material */
 .personal-set { display: grid; gap: 14px; margin-bottom: 24px; }
-.personal-lesson, .admin-set { display: grid; gap: 10px; }
+.personal-lesson, .admin-set { display: grid; gap: 10px; align-content: start; }
+/* A card whose neighbour opens its word list must not stretch its own buttons. */
+.personal-set .grid-2 { align-items: start; }
 .answer-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
 .answer-list li { padding: 8px 10px; border-radius: 10px; background: var(--surface-2, rgba(127,127,127,.08)); }
 .bad-text { color: var(--bad); }
@@ -939,3 +941,4 @@ td .say { display: inline-flex; align-items: center; gap: 0.15rem; text-decorati
 .exam-clock.low { color: var(--bad); border-color: var(--bad); }
 .exam-verdict.pass h2 { color: var(--primary); }
 .exam-verdict.fail h2 { color: var(--bad); }
+.mixed-card { margin-bottom: 14px; }
