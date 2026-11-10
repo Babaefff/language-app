@@ -145,7 +145,7 @@ describe('course content', () => {
   });
   it('every generated exercise is fair: answers accepted, no wrong option that is also right, no look-alike tiles', async () => {
     const { auditExercises } = await import('../test/exercise-audit');
-    expect(await auditExercises()).toEqual([]);
+    expect(await auditExercises(4)).toEqual([]);
   }, 60000);
   it('explains words by their parts, every part with a meaning', async () => {
     const { breakdown } = await import('../lib/breakdown');

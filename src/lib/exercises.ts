@@ -38,9 +38,22 @@ function meanings(en: string): string[] {
 /** Two words share a meaning ("what" and "which / what"): never a wrong option for each other. */
 const sameEn = (a: Word, b: Word) => { const m = meanings(b.en); return meanings(a.en).some((x) => m.includes(x)); };
 
+/** Gender, formality and similar markers in a gloss: "(m)", "(female)", "(formal)", "(to a friend)". */
+const markers = (en: string) => (en.toLowerCase().match(/\(([^)]*)\)/g) ?? []).map((x) => x.slice(1, -1).trim());
+const CLASH = [['m', 'f'], ['male', 'female'], ['masc', 'fem'], ['formal', 'informal'], ['singular', 'plural'], ['sg', 'pl']];
+/** The same meaning and no clashing markers: "the husband" = "the husband / spouse"; not "which / what (m)" =
+ * "which / what (f)", and not "who / which" = "which / what" (they only share one of their meanings). */
+const sameMeaning = (a: Word, b: Word) => {
+  // Every meaning of one is a meaning of the other ("to start" ⊂ "to begin / to start").
+  const ma0 = meanings(a.en), mb0 = meanings(b.en);
+  if (!ma0.every((x) => mb0.includes(x)) && !mb0.every((x) => ma0.includes(x))) return false;
+  const ma = markers(a.en), mb = markers(b.en);
+  return !CLASH.some(([x, y]) => (ma.includes(x) && mb.includes(y)) || (ma.includes(y) && mb.includes(x)));
+};
+
 /** Other course words that mean exactly the same in English: both are right answers. */
 export function synonymsOf(word: Word): string[] {
-  return WORDS.filter((w) => w.id !== word.id && sameEn(w, word)).map((w) => w.es);
+  return WORDS.filter((w) => w.id !== word.id && sameMeaning(w, word)).map((w) => w.es);
 }
 
 function distractors(word: Word, pool: Word[], field: 'es' | 'en', n = 3): string[] {

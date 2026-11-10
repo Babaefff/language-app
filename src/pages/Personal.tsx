@@ -64,7 +64,7 @@ const ET: Record<string, string> = {
   'Almost — just one letter off. Look at the spelling and it’ll come back soon.': 'Peaaegu – ainult üks täht on vale. Vaata kirjapilti, see sõna tuleb varsti tagasi.',
   'Watch the special letters (ä ö ü ß).': 'Pane tähele erilisi tähti (ä ö ü ß).',
   'Watch the capitals: nouns and Sie start with a capital letter.': 'Pane tähele suurtähti: nimisõnad ja Sie algavad suure tähega.',
-  'Remember the article.': 'Ära unusta artiklit (der/die/das).', 'is the typical mistake here.': 'on siin tüüpiline viga.', 'Also right:': 'Samuti õige:',
+  'Remember the article.': 'Ära unusta artiklit (der/die/das).', 'is the typical mistake here.': 'on siin tüüpiline viga.', 'Also right — the lesson’s order is:': 'Samuti õige – tunnis kasutatud järjekord on:', 'Also right:': 'Samuti õige:',
   'New word': 'Uus sõna', Next: 'Edasi', 'Start quiz': 'Alusta harjutust', accuracy: 'täpsus', 'first try': 'esimesel katsel',
   'Excellent work!': 'Suurepärane!', 'Nice progress!': 'Hea edasiminek!', 'Good effort — this is how it sticks.': 'Hea töö – nii jääb meelde.',
 };

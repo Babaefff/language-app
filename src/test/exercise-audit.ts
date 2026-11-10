@@ -9,6 +9,7 @@ export async function auditExercises(rounds = 1): Promise<string[]> {
   const ex = await import('../lib/exercises');
   const { checkAnswer, normalize } = await import('../lib/text');
   const { lookupForm } = await import('../lib/conjugate');
+  const { typedTrap } = await import('../components/Session');
   const isWord = (w: string) => !!lookupWord(w, false) || lookupForm(w).length > 0;
   const ok = (typed: string, expected: string) => checkAnswer(typed, expected, false, { isWord }).ok;
   const issues = new Set<string>();
@@ -23,6 +24,9 @@ export async function auditExercises(rounds = 1): Promise<string[]> {
         for (const a of ('accept' in e && e.accept) || []) if (!ok(a, a)) issues.add(`${src}: an accepted synonym is rejected: ${a}`);
       }
       if (e.kind === 'choice') {
+        // Typing instead of tapping: the right answer must never be taken for one of the wrong options.
+        if (typedTrap(e.options, e.answer, e.answer)) issues.add(`${src}: typing the right answer counts as a mistake: ${e.answer}`);
+        for (const a of e.accept ?? []) if (typedTrap(e.options, e.answer, a)) issues.add(`${src}: typing an accepted answer counts as a mistake: ${a}`);
         const norm = e.options.map((o) => normalize(o));
         if (new Set(norm).size !== norm.length) issues.add(`${src}: two options look the same: ${e.options.join(' | ')}`);
         // Picking by meaning: a "wrong" English option must not mean the same as the answer.
@@ -37,7 +41,12 @@ export async function auditExercises(rounds = 1): Promise<string[]> {
       if (e.kind === 'build') {
         const toks = e.es.split(' ');
         const extras = [...e.tiles];
-        for (const t of toks) extras.splice(extras.indexOf(t), 1);
+        // Every word of the sentence must be among the tiles, or the right answer can't be built.
+        for (const t of toks) {
+          const i = extras.indexOf(t);
+          if (i < 0) { issues.add(`${src}: no tile for "${t}" in: ${e.es}`); continue; }
+          extras.splice(i, 1);
+        }
         for (const x of extras) if (toks.some((t) => normalize(t) === normalize(x))) issues.add(`${src}: an extra tile looks like a sentence word: ${x}`);
       }
     }

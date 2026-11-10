@@ -22,9 +22,12 @@ import { AccentKeys } from './AccentKeys';
 import { VerbTable } from './VerbTable';
 import { gloss } from '../lib/gloss';
 import { t } from '../lib/ui-text';
+import { otherOrders } from '../lib/word-order';
 
 export interface Result {
   ok: boolean;
+  /** Right, but in other words or another order: no spelling highlight. */
+  alike?: boolean;
   /** The correct answer to show when wrong. */
   answer: string;
   note?: string;
@@ -218,7 +221,8 @@ export function Session({ exercises, onFinish, onExit, title, test = false, unti
             {/* After a slip, seeing how the word is built helps it stick (Brief + Träger). */}
             {!result.ok && 'wordId' in ex && ex.wordId && WORD_MAP[ex.wordId] && <WordParts word={WORD_MAP[ex.wordId]} compact />}
             {result.note && <div className="small">{result.note}</div>}
-            {result.typed && result.note && <Highlight typed={result.typed} expected={result.answer} />}
+            {/* Spelling highlight — not for answers that are right in other words or another order. */}
+            {result.typed && result.note && !result.alike && <Highlight typed={result.typed} expected={result.answer} />}
             {!result.ok && <p className="small">{t('Saved for review.')}</p>}
             {result.why && <details className="why"><summary>{t('Why?')}</summary><p>{result.why}</p></details>}
           </div>
@@ -364,9 +368,14 @@ function feedbackFor(input: string, expected: string, accept: string[] = [], typ
   const alt = accept.find((a) => checkAnswer(input, a, strict).ok && !checkAnswer(input, a, strict).article);
   if (alt && !checkAnswer(input, expected, strict).ok) {
     speak(alt);
-    return { ok: true, answer: alt, note: `${t('Also right:')} ${expected}.`, typed: input };
+    return { ok: true, alike: true, answer: alt, note: `${t('Also right:')} ${expected}.`, typed: input };
   }
   const c = checkAnswer(input, expected, strict, { typos, isWord: (w) => !!lookupWord(w, false) || lookupForm(w).length > 0 });
+  // The same sentence in another natural order is right too; show the order the lesson uses.
+  if (!c.ok && input.trim().split(/\s+/).length >= 3) {
+    const order = otherOrders(expected).find((o) => checkAnswer(input, o, strict, { isWord: (w) => !!lookupWord(w, false) || lookupForm(w).length > 0 }).ok);
+    if (order) { speak(input); return { ok: true, alike: true, answer: expected, note: `${t('Also right — the lesson’s order is:')} ${expected}`, typed: input }; }
+  }
   const notes = [
     c.otherWord && `“${c.otherWord}” is a different word: the ${LANG === 'de' ? 'umlaut' : 'accent'} matters here.`,
     c.typo && t('One small slip in the spelling — the rest is right.'),
@@ -471,11 +480,12 @@ function BuildView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'bu
   };
   const check = () => {
     const attempt = picked.map((i) => tiles[i].t).join(' ');
-    const ok = normalize(attempt) === normalize(ex.es);
-    if (ok) speak(ex.es);
+    const other = normalize(attempt) !== normalize(ex.es) && otherOrders(ex.es).some((o) => normalize(o) === normalize(attempt));
+    const ok = normalize(attempt) === normalize(ex.es) || other;
+    if (ok) speak(other ? attempt : ex.es);
     // Explain fixed phrases after every answer: "Mir geht es gut = I'm fine (literally: to me it goes well)".
     const ph = phrasesIn(ex.es).map((x) => `${x.phrase} = ${x.en} (literally “${x.literal}”). ${x.note.replace(/\*/g, '')}`).join(' ');
-    onResult({ ok, answer: ex.es, picked: attempt, ...(ph ? { why: ph } : {}) });
+    onResult({ ok, answer: ex.es, picked: attempt, ...(other ? { alike: true, note: `${t('Also right — the lesson’s order is:')} ${ex.es}` } : {}), ...(ph ? { why: ph } : {}) });
   };
 
   // Drag to reorder: press a placed word and move it; a short tap still sends it back.
