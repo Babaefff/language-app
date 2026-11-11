@@ -389,12 +389,17 @@ function feedbackFor(input: string, expected: string, accept: string[] = [], typ
     })(),
     c.typo && t('One small slip in the spelling — the rest is right.'),
     c.nearMiss && t('Almost — just one letter off. Look at the spelling and it’ll come back soon.'),
-    c.accent && t(LANG === 'de' ? 'Watch the special letters (ä ö ü ß).' : LANG === 'fr' ? 'Watch the accents (é è ê à ç ô…).' : LANG === 'ru' ? 'Watch the soft sign ь and the accents.' : 'Watch the accents (á é í ó ú ñ ü).'),
+    c.accent && t(LANG === 'de' ? 'The two dots are part of the spelling (ä ö ü ß) — without them the word is misspelt.' : LANG === 'fr' ? 'The accents are part of the spelling (é è ê à ç ô…) — without them the word is misspelt.' : LANG === 'ru' ? 'Watch the soft sign ь and the accents.' : 'The accent is part of the spelling (á é í ó ú ñ) — without it the word is misspelt.'),
     c.letterCase && t(LANG === 'de' ? 'Watch the capitals: nouns and Sie start with a capital letter.' : 'Watch the capital letters.'),
     c.article && t('Remember the article.'),
   ].filter(Boolean);
   // Only an article is different: explain the rule instead of a bare "Incorrect".
   const art = !c.ok ? articleHint(input, expected) : undefined;
+  // A missing accent / umlaut is a spelling mistake: never "Correct". One word → Almost, a sentence → Partly correct.
+  if (c.ok && c.accent) {
+    const sentence = expected.trim().split(/\s+/).length >= 3;
+    return { ok: false, answer: expected, typed: input, grade: sentence ? 'partly' : 'almost', note: notes.join(' ') || undefined };
+  }
   if (c.ok) speak(expected);
   return { ok: c.ok, answer: expected, ...(art ? { why: art } : {}), note: notes.length ? notes.join(' ') : undefined, typed: input, ...(c.nearMiss ? { grade: 'almost' as const } : c.typo ? { grade: 'partly' as const } : {}) };
 }

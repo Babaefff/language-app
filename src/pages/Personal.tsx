@@ -65,7 +65,7 @@ const ET: Record<string, string> = {
   'Show word meanings': 'Näita sõnade tähendusi', 'Hide word meanings': 'Peida sõnade tähendused',
   'One small slip in the spelling — the rest is right.': 'Üks väike kirjaviga – muu on õige.',
   'Almost — just one letter off. Look at the spelling and it’ll come back soon.': 'Peaaegu – ainult üks täht on vale. Vaata kirjapilti, see sõna tuleb varsti tagasi.',
-  'Watch the special letters (ä ö ü ß).': 'Pane tähele erilisi tähti (ä ö ü ß).',
+  'The two dots are part of the spelling (ä ö ü ß) — without them the word is misspelt.': 'Täpid on osa õigekirjast (ä ö ü ß) – ilma nendeta on sõna valesti kirjutatud.',
   'Watch the capitals: nouns and Sie start with a capital letter.': 'Pane tähele suurtähti: nimisõnad ja Sie algavad suure tähega.',
   'Remember the article.': 'Ära unusta artiklit (der/die/das).', 'is the typical mistake here.': 'on siin tüüpiline viga.', 'is a different word — the umlaut changes the meaning:': 'on teine sõna – täpid muudavad tähendust:', 'is a different word: the umlaut matters here.': 'on teine sõna: täpid on siin olulised.', 'Watch the umlaut': 'Pane täppe tähele', 'Phrases in this lesson': 'Väljendid selles tunnis', 'Also right — the lesson’s order is:': 'Samuti õige – tunnis kasutatud järjekord on:', 'Also right:': 'Samuti õige:',
   'New word': 'Uus sõna', Next: 'Edasi', 'Start quiz': 'Alusta harjutust', accuracy: 'täpsus', 'first try': 'esimesel katsel',
