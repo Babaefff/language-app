@@ -1,5 +1,6 @@
 import { useCallback, useState, type ReactNode } from 'react';
 import { GoogleButton } from './GoogleButton';
+import { isNative } from '../lib/native';
 import { accountsEnabled, configProblem, configSummary, deleteAccount, deleteCloudData, googleClientId, googleEnabled, signInWithEmail, signInWithGoogle, signOut, verifyEmailCode, useSync } from '../lib/sync';
 
 /** Optional sign-in so progress is saved in the cloud and follows you to other devices. */
@@ -66,20 +67,21 @@ export function AccountCard({ bare = false }: { bare?: boolean } = {}) {
       )}
       {sent ? (
         <div className="email-code">
-          <p>📧 We sent an email to <strong>{email}</strong>. Type the code from it here — this works in the app too:</p>
+          <p>📧 We sent an email to <strong>{email}</strong>. {isNative ? 'Open it on this phone and tap the link: it opens Hablo and signs you in.' : 'Tap the link in it on this same device and browser.'}</p>
+          <p className="muted small">If the email shows a code, you can type it here instead:</p>
           <form className="row wrap" onSubmit={(e) => { e.preventDefault(); void run(() => verifyEmailCode(email.trim(), code)); }}>
             <input inputMode="numeric" autoComplete="one-time-code" pattern="[0-9 ]{6,12}" required placeholder="123456" value={code} onChange={(e) => setCode(e.target.value)} className="account-email code-input" aria-label="Sign-in code" />
             <button className="btn primary" disabled={busy || code.replace(/\s/g, '').length < 6}>Sign in</button>
           </form>
-          <p className="muted small">Or tap the link in the email on this same device and browser. <button className="link small" onClick={() => { setSent(false); setCode(''); }}>Use another email / send again</button></p>
+          <p className="muted small"><button className="link small" onClick={() => { setSent(false); setCode(''); }}>Use another email / send again</button></p>
         </div>
       ) : (
         <form className="row wrap" onSubmit={(e) => { e.preventDefault(); void run(async () => { await signInWithEmail(email.trim()); setSent(true); }); }}>
           <input type="email" required placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="account-email" autoComplete="email" />
-          <button className="btn primary" disabled={busy || !email.includes('@')}>Email me a sign-in code</button>
+          <button className="btn primary" disabled={busy || !email.includes('@')}>Email me a sign-in link</button>
         </form>
       )}
-      {msg && <p className="warn small">{msg}</p>}
+      {(msg || error) && <p className="warn small">{msg || error}</p>}
       <p className="muted small">We store only your email and your learning progress — nothing else, and it is never shared. <a href="./privacy.html">Privacy policy</a></p>
       {!bare && <p className="muted small">Server: {configSummary}</p>}
     </Wrap>

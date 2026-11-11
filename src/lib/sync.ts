@@ -35,10 +35,9 @@ export const configProblem: string | null = (() => {
 /** Safe-to-show summary of the configuration, to compare with the Supabase dashboard. */
 export const configSummary = URL_ && KEY ? `${URL_.replace('https://', '')} · ${KEY.slice(0, 18)}…` : '';
 const ANON = configProblem?.includes('secret') || configProblem?.includes('service_role') ? undefined : KEY;
-// In the Android/iOS app, Google's web sign-in and email links (which open the website) don't
-// work yet: accounts arrive there with native sign-in. Until then the app saves on the phone.
-export const accountsEnabled = !!(URL_ && KEY) && !isNative;
-export const googleEnabled = clean(import.meta.env.VITE_SUPABASE_GOOGLE) === '1';
+export const accountsEnabled = !!(URL_ && KEY);
+// Google blocks its sign-in inside apps' web views: in the Android app, sign-in is by email link.
+export const googleEnabled = clean(import.meta.env.VITE_SUPABASE_GOOGLE) === '1' && !isNative;
 
 type SyncState = { user: User | null; status: 'off' | 'idle' | 'syncing' | 'synced' | 'error'; lastSync: number | null; error?: string };
 let sync: SyncState = { user: null, status: accountsEnabled ? 'idle' : 'off', lastSync: null };
@@ -62,7 +61,10 @@ async function getClient() {
 /** The Supabase client for other features (feedback); only when accounts are enabled. */
 export const supabase = () => getClient();
 
-const redirectTo = () => window.location.origin + window.location.pathname;
+/** In the app, the email link opens the app itself (intent filter in AndroidManifest.xml).
+ * Supabase must allow it: Authentication → URL Configuration → Redirect URLs. */
+export const APP_REDIRECT = 'app.habloso.hablo://auth';
+const redirectTo = () => (isNative ? APP_REDIRECT : window.location.origin + window.location.pathname);
 
 export async function signInWithEmail(email: string) {
   const sb = await getClient();
@@ -79,7 +81,7 @@ export async function verifyEmailCode(email: string, code: string) {
 
 /** Google's own sign-in button (Google Identity Services): sign-in happens on this site, so Google
  * shows this site's address instead of the Supabase project's. Needs VITE_GOOGLE_CLIENT_ID. */
-export const googleClientId = clean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
+export const googleClientId = isNative ? undefined : clean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
 
 /** Signs in with the ID token from Google's button; the nonce ties the token to this attempt. */
 export async function signInWithGoogleIdToken(token: string, nonce: string) {
@@ -158,6 +160,28 @@ const fail = (e: unknown) => setSync({ status: 'error', error: (e as Error).mess
 let timer: ReturnType<typeof setTimeout> | undefined;
 let pulling = false;
 
+/** In the app: the email link (app.habloso.hablo://auth?code=…) opens the app; finish the sign-in. */
+async function listenForAppLinks() {
+  const { App } = await import('@capacitor/app');
+  const handle = async (url: string) => {
+    if (!url.startsWith(APP_REDIRECT)) return;
+    const params = new URLSearchParams(url.split(/[?#]/).slice(1).join('&'));
+    const code = params.get('code');
+    const err = params.get('error_description');
+    let problem: string | undefined;
+    if (code) {
+      const sb = await getClient();
+      const { error } = await sb.auth.exchangeCodeForSession(code);
+      if (error) problem = 'That sign-in link has expired, was already used, or was asked for on another device. Ask for a new email here.';
+    } else if (err) problem = /expired|invalid/i.test(err) ? 'That sign-in link has expired. Ask for a new email.' : err;
+    if (problem) setSync({ error: problem });
+  };
+  await App.addListener('appUrlOpen', (e) => { void handle(e.url); });
+  // Opened from the link while the app was closed.
+  const launch = await App.getLaunchUrl();
+  if (launch?.url) await handle(launch.url);
+}
+
 /** Starts accounts: restores a session (or finishes a sign-in link) and keeps progress in sync. */
 export async function initSync() {
   if (!accountsEnabled || typeof window === 'undefined') return;
@@ -178,6 +202,7 @@ export async function initSync() {
     finally { if (revision === accountRevision) pulling = false; }
   };
   sb.auth.onAuthStateChange((_event, session) => { void onUser(session?.user ?? null); });
+  if (isNative) void listenForAppLinks();
   const { data } = await sb.auth.getSession();
   await onUser(data.session?.user ?? null);
   onProgressChange(() => {

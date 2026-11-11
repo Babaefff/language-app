@@ -394,3 +394,235 @@ Meine Schwester hat letztes Jahr geheiratet.
 Ich bin müde, weil ich viel gearbeitet habe.
 Sie ist letzten Monat ausgezogen.
 Im Sommer haben die Kinder sechs Wochen Ferien.
+der Umzug
+besuchen
+das Regal
+fertig
+schnell
+fast
+Die Wohnung ist fast fertig.
+Wir müssen noch zwei Regale aufbauen.
+Ich vermisse dich.
+umgezogen, aufgebaut, vorbeigekommen
+die Wohnung
+das Haus
+das Zimmer
+das Wohnzimmer
+das Kinderzimmer
+die Küche
+der Garten
+die Möbel
+möbliert
+das Fenster
+der Platz
+der Lieblingsplatz
+das Apartment
+die Kaffeemaschine
+grillen
+Euer Wohnzimmer ist wirklich schön.
+Die Wohnung ist möbliert.
+Wir brauchen mehr Platz.
+Die Küche ist mein Lieblingsplatz.
+Im Garten grillen wir mit den Nachbarn.
+Die Fenster sind so groß!
+teuer
+günstig
+spannend
+gemütlich
+freundlich
+nett
+unsympathisch
+laut
+süß
+lecker
+Der Umzug war mega stressig.
+Ich finde das Buch spannend.
+Eine Reise ins Ausland ist aufregend.
+Unsere Nachbarn sind wirklich nett.
+Eure Musik ist zu laut.
+Das Frühstück ist lecker.
+Eine Reise ist aufregend.
+Der Umzug war anstrengend.
+finden
+verdienen
+vergessen
+verpassen
+verstehen
+es noch einmal versuchen
+viel Geld verdienen
+Omas Geburtstag vergessen
+die Familie vermissen
+den Bus verpassen
+die Grammatik verstehen
+Ich versuche es gleich noch einmal.
+Er verdient viel Geld.
+Ich habe Omas Geburtstag vergessen!
+Wir haben den Bus verpasst.
+Verstehst du die Grammatik?
+Ich habe den Bus verpasst.
+mein
+dein
+ihr
+unser
+euer
+Ihr
+das Haustier
+der Hund
+die Katze
+die Augen
+die Tochter
+der Sohn
+das Kind
+Wie heißen eure Haustiere?
+Unser Hund ist sehr süß.
+Ihre Augen sind blau.
+Peter und Merle sind nett, aber ihre Partys sind langweilig.
+Euer Wohnzimmer ist schön.
+Wie geht es Ihrer Tochter?
+ihr Hund
+Ihr Hund
+Habt ihr Haustiere?
+mein Hund
+euer Hund
+,
+der Reisepass
+das Handy
+die Sonnenbrille
+der Laptop
+die Wanderschuhe
+das Ticket
+die Jacke
+das Fahrrad
+das Motorrad
+die Tante
+der Onkel
+die Bekannte
+der Kollege
+das Büro
+der Bahnhof
+schenken
+Hast du deinen Reisepass?
+Ja, ich habe meinen Reisepass.
+Mein Fahrrad ist kaputt.
+Das ist meine Tante mit ihrem Hund.
+Sein Büro ist am Bahnhof.
+Mein Auto schenke ich meiner Schwester.
+die Landschaft
+der Wald
+das Meer
+der Strand
+der See
+der Fluss
+das Ufer
+der Hügel
+die Wiese
+das Dorf
+das Tal
+das Feld
+der Sand
+die Sonne
+das Handtuch
+im Norden
+im Süden
+im Osten
+im Westen
+Am Strand gibt es Sand, Sonne und Handtücher.
+Zwischen zwei Bergen ist ein Tal.
+In einem See kann man schwimmen.
+Auf einem Feld arbeitet man im Freien.
+Unser Dorf liegt im Süden.
+Am Ufer kann man spazieren gehen.
+Wir schwimmen im See.
+Wir fahren ans Meer.
+im Norden, im Süden, im Osten, im Westen
+das Tier
+das Pferd
+die Biene
+die Kuh
+das Schaf
+die Maus
+die Milch
+der Honig
+reiten
+Die Katze mag Milch und Mäuse.
+Auf einem Pferd kann man reiten.
+Die Biene macht Honig.
+Auf der Wiese sind Kühe und Schafe.
+Wir haben einen Vogel.
+die Stadt
+das Wasser
+der Hafen
+das Schiff
+das Segelboot
+die Brücke
+spazieren gehen
+beobachten
+joggen
+das Wetter
+windig
+es regnet
+der Stadtteil
+die Straße
+der Kletterpark
+sportlich
+aktiv
+draußen
+Am Hafen kann man Schiffe beobachten.
+Die Stadt hat viele Brücken.
+Heute ist es sehr windig.
+Es regnet schon wieder.
+Am Ufer joggen viele Leute.
+Seid ihr sportlich und gern draußen?
+Es regnet.
+Es ist windig.
+auf dem Land
+das Hotel
+dringend
+der Job
+der Chef
+das Frühstück
+der Tipp
+die Tour
+das Lieblingshotel
+Österreich
+wunderschön
+Ich brauche dringend Ruhe.
+Ich mache Urlaub auf dem Land.
+Das Hotel liegt in den Bergen.
+Das Frühstück ist so lecker!
+Danke für eure Tipps!
+Die Landschaft in Österreich ist wunderschön.
+das Lieblingshotel, der Lieblingsplatz
+Ich ziehe … um nächste Woche ___.
+Wir haben das Regal aufgebaut.
+Ich habe dich sehr vermisst.
+Hast du die Grammatik verstanden?
+Wir haben einen Hund. Unser Hund heißt Bubi.
+Habt ihr Haustiere? Wie heißen eure Haustiere?
+Merle hat eine Katze. Ihre Katze ist süß.
+Peter hat ein Fahrrad. Sein Fahrrad ist neu.
+Peter und Merle sind nett, aber ihre Musik ist zu laut.
+Entschuldigen Sie, ist das Ihre Jacke?
+Euer Wohnzimmer ist wirklich schön!
+Hast du dein Handy?
+Hast du deine Sonnenbrille?
+Hast du deine Wanderschuhe?
+Hier siehst du meinen Freund Leon mit seiner Freundin.
+Hier siehst du meinen Bruder mit seinen Kollegen.
+Ich schenke meiner Schwester mein Auto.
+Wo arbeitet dein Freund? – Sein Büro ist am Bahnhof.
+Mäuse
+Mein Freund ist letzte Woche ausgezogen.
+Kommst du heute vorbei?
+Das ist Lisa. Ihr Bruder wohnt in Berlin.
+Wir haben ein Haus. Unser Haus ist alt.
+Kinder, wo sind eure Schuhe?
+Hast du deinen Laptop?
+Ich fahre mit meinem Fahrrad.
+Kühe
+Ich habe den Zug verpasst.
+Wie geht es Ihrer Tochter? (formal)
+Ich gehe mit meinen Kindern spazieren.
+Habt ihr eure Tickets?
+Wir wohnen auf dem Land.
+Danke für deinen Tipp!
