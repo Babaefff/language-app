@@ -507,6 +507,40 @@ function BuildView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'bu
     });
     return i === -1 ? els.length : i;
   };
+  // Drag from the word bank straight into the sentence, at the spot where it is dropped.
+  const [bankDrag, setBankDrag] = useState<{ tile: number; startX: number; startY: number; dx: number; dy: number; moved: boolean; to: number | null } | null>(null);
+  const afterDrag = useRef(false);
+  const overLine = (x: number, y: number) => {
+    const r = line.current?.getBoundingClientRect();
+    return !!r && x >= r.left - 24 && x <= r.right + 24 && y >= r.top - 40 && y <= r.bottom + 40;
+  };
+  const bankDragProps = (i: number) => ({
+    onPointerDown: (e: React.PointerEvent<HTMLButtonElement>) => {
+      if (locked || picked.includes(i) || e.button > 0) return;
+      setBankDrag({ tile: i, startX: e.clientX, startY: e.clientY, dx: 0, dy: 0, moved: false, to: null });
+    },
+    onPointerMove: (e: React.PointerEvent<HTMLButtonElement>) => {
+      if (!bankDrag || bankDrag.tile !== i) return;
+      const dx = e.clientX - bankDrag.startX, dy = e.clientY - bankDrag.startY;
+      const moved = bankDrag.moved || Math.hypot(dx, dy) > 8;
+      if (moved && !bankDrag.moved) { try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* pointer already gone */ } }
+      setBankDrag({ ...bankDrag, dx, dy, moved, to: moved && overLine(e.clientX, e.clientY) ? targetIndex(e.clientX, e.clientY, -1) : null });
+    },
+    onPointerUp: () => {
+      if (bankDrag?.moved) {
+        afterDrag.current = true;
+        if (bankDrag.to !== null) {
+          const next = [...picked];
+          next.splice(bankDrag.to, 0, bankDrag.tile);
+          setPicked(next);
+          speak(tiles[bankDrag.tile].t);
+        }
+      }
+      setBankDrag(null);
+    },
+    onPointerCancel: () => setBankDrag(null),
+    style: bankDrag?.moved && bankDrag.tile === i ? { transform: `translate(${bankDrag.dx}px, ${bankDrag.dy}px)`, zIndex: 5, position: 'relative' as const } : undefined,
+  });
   const move = (from: number, by: number) => {
     const to = Math.max(0, Math.min(picked.length - 1, from + by));
     const next = [...picked];
@@ -523,7 +557,7 @@ function BuildView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'bu
         {picked.length === 0 && <span className="muted">{t('Tap the words below…')}</span>}
         {picked.map((i, pos) => {
           const dragging = drag?.moved && drag.tile === i;
-          const marker = drag?.moved && !dragging && others.indexOf(i) === drag.to;
+          const marker = (drag?.moved && !dragging && others.indexOf(i) === drag.to) || (bankDrag?.moved && bankDrag.to === pos);
           return (
             <Fragment key={i}>
             {marker && <span className="drop-marker" aria-hidden="true" />}
@@ -562,11 +596,11 @@ function BuildView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'bu
             </Fragment>
           );
         })}
-        {drag?.moved && drag.to >= others.length && <span className="drop-marker" aria-hidden="true" />}
+        {((drag?.moved && drag.to >= others.length) || (bankDrag?.moved && bankDrag.to !== null && bankDrag.to >= picked.length)) && <span className="drop-marker" aria-hidden="true" />}
       </div>
       <div className={`tiles ${meanings ? 'with-meanings' : ''}`} lang={LANG}>
         {tiles.map(({ t, i }) => (
-          <HintTile key={i} text={t} used={picked.includes(i)} disabled={locked || picked.includes(i)} showMeaning={meanings || fresh.has(cleanWord(t))} isNew={fresh.has(cleanWord(t))} phrase={phraseForWord(ex.es, t)?.en} onPick={() => { speak(t); setPicked([...picked, i]); }} />
+          <HintTile key={i} text={t} used={picked.includes(i)} disabled={locked || picked.includes(i)} showMeaning={meanings || fresh.has(cleanWord(t))} isNew={fresh.has(cleanWord(t))} phrase={phraseForWord(ex.es, t)?.en} drag={bankDragProps(i)} onPick={() => { if (afterDrag.current) { afterDrag.current = false; return; } speak(t); setPicked([...picked, i]); }} />
         ))}
       </div>
       <div className="row between wrap">
@@ -576,7 +610,7 @@ function BuildView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'bu
           <button className="btn primary" disabled={locked || !picked.length} onClick={check}>{t('Check')}</button>
         </div>
       </div>
-      {picked.length > 1 && !locked && <p className="small muted build-help">Drag a word to move it, or tap it to send it back.</p>}
+      {!locked && <p className="small muted build-help">{t(picked.length ? 'Tap a word to add it, or drag it to the right spot. Tap a placed word to send it back.' : 'Tap a word to add it, or drag it to the right spot.')}</p>}
     </>
   );
 }
@@ -672,7 +706,8 @@ const meaningOf = (word: string) => { const g = gloss(word); return g.meaning ==
 let hideActiveHint: (() => void) | null = null;
 
 /** A word tile that shows its meaning after hovering (or a long press on touch screens). */
-function HintTile({ text, used, disabled, onPick, showMeaning = false, isNew = false, phrase }: { text: string; used: boolean; disabled: boolean; onPick: () => void; showMeaning?: boolean; isNew?: boolean; phrase?: string }) {
+type TileDrag = { onPointerDown: (e: React.PointerEvent<HTMLButtonElement>) => void; onPointerMove: (e: React.PointerEvent<HTMLButtonElement>) => void; onPointerUp: () => void; onPointerCancel: () => void; style?: React.CSSProperties };
+function HintTile({ text, used, disabled, onPick, showMeaning = false, isNew = false, phrase, drag }: { text: string; used: boolean; disabled: boolean; onPick: () => void; showMeaning?: boolean; isNew?: boolean; phrase?: string; drag?: TileDrag }) {
   const [hint, setHint] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const longPressed = useRef(false);
@@ -693,8 +728,9 @@ function HintTile({ text, used, disabled, onPick, showMeaning = false, isNew = f
   return (
     <span className="tile-wrap">
       <button
-        className={`tile ${used ? 'used' : ''} ${showMeaning ? 'has-meaning' : ''}`}
+        className={`tile ${used ? 'used' : ''} ${showMeaning ? 'has-meaning' : ''} ${drag?.style ? 'dragging' : ''}`}
         disabled={disabled}
+        {...(drag ? { onPointerDown: drag.onPointerDown, onPointerMove: (e: React.PointerEvent<HTMLButtonElement>) => { if (Math.abs(e.movementX) + Math.abs(e.movementY) > 0) hide(); drag.onPointerMove(e); }, onPointerUp: drag.onPointerUp, onPointerCancel: drag.onPointerCancel, style: drag.style } : {})}
         onMouseEnter={() => show(600)}
         onMouseLeave={hide}
         onTouchStart={() => { longPressed.current = false; show(450); }}

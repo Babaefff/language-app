@@ -39,15 +39,17 @@ export async function auditExercises(rounds = 1): Promise<string[]> {
         if (new Set(es).size !== es.length) issues.add(`${src}: the same word twice in a match`);
       }
       if (e.kind === 'build') {
-        const toks = e.es.split(' ');
+        const toks = e.es.split(' ').filter((t) => /\p{L}|\p{N}/u.test(t));
         const extras = [...e.tiles];
         // Every word of the sentence must be among the tiles, or the right answer can't be built.
         for (const t of toks) {
-          const i = extras.indexOf(t);
+          const i = extras.findIndex((x) => normalize(x) === normalize(t));
           if (i < 0) { issues.add(`${src}: no tile for "${t}" in: ${e.es}`); continue; }
           extras.splice(i, 1);
         }
         for (const x of extras) if (toks.some((t) => normalize(t) === normalize(x))) issues.add(`${src}: an extra tile looks like a sentence word: ${x}`);
+        // No tile may give away the end or the start of the sentence.
+        for (const x of e.tiles) if (/[.!?…]$|^[¿¡]/.test(x)) issues.add(`${src}: a tile shows where the sentence ends or starts: ${x}`);
       }
     }
   }

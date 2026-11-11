@@ -1,10 +1,11 @@
 import { whyFor } from '../data/grammar-why';
 import type { ChoiceQuestion, GrammarLesson, Sentence, Tense, Unit, Word } from '../data/types';
-import { UNIT_MAP, WORDS } from '../data/course';
+import { UNIT_MAP, WORDS, lookupWord } from '../data/course';
+import { content } from '../data/content';
 import { VERB_MAP } from '../data/verbs';
 import { conjugate, lookupForm, personLabelsFor, TENSE_MAP } from './conjugate';
 import { checkAnswer, normalize, sample, shuffle } from './text';
-import { L } from '../data/lang';
+import { L, LANG } from '../data/lang';
 
 export type Exercise =
   | { kind: 'choice'; key: string; prompt: string; label: string; audio?: string; options: string[]; answer: string; wordId?: string; optionsSpanish: boolean; hint?: string; base?: string; promptSpanish?: boolean; typed?: boolean; why?: string; accept?: string[] }
@@ -103,11 +104,37 @@ export function listen(word: Word): Exercise {
   return { kind: 'listen', key: key(), answer: word.es, en: word.en, wordId: word.id };
 }
 
+/**
+ * A word as a tile: no full stop, question mark or ¿ ¡ (they would show which word ends or starts
+ * the sentence) and the first word in lower case, unless it is always written with a capital
+ * (a German noun, Sie, a name). Answers are compared without case and punctuation anyway.
+ */
+export function asTile(word: string, first: boolean): string {
+  let t = word.replace(/^[¿¡]+/, '').replace(/[.!?…]+$/, '');
+  if (!t) return word;
+  if (first && /^\p{Lu}/u.test(t) && !keepsCapital(t)) t = t.charAt(0).toLowerCase() + t.slice(1);
+  return t;
+}
+function keepsCapital(w: string): boolean {
+  const bare = w.replace(/[,;:"«»]/g, '');
+  if (LANG === 'de') {
+    if (bare === 'Sie' || bare === 'Ihr' || /^Ihr(e|en|em|er|es)?$/.test(bare)) return true;
+    const x = lookupWord(bare, false);
+    if (x && /^(der|die|das) /i.test(x.es)) return true;
+  }
+  if (bare === 'I') return true;
+  // A known word or verb form is an ordinary word; anything else capitalised is likely a name.
+  const known = !!lookupWord(bare, false) || lookupForm(bare.toLowerCase()).length > 0 || !!content().smallWords?.[bare.toLowerCase()];
+  return !known;
+}
+
 export function build(sentence: Sentence, extraWords: Word[] = []): Exercise {
-  const tokens = sentence.es.split(' ');
+  // A lone "?" or "!" (French puts a space before them) is not a word: no tile for it.
+  const tokens = sentence.es.split(' ').filter((t) => /\p{L}|\p{N}/u.test(t)).map((t, i) => asTile(t, i === 0));
   const lower = new Set(tokens.map((t) => normalize(t)));
   const extras = sample(extraWords, 8)
     .map((w) => w.es.replace(/^(el|la|los|las|der|die|das|le|les|l') ?/i, ''))
+    .map((t) => asTile(t, false))
     .filter((t) => !t.includes(' ') && !lower.has(normalize(t)))
     .slice(0, 2);
   return { kind: 'build', key: key(), en: sentence.en, es: sentence.es, tiles: shuffle([...tokens, ...extras]) };
