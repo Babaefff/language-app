@@ -5,6 +5,7 @@ import { READINGS, SONGS } from '../data/readings';
 import { readyAfter } from '../lib/readiness';
 import { phrasesOfUnit, sentenceWords } from '../lib/taught';
 import { PhraseNote } from '../components/PhraseNote';
+import { AccentBox, accentsOfUnit } from '../components/AccentBox';
 import { useFeedbackPage } from '../lib/feedback';
 import { FeedbackButton } from '../components/FeedbackButton';
 import { useState } from 'react';
@@ -203,9 +204,11 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
 function SentenceWords({ unitId, bare = false }: { unitId: string; bare?: boolean }) {
   const words = sentenceWords(UNIT_MAP[unitId]);
   const phrases = phrasesOfUnit(UNIT_MAP[unitId]);
-  if (!words.length && !phrases.length) return null;
+  const accents = accentsOfUnit(UNIT_MAP[unitId]);
+  if (!words.length && !phrases.length && !accents.length) return null;
   const body = (
     <>
+      {accents.length > 0 && <AccentBox pairs={accents} />}
       {phrases.length > 0 && <>
         <h3>Phrases in this lesson</h3>
         <p className="muted small">Fixed expressions: learn them as a whole. The words don’t add up word for word.</p>

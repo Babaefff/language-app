@@ -91,15 +91,15 @@ The change happens only where the stress falls on the stem: **yo, tú, él, ello
       { t: 'table', verbs: ['pedir', 'jugar'], tense: 'presente', caption: 'e → i and u → ue: the same boot' },
       { t: 'text', md: `
 ## The four groups
-| e → ie | pensar, querer, empezar, entender, preferir, tener*, venir* |
+| e → ie | pensar, querer, empezar, entender, preferir, tener ¹, venir ¹ |
 | o → ue | poder, dormir, volver, encontrar, costar, recordar |
-| e → i | pedir, repetir, servir, seguir, decir* |
+| e → i | pedir, repetir, servir, seguir, decir ¹ |
 | u → ue | jugar (the only one) |
 
-\\* *tener, venir, decir* also have an irregular **yo** form (tengo, vengo, digo) — see the next lesson.
+¹ *tener, venir, decir* also have an irregular **yo** form (tengo, vengo, digo) — see the next lesson.
 
 Dictionaries often mark these verbs like this: *pensar (ie)*, *dormir (ue)*, *pedir (i)*.` },
-      { t: 'tip', md: '**Nosotros is safe:** *pensamos, podemos, pedimos, jugamos* — never *piensamos*.' },
+      { t: 'tip', md: '**Nosotros and vosotros are safe:** *pensamos, pensáis · podemos, podéis · pedimos, pedís · jugamos, jugáis* — never *piensamos* or *piensáis*. Why? A stem only changes when it is stressed. In nosotros and vosotros the stress is on the ending (pen-SA-mos, pen-SÁIS), so the stem stays as in the infinitive. In the boot forms it is on the stem: PIEN-so, PIEN-san.' },
       { t: 'mistakes', items: [["Nosotros puedemos.", "Nosotros podemos.", "nosotros and vosotros never change the stem."], ["Yo jugo al fútbol.", "Yo juego al fútbol.", "jugar changes u → ue in the boot forms."]] },
     ],
     practice: {

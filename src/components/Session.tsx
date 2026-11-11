@@ -23,6 +23,8 @@ import { VerbTable } from './VerbTable';
 import { gloss } from '../lib/gloss';
 import { t } from '../lib/ui-text';
 import { otherOrders } from '../lib/word-order';
+import { accentPairOf, explainPair } from '../data/accent-pairs';
+import { articleHint } from '../lib/articles';
 
 export interface Result {
   ok: boolean;
@@ -297,7 +299,7 @@ function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'c
           // typing one of them exactly is wrong, even if it looks like a small slip.
           const trap = typedTrap(ex.options, ex.answer, v);
           if (trap) return onResult({ ok: false, answer: ex.answer, typed: v, note: `“${trap}” ${t('is the typical mistake here.')}`, why: ex.why });
-          onResult({ ...feedbackFor(v, ex.answer, ex.accept), why: ex.why });
+          onResult(withWhy(feedbackFor(v, ex.answer, ex.accept), ex.why));
         }} />
         {!locked && !ex.typed && <button className="link small" onClick={toggle}>☰ Show options instead</button>}
       </>
@@ -362,6 +364,9 @@ function TextAnswer({ onSubmit, locked, placeholder }: { onSubmit: (v: string) =
   );
 }
 
+/** The question's own explanation, or the one the answer check found (e.g. about an article). */
+const withWhy = (r: Result, why?: string): Result => ({ ...r, why: why ?? r.why });
+
 function feedbackFor(input: string, expected: string, accept: string[] = [], typos = false): Result {
   const strict = getProgress().settings.strictSpelling;
   // Another word with the same meaning (a synonym in the course) is right too.
@@ -377,15 +382,21 @@ function feedbackFor(input: string, expected: string, accept: string[] = [], typ
     if (order) { speak(input); return { ok: true, alike: true, answer: expected, note: `${t('Also right — the lesson’s order is:')} ${expected}`, typed: input }; }
   }
   const notes = [
-    c.otherWord && `“${c.otherWord}” is a different word: the ${LANG === 'de' ? 'umlaut' : 'accent'} matters here.`,
+    c.otherWord && (() => {
+      const pair = accentPairOf(c.otherWord!);
+      const mark = LANG === 'de' ? 'umlaut' : 'accent';
+      return pair ? `“${c.otherWord}” ${t(`is a different word — the ${mark} changes the meaning:`)} ${explainPair(pair)}.` : `“${c.otherWord}” ${t(`is a different word: the ${mark} matters here.`)}`;
+    })(),
     c.typo && t('One small slip in the spelling — the rest is right.'),
     c.nearMiss && t('Almost — just one letter off. Look at the spelling and it’ll come back soon.'),
     c.accent && t(LANG === 'de' ? 'Watch the special letters (ä ö ü ß).' : LANG === 'fr' ? 'Watch the accents (é è ê à ç ô…).' : LANG === 'ru' ? 'Watch the soft sign ь and the accents.' : 'Watch the accents (á é í ó ú ñ ü).'),
     c.letterCase && t(LANG === 'de' ? 'Watch the capitals: nouns and Sie start with a capital letter.' : 'Watch the capital letters.'),
     c.article && t('Remember the article.'),
   ].filter(Boolean);
+  // Only an article is different: explain the rule instead of a bare "Incorrect".
+  const art = !c.ok ? articleHint(input, expected) : undefined;
   if (c.ok) speak(expected);
-  return { ok: c.ok, answer: expected, note: notes.length ? notes.join(' ') : undefined, typed: input, ...(c.nearMiss ? { grade: 'almost' as const } : c.typo ? { grade: 'partly' as const } : {}) };
+  return { ok: c.ok, answer: expected, ...(art ? { why: art } : {}), note: notes.length ? notes.join(' ') : undefined, typed: input, ...(c.nearMiss ? { grade: 'almost' as const } : c.typo ? { grade: 'partly' as const } : {}) };
 }
 
 /** The expected answer with the words that were typed differently marked. */
@@ -403,7 +414,7 @@ function TypeView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'typ
     <>
       <p className="ex-label">{t(ex.label)}</p>
       <div className="ex-prompt"><span lang="en">{ex.prompt}</span></div>
-      <TextAnswer locked={locked} onSubmit={(v) => onResult({ ...feedbackFor(v, ex.answer, ex.accept, true), why: ex.why })} />
+      <TextAnswer locked={locked} onSubmit={(v) => onResult(withWhy(feedbackFor(v, ex.answer, ex.accept, true), ex.why))} />
     </>
   );
 }
@@ -465,6 +476,8 @@ function SpeakView({ ex, onResult, locked, onQuiet }: { ex: Extract<Exercise, { 
 }
 
 const MEANINGS_KEY = 'hablo:showMeanings';
+/** Tiles start in lower case, so outside German a capitalised tile is a name (Rosa, París): no meaning for it. */
+const isName = (tile: string) => LANG !== 'de' && /^\p{Lu}/u.test(tile) && tile !== 'I';
 const readMeanings = () => { try { return localStorage.getItem(MEANINGS_KEY) === '1'; } catch { return false; } };
 
 function BuildView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'build' }>; onResult: (r: Result) => void; locked: boolean }) {
@@ -508,7 +521,11 @@ function BuildView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'bu
     return i === -1 ? els.length : i;
   };
   // Drag from the word bank straight into the sentence, at the spot where it is dropped.
-  const [bankDrag, setBankDrag] = useState<{ tile: number; startX: number; startY: number; dx: number; dy: number; moved: boolean; to: number | null } | null>(null);
+  type BankDrag = { tile: number; startX: number; startY: number; dx: number; dy: number; moved: boolean; to: number | null };
+  const [bankDrag, setBankDragState] = useState<BankDrag | null>(null);
+  // Pointer events come faster than React re-renders: keep the live value in a ref too.
+  const bankRef = useRef<BankDrag | null>(null);
+  const setBankDrag = (v: BankDrag | null) => { bankRef.current = v; setBankDragState(v); };
   const afterDrag = useRef(false);
   const overLine = (x: number, y: number) => {
     const r = line.current?.getBoundingClientRect();
@@ -517,23 +534,26 @@ function BuildView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'bu
   const bankDragProps = (i: number) => ({
     onPointerDown: (e: React.PointerEvent<HTMLButtonElement>) => {
       if (locked || picked.includes(i) || e.button > 0) return;
+      // Hold on to the pointer, so the word follows it even when it leaves the word quickly.
+      try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* not supported */ }
       setBankDrag({ tile: i, startX: e.clientX, startY: e.clientY, dx: 0, dy: 0, moved: false, to: null });
     },
     onPointerMove: (e: React.PointerEvent<HTMLButtonElement>) => {
-      if (!bankDrag || bankDrag.tile !== i) return;
-      const dx = e.clientX - bankDrag.startX, dy = e.clientY - bankDrag.startY;
-      const moved = bankDrag.moved || Math.hypot(dx, dy) > 8;
-      if (moved && !bankDrag.moved) { try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* pointer already gone */ } }
-      setBankDrag({ ...bankDrag, dx, dy, moved, to: moved && overLine(e.clientX, e.clientY) ? targetIndex(e.clientX, e.clientY, -1) : null });
+      const d = bankRef.current;
+      if (!d || d.tile !== i) return;
+      const dx = e.clientX - d.startX, dy = e.clientY - d.startY;
+      const moved = d.moved || Math.hypot(dx, dy) > 8;
+      setBankDrag({ ...d, dx, dy, moved, to: moved && overLine(e.clientX, e.clientY) ? targetIndex(e.clientX, e.clientY, -1) : null });
     },
     onPointerUp: () => {
-      if (bankDrag?.moved) {
+      const d = bankRef.current;
+      if (d?.moved) {
         afterDrag.current = true;
-        if (bankDrag.to !== null) {
+        if (d.to !== null) {
           const next = [...picked];
-          next.splice(bankDrag.to, 0, bankDrag.tile);
+          next.splice(d.to, 0, d.tile);
           setPicked(next);
-          speak(tiles[bankDrag.tile].t);
+          speak(tiles[d.tile].t);
         }
       }
       setBankDrag(null);
@@ -600,7 +620,7 @@ function BuildView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'bu
       </div>
       <div className={`tiles ${meanings ? 'with-meanings' : ''}`} lang={LANG}>
         {tiles.map(({ t, i }) => (
-          <HintTile key={i} text={t} used={picked.includes(i)} disabled={locked || picked.includes(i)} showMeaning={meanings || fresh.has(cleanWord(t))} isNew={fresh.has(cleanWord(t))} phrase={phraseForWord(ex.es, t)?.en} drag={bankDragProps(i)} onPick={() => { if (afterDrag.current) { afterDrag.current = false; return; } speak(t); setPicked([...picked, i]); }} />
+          <HintTile key={i} text={t} used={picked.includes(i)} disabled={locked || picked.includes(i)} showMeaning={!isName(t) && (meanings || fresh.has(cleanWord(t)))} isNew={!isName(t) && fresh.has(cleanWord(t))} phrase={phraseForWord(ex.es, t)?.en} drag={bankDragProps(i)} onPick={() => { if (afterDrag.current) { afterDrag.current = false; return; } speak(t); setPicked([...picked, i]); }} />
         ))}
       </div>
       <div className="row between wrap">
@@ -677,7 +697,7 @@ function ConjView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'con
           ))}
         </div>
       ) : (
-        <TextAnswer locked={locked} placeholder="Conjugated form…" onSubmit={(v) => onResult({ ...feedbackFor(v, ex.answer), why: ex.why })} />
+        <TextAnswer locked={locked} placeholder="Conjugated form…" onSubmit={(v) => onResult(withWhy(feedbackFor(v, ex.answer), ex.why))} />
       )}
     </>
   );

@@ -964,3 +964,8 @@ td .say { display: inline-flex; align-items: center; gap: 0.15rem; text-decorati
 /* Word-bank tiles can be dragged into the sentence too (not just tapped). */
 .tiles .tile { touch-action: none; }
 .tiles .tile.dragging { box-shadow: 0 6px 18px rgba(0,0,0,.18); opacity: .95; }
+
+/* "Watch the accent": pairs like dónde / donde, schön / schon */
+.accent-box { display: grid; gap: 6px; margin-bottom: 14px; }
+.accent-pairs { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.accent-pairs li { display: grid; gap: 2px; padding: 8px 10px; border-radius: 10px; background: var(--surface-2, rgba(127,127,127,.08)); }

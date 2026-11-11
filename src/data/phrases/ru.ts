@@ -21,4 +21,17 @@ export const PHRASES_RU: Phrase[] = [
   { re: 'так как', phrase: 'так как', en: 'since / because', literal: 'so as', note: 'Like потому что, but more formal.' },
   { re: 'потому что', phrase: 'потому что', en: 'because', literal: 'for that that', note: 'Почему? — Потому что … = Why? — Because …' },
   { re: 'вместе с|с (другом|подругой|друзьями|мамой|папой|семьёй)', phrase: 'с + instrumental', en: 'with (someone)', literal: 'with', note: 'с другом = with a friend: the noun takes the instrumental (-ом, -ой, -ами).' },
+  // Constructions (taught in the lesson box before the sentences use them).
+  { re: '(?<![\\p{L}])с \\p{L}+ (до|по)(?=\\s)', phrase: 'с … до …', en: 'from … to …', literal: 'from … until …', note: 'с понедельника до пятницы, с девяти до пяти: both nouns in the genitive.' },
+  { re: '(?<![\\p{L}])в (\\p{N}+|час|два|три|четыре|пять|шесть|семь|восемь|девять|десять|одиннадцать|двенадцать)( час(а|ов)?)?(?![\\p{L}])', phrase: 'в … часов', en: 'at … o’clock', literal: 'in … hours', note: 'в восемь часов, в час. After 2–4: часа; from 5: часов.' },
+  { re: '(\\p{N}+|два|две|три|четыре|пять|десять|год|неделю|месяц|день|час|минуту) ?(\\p{L}+)? назад', phrase: '… назад', en: '… ago', literal: '… back', note: 'два года назад = two years ago: назад goes after the time.' },
+  { re: '(каждый|каждую|каждое) (день|год|месяц|неделю|утро|вечер|понедельник|субботу)', phrase: 'каждый день', en: 'every day', literal: 'each day', note: 'каждый день, каждую неделю (accusative of неделя), каждое утро.' },
+  { re: 'по-(русски|английски|немецки|французски|испански)', phrase: 'по-русски', en: 'in Russian', literal: 'in the Russian way', note: 'говорить по-русски = to speak Russian. Written with a hyphen, never “на русски”.' },
+  { re: '(играю|играешь|играет|играем|играете|играют|играть) (в|на)(?=\\s)', phrase: 'играть в … / играть на …', en: 'to play (a sport) / (an instrument)', literal: 'to play in / on', note: 'Sports and games: играть в футбол (accusative). Instruments: играть на гитаре (prepositional).' },
+  { re: '(?<![\\p{L}])(дома|домой)(?![\\p{L}])', phrase: 'дома / домой', en: 'at home / (to) home', literal: 'at home / homewards', note: 'Я дома = I’m at home (where?). Я иду домой = I’m going home (where to?).' },
+  { re: 'у (меня|тебя|него|неё|нас|вас|них) нет', phrase: 'У меня нет …', en: 'I don’t have …', literal: 'At me there isn’t …', note: 'The thing you don’t have goes into the genitive: у меня нет машины.' },
+  { re: 'недалеко от', phrase: 'недалеко от …', en: 'not far from …', literal: 'not far from', note: 'от takes the genitive: недалеко от школы.' },
+  { re: 'с (одной|другой) стороны', phrase: 'с одной стороны … с другой стороны', en: 'on the one hand … on the other hand', literal: 'from one side … from the other side', note: 'For weighing two sides of something.' },
+  { re: '(мне|тебе|ему|ей|нам|вам|им) удалось', phrase: 'мне удалось …', en: 'I managed to …', literal: 'to me it succeeded', note: 'The person is in the dative: нам удалось найти квартиру.' },
+  { re: '(?<![\\p{L}])бы(?![\\p{L}])', phrase: 'бы + past tense', en: 'would', literal: 'would', note: 'Я бы поехал = I would go: бы + the past-tense form, for any time.' },
 ];

@@ -12,6 +12,9 @@ import { addXp, applyWordResults, completeStep, useProgress } from '../lib/store
 import { strength } from '../lib/srs';
 import { useSync } from '../lib/sync';
 import { setUiText } from '../lib/ui-text';
+import { phrasesOfUnit } from '../lib/taught';
+import { PhraseNote } from '../components/PhraseNote';
+import { AccentBox, accentsOfUnit } from '../components/AccentBox';
 import {
   MIXED_ID, clock, drillState, drillTest, lessonUnit, localize, mixedTest, myResults, saveResult, testExercises, usePersonal,
   type PersonalResult, type PersonalSet, type PersonalTest,
@@ -64,7 +67,7 @@ const ET: Record<string, string> = {
   'Almost — just one letter off. Look at the spelling and it’ll come back soon.': 'Peaaegu – ainult üks täht on vale. Vaata kirjapilti, see sõna tuleb varsti tagasi.',
   'Watch the special letters (ä ö ü ß).': 'Pane tähele erilisi tähti (ä ö ü ß).',
   'Watch the capitals: nouns and Sie start with a capital letter.': 'Pane tähele suurtähti: nimisõnad ja Sie algavad suure tähega.',
-  'Remember the article.': 'Ära unusta artiklit (der/die/das).', 'is the typical mistake here.': 'on siin tüüpiline viga.', 'Also right — the lesson’s order is:': 'Samuti õige – tunnis kasutatud järjekord on:', 'Also right:': 'Samuti õige:',
+  'Remember the article.': 'Ära unusta artiklit (der/die/das).', 'is the typical mistake here.': 'on siin tüüpiline viga.', 'is a different word — the umlaut changes the meaning:': 'on teine sõna – täpid muudavad tähendust:', 'is a different word: the umlaut matters here.': 'on teine sõna: täpid on siin olulised.', 'Watch the umlaut': 'Pane täppe tähele', 'Phrases in this lesson': 'Väljendid selles tunnis', 'Also right — the lesson’s order is:': 'Samuti õige – tunnis kasutatud järjekord on:', 'Also right:': 'Samuti õige:',
   'New word': 'Uus sõna', Next: 'Edasi', 'Start quiz': 'Alusta harjutust', accuracy: 'täpsus', 'first try': 'esimesel katsel',
   'Excellent work!': 'Suurepärane!', 'Nice progress!': 'Hea edasiminek!', 'Good effort — this is how it sticks.': 'Hea töö – nii jääb meelde.',
 };
@@ -115,6 +118,18 @@ export function Personal() {
       <div className="page narrow">
         <button className="link" onClick={back}>← {mine[0].tabName}</button>
         {mode.unit.grammar && <div className="card"><span className="tag">{tr('Notes')}</span><Grammar source={mode.unit.grammar} /></div>}
+        {(() => {
+          // Expressions and accent pairs in this lesson's sentences, taught before the exercises.
+          const phrases = phrasesOfUnit(mode.unit);
+          const accents = accentsOfUnit(mode.unit);
+          if (!phrases.length && !accents.length) return null;
+          return (
+            <div className="card">
+              {accents.length > 0 && <AccentBox pairs={accents} title={tr(LANG === 'de' ? 'Watch the umlaut' : 'Watch the accent')} intro={ui === 'et' ? 'Täpid võivad teha teise sõna. Kirjuta need – ilma nendeta on vastus teine sõna.' : undefined} />}
+              {phrases.length > 0 && <><h3>{tr('Phrases in this lesson')}</h3>{phrases.map((ph) => <PhraseNote key={ph.phrase} p={ph} />)}</>}
+            </div>
+          );
+        })()}
         <div className="page-actions"><button className="btn primary" onClick={() => setMode({ name: 'quiz', unit: mode.unit, step: 2, exercises: stepExercises(mode.unit, 2) })}>{tr('Start exercises')}</button></div>
       </div>
     );
