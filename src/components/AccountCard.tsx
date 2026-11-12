@@ -36,7 +36,7 @@ export function AccountCard({ bare = false }: { bare?: boolean } = {}) {
         <h2>Account</h2>
         {!bare && <p>Signed in as <strong>{user.email}</strong></p>}
         <p className="muted small">
-          {status === 'syncing' ? 'Saving…' : status === 'error' ? `⚠️ Sync problem: ${error}` : lastSync ? `✓ Progress saved to your account at ${new Date(lastSync).toLocaleTimeString()}` : '✓ Synced'}
+          {status === 'syncing' ? 'Saving…' : status === 'offline' ? '📴 Offline: progress is saved on this device and goes to your account when you’re back online.' : status === 'error' ? `⚠️ Sync problem: ${error}` : lastSync ? `✓ Progress saved to your account at ${new Date(lastSync).toLocaleTimeString()}` : '✓ Synced'}
         </p>
         <p className="muted small">Your progress in each language follows you to any device where you sign in.</p>
         <div className="row wrap">

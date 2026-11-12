@@ -39,7 +39,7 @@ export const accountsEnabled = !!(URL_ && KEY);
 // Google blocks its sign-in inside apps' web views: in the Android app, sign-in is by email link.
 export const googleEnabled = clean(import.meta.env.VITE_SUPABASE_GOOGLE) === '1' && !isNative;
 
-type SyncState = { user: User | null; status: 'off' | 'idle' | 'syncing' | 'synced' | 'error'; lastSync: number | null; error?: string };
+type SyncState = { user: User | null; status: 'off' | 'idle' | 'syncing' | 'synced' | 'error' | 'offline'; lastSync: number | null; error?: string };
 let sync: SyncState = { user: null, status: accountsEnabled ? 'idle' : 'off', lastSync: null };
 const listeners = new Set<() => void>();
 const setSync = (patch: Partial<SyncState>) => { sync = { ...sync, ...patch }; listeners.forEach((l) => l()); };
@@ -155,7 +155,9 @@ async function push() {
   setSync({ status: 'synced', lastSync: Date.now(), error: undefined });
 }
 
-const fail = (e: unknown) => setSync({ status: 'error', error: (e as Error).message ?? String(e) });
+/** No internet: not a problem — progress is kept on this device and sent when back online. */
+const isOffline = (e: unknown) => (typeof navigator !== 'undefined' && !navigator.onLine) || /failed to fetch|networkerror|network request failed|load failed/i.test((e as Error)?.message ?? String(e));
+const fail = (e: unknown) => setSync(isOffline(e) ? { status: 'offline', error: undefined } : { status: 'error', error: (e as Error).message ?? String(e) });
 
 let timer: ReturnType<typeof setTimeout> | undefined;
 let pulling = false;
@@ -214,6 +216,16 @@ export async function initSync() {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden' && sync.user && timer) { clearTimeout(timer); timer = undefined; push().catch(fail); }
   });
+  // Back online: send what was learned offline (progress and personal test results), then fetch.
+  window.addEventListener('online', () => {
+    if (!sync.user || pulling) return;
+    const revision = accountRevision;
+    pulling = true;
+    pull(sync.user).catch(e => { if (revision === accountRevision) fail(e); })
+      .finally(() => { if (revision === accountRevision) pulling = false; });
+    void import('./personal').then((m) => m.flushResults());
+  });
+  if (!navigator.onLine && sync.user) setSync({ status: 'offline' });
   // Coming back to the tab: pick up progress made on another device meanwhile.
   let lastPull = Date.now();
   window.addEventListener('focus', () => {

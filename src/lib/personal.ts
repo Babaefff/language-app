@@ -86,21 +86,49 @@ export function testExercises(t: PersonalTest): Exercise[] {
   });
 }
 
-// ---- Loading (cached per sign-in) --------------------------------------------------------
+// ---- Loading (cached per sign-in, works offline) -----------------------------------------
 let sets: PersonalSet[] | null = null;
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
 
+/** This device's copy, so lessons, tests and the drill also work without internet. */
+const cacheKey = (uid: string, what: 'sets' | 'results' | 'outbox') => `hablo:personal:${what}:${uid}`;
+function readCache<T>(key: string, fallback: T): T {
+  try { const v = localStorage.getItem(key); return v ? (JSON.parse(v) as T) : fallback; } catch { return fallback; }
+}
+function writeCache(key: string, v: unknown) {
+  try { localStorage.setItem(key, JSON.stringify(v)); } catch { /* storage full: online only */ }
+}
+/** The signed-in user from the saved session (no network needed, unlike getUser). */
+async function userId(): Promise<string | null> {
+  const sb = await supabase();
+  const { data } = await sb.auth.getSession();
+  return data.session?.user.id ?? null;
+}
+
 export async function loadPersonal(): Promise<PersonalSet[]> {
   if (!accountsEnabled) return (sets = []);
-  const sb = await supabase();
-  const { data: u } = await sb.auth.getUser();
-  if (!u.user) { sets = []; emit(); return sets; }
-  const { data: access } = await sb.from('personal_access').select('set_id, tab_name').eq('user_id', u.user.id);
-  const ids = (access ?? []).map((a) => a.set_id as string);
-  if (!ids.length) { sets = []; emit(); return sets; }
-  const { data } = await sb.from('personal_sets').select('id, lang, title, content').in('id', ids);
-  sets = (data ?? []).map((s) => ({ ...(s as Omit<PersonalSet, 'tabName'>), tabName: (access ?? []).find((a) => a.set_id === s.id)?.tab_name ?? 'Mu kalli jaoks' }));
+  const uid = await userId();
+  if (!uid) { sets = []; emit(); return sets; }
+  const cached = readCache<PersonalSet[] | null>(cacheKey(uid, 'sets'), null);
+  if (cached && !sets?.length) { sets = cached; emit(); }
+  try {
+    const sb = await supabase();
+    const { data: access, error: e1 } = await sb.from('personal_access').select('set_id, tab_name').eq('user_id', uid);
+    if (e1) throw e1;
+    const ids = (access ?? []).map((a) => a.set_id as string);
+    let fresh: PersonalSet[] = [];
+    if (ids.length) {
+      const { data, error } = await sb.from('personal_sets').select('id, lang, title, content').in('id', ids);
+      if (error) throw error;
+      fresh = (data ?? []).map((s) => ({ ...(s as Omit<PersonalSet, 'tabName'>), tabName: (access ?? []).find((a) => a.set_id === s.id)?.tab_name ?? 'Mu kalli jaoks' }));
+    }
+    sets = fresh;
+    writeCache(cacheKey(uid, 'sets'), fresh);
+  } catch {
+    // Offline: keep this device's copy.
+    sets = cached ?? [];
+  }
   emit();
   return sets;
 }
@@ -112,19 +140,62 @@ export function usePersonal(userId: string | undefined): PersonalSet[] | null {
   return v;
 }
 
-export async function saveResult(setId: string, testId: string, score: number, total: number, answers: TestAnswer[], seconds?: number) {
+type Pending = Omit<PersonalResult, 'id' | 'user_id'> & { id: string };
+const isNetworkError = (e: unknown) => !navigator.onLine || /fetch|network|load failed/i.test(e instanceof Error ? e.message : String(e));
+
+/** Saves a result; without internet it waits on this device and is sent later (flushResults). */
+export async function saveResult(setId: string, testId: string, score: number, total: number, answers: TestAnswer[], seconds?: number): Promise<'saved' | 'queued'> {
+  const uid = await userId();
+  if (!uid) throw new Error('Sign in to save your result.');
+  const row: Pending = { id: `local-${Date.now()}`, set_id: setId, test_id: testId, score, total, answers, created_at: new Date().toISOString(), ...(seconds != null ? { seconds } : {}) };
+  try {
+    await sendResult(uid, row);
+    return 'saved';
+  } catch (e) {
+    if (!isNetworkError(e)) throw e;
+    writeCache(cacheKey(uid, 'outbox'), [...readCache<Pending[]>(cacheKey(uid, 'outbox'), []), row]);
+    return 'queued';
+  }
+}
+async function sendResult(uid: string, r: Pending) {
   const sb = await supabase();
-  const { data: u } = await sb.auth.getUser();
-  if (!u.user) throw new Error('Sign in to save your result.');
-  const { error } = await sb.from('personal_results').insert({ user_id: u.user.id, set_id: setId, test_id: testId, score, total, answers, ...(seconds != null ? { seconds } : {}) });
+  const { id: _local, ...row } = r;
+  const { error } = await sb.from('personal_results').insert({ ...row, user_id: uid });
   if (error) throw new Error(error.message);
 }
+/** Sends results saved while offline (oldest first). Returns how many are still waiting. */
+export async function flushResults(): Promise<number> {
+  if (!accountsEnabled) return 0;
+  const uid = await userId();
+  if (!uid) return 0;
+  const box = readCache<Pending[]>(cacheKey(uid, 'outbox'), []);
+  while (box.length) {
+    try { await sendResult(uid, box[0]); } catch { break; }
+    box.shift();
+    writeCache(cacheKey(uid, 'outbox'), box);
+  }
+  return box.length;
+}
+/** Results not yet sent from this device. */
+export async function pendingResults(): Promise<number> {
+  const uid = accountsEnabled ? await userId() : null;
+  return uid ? readCache<Pending[]>(cacheKey(uid, 'outbox'), []).length : 0;
+}
 export async function myResults(): Promise<PersonalResult[]> {
-  const sb = await supabase();
-  const { data: u } = await sb.auth.getUser();
-  if (!u.user) return [];
-  const { data } = await sb.from('personal_results').select('*').eq('user_id', u.user.id).order('created_at', { ascending: false }).limit(1000);
-  return (data ?? []) as PersonalResult[];
+  const uid = await userId();
+  if (!uid) return [];
+  await flushResults();
+  const pending = readCache<Pending[]>(cacheKey(uid, 'outbox'), []).map((r) => ({ ...r, user_id: uid }));
+  try {
+    const sb = await supabase();
+    const { data, error } = await sb.from('personal_results').select('*').eq('user_id', uid).order('created_at', { ascending: false }).limit(1000);
+    if (error) throw error;
+    writeCache(cacheKey(uid, 'results'), data ?? []);
+    return [...pending.reverse(), ...((data ?? []) as PersonalResult[])];
+  } catch {
+    // Offline: the last copy plus what waits to be sent, so the drill knows today's answers.
+    return [...pending.reverse(), ...readCache<PersonalResult[]>(cacheKey(uid, 'results'), [])];
+  }
 }
 
 // ---- Admin -------------------------------------------------------------------------------

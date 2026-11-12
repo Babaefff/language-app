@@ -45,7 +45,7 @@ const ET: Record<string, string> = {
   known: 'selgeks õpitud', questions: 'küsimust', min: 'min', pass: 'läbimiseks', best: 'parim', try: 'katse', tries: 'katset', 'passed': 'sooritatud',
   'Start the test': 'Alusta testi', 'Start the exam': 'Alusta eksamit', 'Take it again': 'Tee uuesti', 'Mixed test': 'Segatest',
   '20 questions from all lessons, different every time': '20 küsimust kõigist tundidest, iga kord erinevad', last: 'viimati',
-  'Start a mixed test': 'Alusta segatesti', 'To look at again': 'Vaata üle', you: 'sina', 'Your result is saved.': 'Sinu tulemus on salvestatud.',
+  'Start a mixed test': 'Alusta segatesti', 'To look at again': 'Vaata üle', you: 'sina', 'Your result is saved.': 'Sinu tulemus on salvestatud.', 'No internet: your result is saved on this phone and will be sent when you are back online.': 'Internetti pole: sinu tulemus on selles telefonis salvestatud ja saadetakse, kui oled jälle võrgus.',
   'Couldn’t save the result:': 'Tulemust ei õnnestunud salvestada:', Notes: 'Selgitus', 'Start exercises': 'Alusta harjutusi', Back: 'Tagasi',
   'Passed ✓': 'Sooritatud ✓', 'Not passed yet': 'Veel mitte sooritatud', 'pass mark': 'läbimise piir', time: 'aeg', of: '/', 'over time': 'aeg ületatud',
   'Go through the answers below, practise those lessons again, then retry.': 'Vaata allolevad vastused läbi, harjuta neid tunde uuesti ja proovi siis veel kord.',
@@ -147,7 +147,7 @@ export function Personal() {
           let saved = tr('Your result is saved.');
           // A drill round counts the words once each (its answers list every attempt).
           const total = mode.drill ? t.questions.length : Math.max(1, s.total);
-          try { await saveResult(mode.set.id, t.id, Math.min(s.correct, total), total, s.answers ?? [], seconds); } catch (e) { saved = `${tr('Couldn’t save the result:')} ${e instanceof Error ? e.message : e}`; }
+          try { if (await saveResult(mode.set.id, t.id, Math.min(s.correct, total), total, s.answers ?? [], seconds) === 'queued') saved = tr('No internet: your result is saved on this phone and will be sent when you are back online.'); } catch (e) { saved = `${tr('Couldn’t save the result:')} ${e instanceof Error ? e.message : e}`; }
           const pct = Math.round((s.correct / Math.max(1, s.total)) * 100);
           setMode({ name: 'done', summary: s, xp, label: t.title, saved, drill: mode.drill, exam: t.exam && { pass: t.exam.pass, passed: pct >= t.exam.pass, seconds, minutes: t.exam.minutes } });
         }} />

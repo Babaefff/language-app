@@ -53,7 +53,7 @@ export function Account() {
           {signedIn && <p className="small profile-email">{user!.email}</p>}
           <p className="muted small">
             {signedIn
-              ? <>{since && <>Learning since {since} · </>}{status === 'error' ? '⚠️ Sync problem' : status === 'syncing' ? 'Saving…' : `☁️ Synced${lastSync ? ` ${new Date(lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}`}</>
+              ? <>{since && <>Learning since {since} · </>}{status === 'error' ? '⚠️ Sync problem' : status === 'offline' ? '📴 Offline, will sync later' : status === 'syncing' ? 'Saving…' : `☁️ Synced${lastSync ? ` ${new Date(lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : ''}`}</>
               : 'Not signed in — your progress is saved on this device only.'}
           </p>
         </div>
