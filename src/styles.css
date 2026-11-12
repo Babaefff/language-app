@@ -1003,10 +1003,21 @@ input[type='range'] { min-height: 32px; }
 .reading-controls .toggle { margin-top: 0; }
 
 /* Welcome and level test */
+.welcome { max-width: 560px; }
+.welcome-hero { text-align: center; margin: 8px 0 8px; }
+.welcome-hero p { margin: 0; }
+.welcome-hero h1 { margin: 6px 0 4px; }
+.welcome-flag { font-size: 2.6rem; line-height: 1; }
 .welcome-options { display: grid; gap: 10px; margin: 16px 0; }
-.welcome-option { display: flex; flex-direction: row; gap: 14px; align-items: center; text-align: left; width: 100%; font: inherit; color: inherit; cursor: pointer; }
-.welcome-option > span:last-child { display: flex; flex-direction: column; gap: 2px; }
-.welcome-emoji { font-size: 1.8rem; }
+.welcome-option { display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 16px; text-align: left; font: inherit; color: inherit; cursor: pointer;
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: 16px; transition: border-color .12s, transform .12s; }
+.welcome-option:hover, .welcome-option:focus-visible { border-color: var(--primary); transform: translateY(-1px); }
+.welcome-icon { flex: none; width: 48px; height: 48px; border-radius: 12px; background: var(--primary-soft); display: grid; place-items: center; font-size: 1.5rem; }
+.welcome-text { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.welcome-text strong { font-size: 1.05rem; }
+.welcome-chevron { flex: none; font-size: 1.6rem; color: var(--muted); line-height: 1; }
+.welcome-signin { margin-top: 22px; }
+.welcome-signin h2 { margin: 0 0 2px; font-size: 1.1rem; }
 .welcome-rules { padding-left: 1.2rem; line-height: 1.6; }
 .welcome-bar { margin: 10px 0 14px; flex: none; }
 .placement-q { display: grid; gap: 12px; }
@@ -1016,7 +1027,6 @@ input[type='range'] { min-height: 32px; }
 .welcome-dontknow { justify-self: start; }
 .welcome-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin-top: 16px; }
 .welcome-skip { margin-top: 16px; }
-.welcome-option .welcome-emoji, .welcome-option .badge { flex: none; }
 
 /* Reading: hear one sentence again, and "repeat after me" */
 .shadow-turn { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(80px + env(safe-area-inset-bottom)); width: min(92vw, 420px); z-index: 20; display: grid; gap: 4px; border: 2px solid var(--primary); background: var(--primary-soft); box-shadow: 0 8px 32px rgb(0 0 0 / .2); animation: fade-in .2s; }

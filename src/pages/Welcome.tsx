@@ -1,6 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Link } from '../components/Nav';
 import { SpeakButton } from '../components/SpeakButton';
 import { AccountCard } from '../components/AccountCard';
 import { L, LANG } from '../data/lang';
@@ -28,6 +27,13 @@ export function Welcome() {
   const [step, setStep] = useState<Step>({ name: 'choose' });
   const cps = useMemo(() => checkpoints(), []);
   const [qs, setQs] = useState(() => questionsFor(cps[0], 0));
+  // Signed in from the welcome: returning learners go straight to their course.
+  const [wasSignedIn] = useState(!!user);
+  useEffect(() => {
+    if (!user || wasSignedIn) return;
+    if (step.name === 'choose') { updateSettings({ welcomed: true }); navigate('/', { replace: true }); }
+    else if (step.name === 'account') { updateSettings({ welcomed: true }); navigate(step.startId === ORDER[0] ? '/' : `/unit/${step.startId}`, { replace: true }); }
+  }, [user, wasSignedIn, step, navigate]);
 
   const begin = (startId: string) => {
     placeAt(ORDER, startId);
@@ -64,23 +70,23 @@ export function Welcome() {
   if (step.name === 'choose') {
     return (
       <div className="page narrow welcome">
-        <h1>Welcome to Hablo {L.flag}</h1>
-        <p className="muted">Where would you like to start with {L.name}?</p>
+        <header className="welcome-hero">
+          <span className="welcome-flag" aria-hidden="true">{L.flag}</span>
+          <h1>Welcome to Hablo</h1>
+          <p className="muted">Where would you like to start with {L.name}?</p>
+        </header>
         <div className="welcome-options">
-          <button className="card action welcome-option" onClick={() => begin(ORDER[0])}>
-            <span className="welcome-emoji">🌱</span>
-            <span><strong>I’m new to {L.name}</strong><span className="muted small">Start with the first lesson: hello, names, numbers.</span></span>
-          </button>
-          <button className="card action welcome-option" onClick={() => setStep({ name: 'intro' })}>
-            <span className="welcome-emoji">🧭</span>
-            <span><strong>I know some {L.name}: find my level</strong><span className="muted small">A short test, 2–8 minutes. It stops as soon as it finds your level.</span></span>
-          </button>
-          <button className="card action welcome-option" onClick={() => setStep({ name: 'levels' })}>
-            <span className="welcome-emoji">📚</span>
-            <span><strong>I’ll choose my level</strong><span className="muted small">A1, A2 or B1.</span></span>
-          </button>
+          <Option emoji="🌱" title={`I’m new to ${L.name}`} text="Start with the first lesson: hello, names, numbers." onClick={() => begin(ORDER[0])} />
+          <Option emoji="🧭" title="I know some: find my level" text="A short test, 2–8 minutes. It stops as soon as it finds your level." onClick={() => setStep({ name: 'intro' })} />
+          <Option emoji="📚" title="I’ll choose my level" text="A1, A2 or B1." onClick={() => setStep({ name: 'levels' })} />
         </div>
-        {accountsEnabled && !user && <p className="small muted">Already learning with Hablo? <Link to="/account" onClick={() => updateSettings({ welcomed: true })}>Sign in</Link> to continue where you left off.</p>}
+        {accountsEnabled && !configProblem && !user && (
+          <section className="card welcome-signin">
+            <h2>Already learning with Hablo?</h2>
+            <p className="muted small">Sign in to continue where you left off, on any device.</p>
+            <AccountCard bare />
+          </section>
+        )}
       </div>
     );
   }
@@ -96,10 +102,7 @@ export function Welcome() {
             const first = UNITS.find((u) => u.level === lv);
             if (!first) return null;
             return (
-              <button key={lv} className="card action welcome-option" onClick={() => begin(first.id)}>
-                <span className={`badge ${lv}`}>{lv}</span>
-                <span><strong>{LEVEL_INFO[lv].name}</strong><span className="muted small">{L.levels[lv]}</span></span>
-              </button>
+              <Option key={lv} badge={lv} title={LEVEL_INFO[lv].name} text={L.levels[lv]} onClick={() => begin(first.id)} />
             );
           })}
         </div>
@@ -174,5 +177,15 @@ export function Welcome() {
       <AccountCard bare />
       <button className="btn primary welcome-skip" onClick={() => finish(step.startId)}>{user ? 'Continue' : 'Not now, start learning'}</button>
     </div>
+  );
+}
+
+function Option({ emoji, badge, title, text, onClick }: { emoji?: string; badge?: Level; title: string; text: string; onClick: () => void }) {
+  return (
+    <button className="welcome-option" onClick={onClick}>
+      <span className="welcome-icon" aria-hidden="true">{badge ? <span className={`badge ${badge}`}>{badge}</span> : emoji}</span>
+      <span className="welcome-text"><strong>{title}</strong><span className="muted small">{text}</span></span>
+      <span className="welcome-chevron" aria-hidden="true">›</span>
+    </button>
   );
 }
