@@ -426,7 +426,6 @@ function ListenView({ ex, onResult, locked, onQuiet }: { ex: Extract<Exercise, {
       <p className="ex-label">Type what you hear</p>
       <div className="ex-prompt listen">
         <SpeakButton text={ex.answer} className="big" />
-        <SpeakButton text={ex.answer} slow />
       </div>
       <TextAnswer locked={locked} onSubmit={(v) => {
         const r = feedbackFor(v, ex.answer, [], true);

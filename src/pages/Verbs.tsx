@@ -149,7 +149,7 @@ function Tables() {
                         <tr key={i}>
                           <td className="muted">{personLabel(t.id, i)}</td>
                           <td lang={LANG}>{f}</td>
-                          <td><SpeakButton text={f} /></td>
+                          <td><SpeakButton text={f} single /></td>
                         </tr>
                       ) : null,
                     )}

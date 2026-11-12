@@ -6,6 +6,7 @@ import { getProgress } from '../lib/store';
 import { recallChance } from '../lib/srs';
 import { shuffle } from '../lib/text';
 import { speak, stopSpeaking } from '../lib/speech';
+import { SpeedSwitch, speedOpts, useSpeed } from '../components/SpeedSwitch';
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -31,6 +32,7 @@ export function Listen() {
   const [source, setSource] = useState<Source>('mine');
   const [english, setEnglish] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const { speed: spd, setSpeed: setSpd, ref: speed } = useSpeed();
   const [list, setList] = useState<Word[]>(() => wordsFor('mine'));
   const [i, setI] = useState(0);
   const [phase, setPhase] = useState<'es' | 'en'>('es');
@@ -57,16 +59,16 @@ export function Listen() {
         const w = list[n % list.length];
         setI(n % list.length);
         setPhase('es');
-        await speak(w.es);
+        await speak(w.es, speedOpts(speed.current));
         if (!alive()) break;
         await wait(2200);
         if (!alive()) break;
         setPhase('en');
         if (english) await speak(w.en, { lang: 'en' });
         await wait(600);
-        if (w.ex && alive()) await speak(w.ex);
+        if (w.ex && alive()) await speak(w.ex, speedOpts(speed.current));
         if (!alive()) break;
-        await speak(w.es);
+        await speak(w.es, speedOpts(speed.current));
         await wait(1500);
         n++;
       }
@@ -92,6 +94,7 @@ export function Listen() {
             {UNITS.map((u) => <option key={u.id} value={u.id}>{u.level} · {u.title}</option>)}
           </select>
           <label className="toggle"><input type="checkbox" checked={english} onChange={(e) => setEnglish(e.target.checked)} /> Speak English too</label>
+          <SpeedSwitch speed={spd} onChange={setSpd} />
         </div>
       </div>
       {w && (

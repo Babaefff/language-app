@@ -39,7 +39,6 @@ export function LearnCards({ words, onDone, onExit }: { words: Word[]; onDone: (
           <div className="learn-es" lang={LANG}>{w.es}</div>
           <div className="row center">
             <SpeakButton text={w.es} />
-            <SpeakButton text={w.es} slow />
           </div>
           <div className="learn-en">{w.en}</div>
           <WordParts word={w} />

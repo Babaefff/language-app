@@ -8,15 +8,8 @@ import { tokenize } from '../lib/text';
 import { gloss, type Gloss } from '../lib/gloss';
 import { chunks } from '../lib/audioKey';
 import { speak, stopSpeaking } from '../lib/speech';
+import { SPEEDS, SpeedSwitch, useSpeed } from '../components/SpeedSwitch';
 
-type Speed = 'slower' | 'slow' | 'normal';
-const SPEED_KEY = 'hablo:reading-speed';
-/** rate: as in Settings (0.9 = normal); undefined = the speed chosen in Settings. */
-const SPEEDS: Record<Speed, { label: string; rate?: number; pause: number }> = {
-  slower: { label: '🐢 Slower', rate: 0.55, pause: 900 },
-  slow: { label: 'Slow', rate: 0.7, pause: 500 },
-  normal: { label: 'Normal', pause: 0 },
-};
 import { addXp, completeReading, gradeWord, useProgress } from '../lib/store';
 import { SpeakButton } from '../components/SpeakButton';
 import { coverage, isReady, readyAfter } from '../lib/readiness';
@@ -83,13 +76,10 @@ export function ReadingPage() {
   const [submitted, setSubmitted] = useState(false);
   const playId = useRef(0);
   // Reading speed for beginners: slow keeps the voice natural (pitch unchanged) and pauses between sentences.
-  const [speed, setSpeed] = useState<Speed>(() => { try { const v = localStorage.getItem(SPEED_KEY); return v === 'slow' || v === 'slower' ? v : 'normal'; } catch { return 'normal'; } });
-  const pickSpeed = (v: Speed) => { setSpeed(v); try { localStorage.setItem(SPEED_KEY, v); } catch { /* this visit only */ } };
-  const speedRef = useRef(speed);
+  const { speed, setSpeed: pickSpeed, ref: speedRef } = useSpeed();
   /** Shadowing ("repeat after me"): the sentence the learner should say now. */
   const [turn, setTurn] = useState<string | null>(null);
   const [shadowing, setShadowing] = useState(false);
-  speedRef.current = speed;
   const songRef = useRef<SongPlayerHandle>(null);
   const [synced, setSynced] = useState(false);
   const keysRef = useRef<string[]>([]);
@@ -143,9 +133,7 @@ export function ReadingPage() {
             {!r.song && <button className="btn" onClick={() => { setShadowing(true); void play(0, { shadow: true }); }}>🗣 Repeat after me</button>}
           </>}
           {!r.song && (
-            <div className="seg speed-seg" role="group" aria-label="Reading speed">
-              {(Object.keys(SPEEDS) as Speed[]).map((k) => <button key={k} className={speed === k ? 'on' : ''} aria-pressed={speed === k} onClick={() => pickSpeed(k)}>{SPEEDS[k].label}</button>)}
-            </div>
+            <SpeedSwitch speed={speed} onChange={pickSpeed} />
           )}
           <label className="toggle"><input type="checkbox" checked={showEn} onChange={(e) => setShowEn(e.target.checked)} /> English</label>
         </div>
