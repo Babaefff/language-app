@@ -8,6 +8,15 @@ import { tokenize } from '../lib/text';
 import { gloss, type Gloss } from '../lib/gloss';
 import { chunks } from '../lib/audioKey';
 import { speak, stopSpeaking } from '../lib/speech';
+
+type Speed = 'slower' | 'slow' | 'normal';
+const SPEED_KEY = 'hablo:reading-speed';
+/** rate: as in Settings (0.9 = normal); undefined = the speed chosen in Settings. */
+const SPEEDS: Record<Speed, { label: string; rate?: number; pause: number }> = {
+  slower: { label: '🐢 Slower', rate: 0.55, pause: 900 },
+  slow: { label: 'Slow', rate: 0.7, pause: 500 },
+  normal: { label: 'Normal', pause: 0 },
+};
 import { addXp, completeReading, gradeWord, useProgress } from '../lib/store';
 import { SpeakButton } from '../components/SpeakButton';
 import { coverage, isReady, readyAfter } from '../lib/readiness';
@@ -73,6 +82,11 @@ export function ReadingPage() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [submitted, setSubmitted] = useState(false);
   const playId = useRef(0);
+  // Reading speed for beginners: slow keeps the voice natural (pitch unchanged) and pauses between sentences.
+  const [speed, setSpeed] = useState<Speed>(() => { try { const v = localStorage.getItem(SPEED_KEY); return v === 'slow' || v === 'slower' ? v : 'normal'; } catch { return 'normal'; } });
+  const pickSpeed = (v: Speed) => { setSpeed(v); try { localStorage.setItem(SPEED_KEY, v); } catch { /* this visit only */ } };
+  const speedRef = useRef(speed);
+  speedRef.current = speed;
   const songRef = useRef<SongPlayerHandle>(null);
   const [synced, setSynced] = useState(false);
   const keysRef = useRef<string[]>([]);
@@ -91,7 +105,10 @@ export function ReadingPage() {
     for (const { key, s } of all.slice(from)) {
       if (playId.current !== me) return;
       setCurrent(key);
-      await speak(s);
+      const sp = SPEEDS[speedRef.current];
+      await speak(s, sp.rate ? { rate: sp.rate } : {});
+      // A short breath between sentences gives time to follow along.
+      if (sp.pause && playId.current === me) await new Promise((res) => setTimeout(res, sp.pause));
     }
     if (playId.current === me) setCurrent(null);
   };
@@ -108,8 +125,13 @@ export function ReadingPage() {
           <h1 lang={LANG}>{r.title}</h1>
           {r.source && <p className="muted small">{r.source}</p>}
         </div>
-        <div className="row">
+        <div className="row wrap reading-controls">
           {current ? <button className="btn" onClick={stop}>⏹ Stop</button> : <button className="btn primary" onClick={() => play()}>▶ {r.song ? 'Speak lyrics' : 'Read aloud'}</button>}
+          {!r.song && (
+            <div className="seg speed-seg" role="group" aria-label="Reading speed">
+              {(Object.keys(SPEEDS) as Speed[]).map((k) => <button key={k} className={speed === k ? 'on' : ''} aria-pressed={speed === k} onClick={() => pickSpeed(k)}>{SPEEDS[k].label}</button>)}
+            </div>
+          )}
           <label className="toggle"><input type="checkbox" checked={showEn} onChange={(e) => setShowEn(e.target.checked)} /> English</label>
         </div>
       </div>

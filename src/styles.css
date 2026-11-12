@@ -997,3 +997,7 @@ details summary { padding: 10px 0; }
 .toggle { min-height: 44px; display: flex; align-items: center; gap: 10px; }
 input[type='checkbox'], input[type='radio'] { width: 22px; height: 22px; flex: none; accent-color: var(--primary); }
 input[type='range'] { min-height: 32px; }
+.speed-seg button { min-height: 40px; padding: 6px 12px; }
+.reading-controls { gap: 8px; }
+.reading-controls .btn { white-space: nowrap; }
+.reading-controls .toggle { margin-top: 0; }
