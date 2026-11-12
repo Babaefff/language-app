@@ -18,6 +18,8 @@ async function start() {
     </StrictMode>,
   );
   void initSync();
+  // App only: plan the daily reminders (after sync, so the word counts include other devices).
+  setTimeout(() => { void import('./lib/reminders').then((r) => r.startReminders()); }, 4000);
 }
 start().catch(() => {
   // e.g. offline on a first visit to another language: say so instead of a blank page.

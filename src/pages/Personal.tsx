@@ -1,3 +1,4 @@
+import { setDrillLeft } from '../lib/reminders';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from '../components/Nav';
 import { LANG } from '../data/lang';
@@ -191,6 +192,8 @@ export function Personal() {
         const drill = drillState(set.content, results, set.id);
         const knownN = drill.filter((w) => w.known).length;
         const danger = drill.filter((w) => w.danger);
+        // For the daily reminder ("37 words in your word drill"): words not yet known.
+        setDrillLeft(drill.filter((w) => !w.known).length);
         return (
           <div key={set.id} className="personal-set">
             <div className="row personal-head">
