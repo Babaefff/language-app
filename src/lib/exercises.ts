@@ -6,6 +6,8 @@ import { VERB_MAP } from '../data/verbs';
 import { conjugate, lookupForm, personLabelsFor, TENSE_MAP } from './conjugate';
 import { checkAnswer, normalize, sample, shuffle } from './text';
 import { L, LANG } from '../data/lang';
+import { teachBefore } from './taught';
+import type { Phrase } from '../data/phrases/types';
 
 export type Exercise =
   | { kind: 'choice'; key: string; prompt: string; label: string; audio?: string; options: string[]; answer: string; wordId?: string; optionsSpanish: boolean; hint?: string; base?: string; promptSpanish?: boolean; typed?: boolean; why?: string; accept?: string[] }
@@ -20,7 +22,9 @@ export type Exercise =
   /** A study card: the full table of a verb before it is practised. Not scored. */
   | { kind: 'study'; key: string; inf: string; tense: Tense }
   /** Say a sentence aloud (speech recognition checks which words were understood). */
-  | { kind: 'speak'; key: string; es: string; en: string };
+  | { kind: 'speak'; key: string; es: string; en: string }
+  /** Not scored: words, verb forms and constructions of the next sentence, taught before it is asked. */
+  | { kind: 'teach'; key: string; es: string; en: string; words: { word: string; en: string; detail?: string }[]; phrases: Phrase[] };
 
 let seq = 0;
 const key = () => `x${++seq}`;
@@ -222,18 +226,27 @@ export function stepExercises(unit: Unit, step: number, review: Word[] = []): Ex
   const writeAgain = sentences.slice(0, 2).map((s): Exercise => ({ kind: 'type', key: key(), label: `Now write it yourself in ${L.name}`, prompt: s.en, answer: s.es }));
   // Speaking: say two short sentences aloud (left out where the browser can't listen).
   const speakIt = shuffle(sentences.filter((s) => s.es.split(' ').length <= 8)).slice(0, 2).map((s): Exercise => ({ kind: 'speak', key: key(), es: s.es, en: s.en }));
-  // Verbs: for each verb, first the table, then choosing forms, then typing one.
+  // Verbs first: each verb's table, then choosing and typing its forms. The sentences after it
+  // use these forms, so they are taught before they are asked.
   const conj = unit.conj;
   const verbBlocks = conj ? conj.verbs.slice(0, 3).map((v, i) => conjSet(v, conj.tenses[i % conj.tenses.length], 1)).filter((b) => b.length) : [];
-  // Alternate a verb block with a few sentence builds; written sentences come last.
+  return [...verbBlocks.flat(), ...withTeaching(builds, unit), ...speakIt, ...writeAgain];
+}
+
+/**
+ * Puts a short "new in the next sentence" card before every sentence that uses a word, verb form
+ * or construction not taught yet (each thing once). Teach before testing, in every language.
+ */
+export function withTeaching(exercises: Exercise[], unit?: Unit): Exercise[] {
+  const seen = new Set<string>();
   const out: Exercise[] = [];
-  const per = Math.ceil(builds.length / (verbBlocks.length + 1));
-  let at = 0;
-  for (const block of verbBlocks) {
-    out.push(...block, ...builds.slice(at, at + per));
-    at += per;
+  for (const ex of exercises) {
+    if (ex.kind === 'build' || ex.kind === 'speak') {
+      const t = teachBefore(ex.es, unit, seen);
+      if (t.words.length || t.phrases.length) out.push({ kind: 'teach', key: key(), es: ex.es, en: ex.en, ...t });
+    }
+    out.push(ex);
   }
-  out.push(...builds.slice(at), ...speakIt, ...writeAgain);
   return out;
 }
 

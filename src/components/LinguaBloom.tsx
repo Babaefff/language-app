@@ -66,6 +66,7 @@ export function LinguaBloom({ seed, glyph, data, size = 64, detail = true }: { s
     );
   };
   return (
+    <span className="bloom-wrap" style={{ width: size, height: size }}>
     <svg viewBox="0 0 100 100" width={size} height={size} role="img" aria-label="Your Lingua Bloom avatar" className="bloom">
       <defs>
         <radialGradient id={`bg${uid}`} cx="50%" cy="40%" r="70%">
@@ -81,7 +82,9 @@ export function LinguaBloom({ seed, glyph, data, size = 64, detail = true }: { s
       <g>{Array.from({ length: outer }, (_, i) => petal(i, outer, length, width, 0))}</g>
       {inner > 0 && <g>{Array.from({ length: inner }, (_, i) => petal(i, inner, length * 0.62, width * 0.75, 1))}</g>}
       <circle cx="50" cy="50" r="15" fill="#fff" stroke="rgb(0 0 0 / 0.08)" />
-      <text x="50" y="50" textAnchor="middle" dominantBaseline="central" fontSize={glyph.length > 1 ? 17 : 18} fontWeight="800" fill="#222" fontFamily="system-ui, sans-serif">{glyph}</text>
     </svg>
+    {/* The letter or emoji as HTML, centred on the white circle: emoji in SVG text sits off-centre on some phones. */}
+    <span className="bloom-glyph" aria-hidden="true" style={{ fontSize: size * 0.18 }}>{glyph}</span>
+    </span>
   );
 }

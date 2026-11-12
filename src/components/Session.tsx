@@ -18,6 +18,7 @@ import { lookupForm } from '../lib/conjugate';
 import { questionId, eligibleDelayedRecall } from '../lib/learning';
 import { VERB_MAP } from '../data/verbs';
 import { SpeakButton } from './SpeakButton';
+import { PhraseNote } from './PhraseNote';
 import { AccentKeys } from './AccentKeys';
 import { VerbTable } from './VerbTable';
 import { gloss } from '../lib/gloss';
@@ -43,6 +44,10 @@ export interface Result {
   words?: Record<string, boolean>;
   /** The option chosen (multiple choice), for "Report a problem". */
   picked?: string;
+  /** Header instead of Correct / Incorrect (e.g. speaking: "Nearly perfect"). */
+  title?: string;
+  /** Offer "Try again" on the same exercise (speaking below 100%); a retry never counts twice. */
+  retry?: boolean;
   /** Not right, but close: "almost" (a word one letter off) or "partly" (a sentence with one slip). */
   grade?: 'almost' | 'partly';
 }
@@ -88,7 +93,7 @@ export function typedTrap(options: string[], answer: string, typed: string): str
 
 export function Session({ exercises, onFinish, onExit, title, test = false, untilRight = false }: { exercises: Exercise[]; onFinish: (s: SessionSummary) => void; onExit: () => void; title?: string; /** A test: wrong answers aren't asked again. */ test?: boolean; /** A drill: a wrong answer comes back until it is right, and every attempt is recorded. */ untilRight?: boolean }) {
   const [queue, setQueue] = useState(() => adaptAll(exercises));
-  const [total, setTotal] = useState(() => adaptAll(exercises).filter((e) => e.kind !== 'study').length);
+  const [total, setTotal] = useState(() => adaptAll(exercises).filter((e) => e.kind !== 'study' && e.kind !== 'teach').length);
   const [quiet, setQuietState] = useState({ listen: isQuiet('listen'), speak: isQuiet('speak') });
   /** "Can't listen / speak now": from this exercise on, for an hour. */
   const goQuiet = (what: Quiet, on = true) => {
@@ -105,21 +110,23 @@ export function Session({ exercises, onFinish, onExit, title, test = false, unti
   };
   const [index, setIndex] = useState(0);
   const [result, setResult] = useState<Result | null>(null);
-  const stats = useRef({ correct: 0, words: {} as Record<string, boolean>, close: {} as Record<string, boolean>, retried: new Set<string>(), exposed: new Set<string>(), answers: [] as NonNullable<SessionSummary['answers']> });
+  const stats = useRef({ correct: 0, words: {} as Record<string, boolean>, close: {} as Record<string, boolean>, retried: new Set<string>(), exposed: new Set<string>(), retakes: new Set<string>(), answers: [] as NonNullable<SessionSummary['answers']> });
   const ex = queue[index];
 
   const answer = (r: Result) => {
     if (result) return;
     if (r.study) return next();
-    setResult(r);
     const s = stats.current;
+    // A second try of the same exercise ("Try again"): show the new result, score stays as it was.
+    if (s.retakes.has(ex.key)) { setResult(r); return; }
+    setResult(r);
     const firstTry = !s.retried.has(ex.key);
     if (r.ok && firstTry) s.correct++;
     if (firstTry && ex.kind === 'match') for (const pair of ex.pairs) {
       recordLearning({ prompt: pair.en, answer: pair.es, wordId: pair.wordId }, r.words?.[pair.wordId] !== false);
       s.exposed.add(questionId(pair.en, pair.es));
     }
-    if (firstTry && ex.kind !== 'study' && ex.kind !== 'match') {
+    if (firstTry && ex.kind !== 'study' && ex.kind !== 'teach' && ex.kind !== 'match') {
       const word = 'wordId' in ex && ex.wordId ? WORD_MAP[ex.wordId] : undefined;
       const task = word ? { prompt: word.en, answer: word.es, wordId: word.id } :
         ex.kind === 'build' ? { prompt: ex.en, answer: ex.es } :
@@ -144,7 +151,7 @@ export function Session({ exercises, onFinish, onExit, title, test = false, unti
     }
     // Speaking isn't repeated: speech recognition can miss words, so no endless retries.
     if (firstTry || untilRight) {
-      const q = ex.kind === 'build' ? ex.en : ex.kind === 'speak' ? ex.en : ex.kind === 'listen' ? `(audio) ${ex.en}` : ex.kind === 'match' ? 'Match the pairs' : ex.kind === 'study' ? '' : ex.kind === 'conj' ? `${personLabel(ex.tense, ex.person)} · ${ex.inf}` : ex.prompt;
+      const q = ex.kind === 'build' ? ex.en : ex.kind === 'speak' ? ex.en : ex.kind === 'listen' ? `(audio) ${ex.en}` : ex.kind === 'match' ? 'Match the pairs' : ex.kind === 'study' || ex.kind === 'teach' ? '' : ex.kind === 'conj' ? `${personLabel(ex.tense, ex.person)} · ${ex.inf}` : ex.prompt;
       const expected = ex.kind === 'build' || ex.kind === 'speak' ? ex.es : 'answer' in ex ? ex.answer : '';
       if (q) s.answers.push({ q, expected, given: r.typed ?? r.picked ?? '', ok: r.ok });
     }
@@ -187,6 +194,7 @@ export function Session({ exercises, onFinish, onExit, title, test = false, unti
       ex.kind === 'listen' ? { prompt: `(audio) ${ex.en}`, answer: ex.answer } :
       ex.kind === 'match' ? { prompt: 'Match the pairs', answer: ex.pairs.map((x) => `${x.es} = ${x.en}`).join('; ') } :
       ex.kind === 'study' ? { prompt: `New forms · ${ex.inf} · ${tenseLabel(ex.tense)}`, answer: '' } :
+      ex.kind === 'teach' ? { prompt: `New in the next sentence: ${ex.words.map((w) => w.word).concat(ex.phrases.map((p) => p.phrase)).join(', ')}`, answer: '' } :
       ex.kind === 'speak' ? { prompt: `Say: ${ex.es} (${ex.en})`, answer: ex.es } :
       { prompt: ex.prompt, answer: ex.answer };
     const label = 'label' in ex ? ex.label : ex.kind === 'listen' ? 'Type what you hear' : ex.kind === 'build' ? `Build the sentence in ${L.name}` : ex.kind === 'speak' ? `Say it in ${L.name}` : undefined;
@@ -214,7 +222,7 @@ export function Session({ exercises, onFinish, onExit, title, test = false, unti
       {result && (
         <div role="status" className={`feedback ${result.ok ? 'good' : result.grade ? 'close' : 'bad'}`}>
           <div>
-            <strong>{t(result.ok ? 'Correct' : result.grade === 'almost' ? 'Almost' : result.grade === 'partly' ? 'Partly correct' : 'Incorrect')}</strong>
+            <strong>{t(result.title ?? (result.ok ? 'Correct' : result.grade === 'almost' ? 'Almost' : result.grade === 'partly' ? 'Partly correct' : 'Incorrect'))}</strong>
             {!result.ok && (
               <div className="feedback-answer">
                 {t('Correct answer:')} <span lang={LANG}>{result.answer}</span> <SpeakButton text={result.answer} />
@@ -228,7 +236,10 @@ export function Session({ exercises, onFinish, onExit, title, test = false, unti
             {!result.ok && <p className="small">{t('Saved for review.')}</p>}
             {result.why && <details className="why"><summary>{t('Why?')}</summary><p>{result.why}</p></details>}
           </div>
-          <button className="btn primary" onClick={next} autoFocus>{t('Continue')}</button>
+          <div className="feedback-actions">
+            {result.retry && <button className="btn" onClick={() => { stats.current.retakes.add(ex.key); setResult(null); }}>🎤 {t('Try again')}</button>}
+            <button className="btn primary" onClick={next} autoFocus>{t('Continue')}</button>
+          </div>
         </div>
       )}
     </div>
@@ -252,6 +263,7 @@ function ExerciseBody({ ex, onResult, locked, onQuiet }: { ex: Exercise; onResul
     case 'match': return <MatchView ex={ex} onResult={onResult} />;
     case 'conj': return <ConjView ex={ex} onResult={onResult} locked={locked} />;
     case 'study': return <StudyView ex={ex} onResult={onResult} />;
+    case 'teach': return <TeachView ex={ex} onResult={onResult} />;
   }
 }
 
@@ -448,9 +460,17 @@ function SpeakView({ ex, onResult, locked, onQuiet }: { ex: Extract<Exercise, { 
     setListening(true);
     try {
       const r = compareSpeech(ex.es, await listenOnce());
-      // Most words understood → correct; about half → partly correct; otherwise try it again later.
-      const grade = r.pct >= 80 ? 'ok' : r.pct >= 50 ? 'partly' : 'no';
-      onResult({ ok: grade === 'ok', answer: ex.es, typed: r.heard || undefined, note: r.heard ? `We heard: “${r.heard}” (${r.pct}% of the words).` : 'Nothing was understood. Speak a little louder and closer to the microphone.', ...(grade === 'partly' ? { grade: 'partly' as const } : {}) });
+      // Every word → Correct. Most words → it passes, but it isn't called "Correct" and can be
+      // tried again; about half → partly correct; otherwise it comes back later.
+      const grade = r.pct >= 100 ? 'ok' : r.pct >= 80 ? 'nearly' : r.pct >= 50 ? 'partly' : 'no';
+      const heard = r.heard ? `We heard: “${r.heard}” (${r.pct}% of the words).` : 'Nothing was understood. Speak a little louder and closer to the microphone.';
+      onResult({
+        ok: grade === 'ok' || grade === 'nearly', answer: ex.es, typed: r.heard || undefined,
+        note: grade === 'ok' ? heard : `${heard} ${t('Try again to get every word.')}`,
+        ...(grade === 'nearly' ? { title: 'Nearly perfect' } : {}),
+        ...(grade === 'partly' ? { grade: 'partly' as const } : {}),
+        retry: grade !== 'ok',
+      });
     } catch (e) {
       const code = (e as Error).message;
       setError(RECOGNITION_ERRORS[code] ?? `Speech recognition failed (${code}).`);
@@ -714,6 +734,29 @@ function StudyView({ ex, onResult }: { ex: Extract<Exercise, { kind: 'study' }>;
       <p className="muted small">Read the forms first: tap any form to hear it. Look at what changes from row to row, then practise.</p>
       <VerbTable verbs={[ex.inf]} tense={ex.tense} />
       <button className="btn primary" autoFocus onClick={() => onResult({ ok: true, answer: '', study: true })}>Got it, let's practise →</button>
+    </>
+  );
+}
+
+/** Before a sentence: its new words, verb forms and constructions, so nothing is asked untaught. */
+function TeachView({ ex, onResult }: { ex: Extract<Exercise, { kind: 'teach' }>; onResult: (r: Result) => void }) {
+  return (
+    <>
+      <p className="ex-label">{t('New in the next sentence')}</p>
+      <p className="muted small">{t('Learn these first, then build the sentence.')}</p>
+      {ex.words.length > 0 && (
+        <ul className="word-list teach-words">
+          {ex.words.map((w) => (
+            <li key={w.word}>
+              <span lang={LANG} className="es">{w.word}</span>
+              <span>{w.en}{w.detail && <span className="muted small"> · {w.detail}</span>}</span>
+              <SpeakButton text={w.word} />
+            </li>
+          ))}
+        </ul>
+      )}
+      {ex.phrases.map((p) => <PhraseNote key={p.phrase} p={p} />)}
+      <button className="btn primary" autoFocus onClick={() => onResult({ ok: true, answer: '', study: true })}>{t('Got it')} →</button>
     </>
   );
 }

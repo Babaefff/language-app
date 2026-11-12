@@ -1041,3 +1041,9 @@ input[type='range'] { min-height: 32px; }
 /* Centre bottom popups without transform (the fade-in animation resets transform). */
 .popup, .shadow-turn { left: 0; right: 0; margin-inline: auto; transform: none; }
 .start-card { display: grid; gap: 6px; } .start-card .btn { justify-self: start; }
+.feedback-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; }
+.teach-words li { align-items: center; }
+/* Lingua Bloom avatar: the centre letter / emoji is HTML, centred exactly on the circle. */
+.bloom-wrap { position: relative; display: inline-block; flex: none; line-height: 0; }
+.bloom-wrap .bloom { display: block; }
+.bloom-glyph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; line-height: 1; font-weight: 800; color: #222; font-family: system-ui, sans-serif; pointer-events: none; }

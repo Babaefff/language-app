@@ -1,6 +1,7 @@
 import type { Phrase } from './types';
 
 export const PHRASES_ES: Phrase[] = [
+  { re: 'a (?:mi|tu|su|nuestro|nuestra|mis|tus|sus) \\p{L}+ (?:le|les) gustan?|a [A-ZÁÉÍÓÚÑ]\\p{L}+ (?:le|les) gustan?', phrase: 'A mi hermano le gusta …', en: 'My brother likes …', literal: 'to my brother, … pleases him', note: 'With a person, gustar needs **a** (= to) before them and **le** (= to him / to her) as well: *A Ana le gusta bailar.* For several people: *A mis padres les gusta.* Both words are needed, even though English has no word for them.' },
   { re: '(me|te|le|nos|os|les) gusta|(me|te|le|nos|os|les) gustan', phrase: 'Me gusta …', en: 'I like …', literal: '… pleases me', note: 'The thing you like is the subject: me gusta el café, me gustan los libros (plural → gustan). Not “yo gusto”.' },
   { re: '(me|te|le|nos|os|les) encanta', phrase: 'Me encanta …', en: 'I love …', literal: '… enchants me', note: 'Works like gustar: me encanta bailar.' },
   { re: '(me|te|se) llam(o|as|a)|(cómo|como) te llamas', phrase: 'Me llamo …', en: 'My name is …', literal: 'I call myself …', note: 'llamarse = to be called. ¿Cómo te llamas? = What’s your name?' },
