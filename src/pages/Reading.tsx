@@ -79,7 +79,8 @@ export function ReadingPage() {
   const { speed, setSpeed: pickSpeed, ref: speedRef } = useSpeed();
   /** Shadowing ("repeat after me"): the sentence the learner should say now. */
   const [turn, setTurn] = useState<string | null>(null);
-  const [shadowing, setShadowing] = useState(false);
+  /** The sentence heard last, for "Again". */
+  const [last, setLast] = useState<number | null>(null);
   const songRef = useRef<SongPlayerHandle>(null);
   const [synced, setSynced] = useState(false);
   const keysRef = useRef<string[]>([]);
@@ -101,6 +102,7 @@ export function ReadingPage() {
     for (const { key, s } of all.slice(from, opts.only ? from + 1 : undefined)) {
       if (playId.current !== me) return;
       setCurrent(key);
+      setLast(all.findIndex((x) => x.key === key));
       const sp = SPEEDS[speedRef.current];
       await speak(s, sp.rate ? { rate: sp.rate } : {});
       if (playId.current !== me) return;
@@ -112,9 +114,9 @@ export function ReadingPage() {
         setTurn(null);
       } else if (sp.pause && !opts.only) await new Promise((res) => setTimeout(res, sp.pause));
     }
-    if (playId.current === me) { setCurrent(null); setShadowing(false); }
+    if (playId.current === me) { setCurrent(null); }
   };
-  const stop = () => { playId.current++; stopSpeaking(); setCurrent(null); setTurn(null); setShadowing(false); };
+  const stop = () => { playId.current++; stopSpeaking(); setCurrent(null); setTurn(null); };
 
   const score = r.questions.filter((q, i) => answers[i] === q.answer).length;
 
@@ -128,9 +130,10 @@ export function ReadingPage() {
           {r.source && <p className="muted small">{r.source}</p>}
         </div>
         <div className="row wrap reading-controls">
+          {!r.song && last !== null && <button className="btn" onClick={() => void play(last, { only: true })} aria-label="Hear the last sentence again">🔁 Again</button>}
           {current || turn ? <button className="btn" onClick={stop}>⏹ Stop</button> : <>
             <button className="btn primary" onClick={() => play()}>▶ {r.song ? 'Speak lyrics' : 'Read aloud'}</button>
-            {!r.song && <button className="btn" onClick={() => { setShadowing(true); void play(0, { shadow: true }); }}>🗣 Repeat after me</button>}
+            {!r.song && <button className="btn" onClick={() => { void play(0, { shadow: true }); }}>🗣 Repeat after me</button>}
           </>}
           {!r.song && (
             <SpeedSwitch speed={speed} onChange={pickSpeed} />
@@ -161,7 +164,6 @@ export function ReadingPage() {
                       <span key={ti}>{t.text}</span>
                     ),
                   )}
-                  {!r.song && <button className="say-line" aria-label="Hear this sentence again" title="Hear this sentence" onClick={() => void play(all.findIndex((x) => x.key === `${pi}:${si}`), { only: true, shadow: shadowing })}>🔊</button>}
                   {r.song && showEn && <span className="line-en" lang="en">{r.translation[pi].split('\n')[si]}</span>}
                 </span>
               ))}
@@ -177,7 +179,7 @@ export function ReadingPage() {
           <span lang={LANG}>{turn}</span>
         </div>
       )}
-      {!r.song && <p className="small muted">Tap 🔊 after a sentence to hear it again, or a word for its meaning. “Repeat after me” pauses after each sentence so you can say it yourself: the best way to train your ear and your accent.</p>}
+      {!r.song && <p className="small muted">Tap a word for its meaning. 🔁 Again replays the last sentence. “Repeat after me” pauses after each sentence so you can say it yourself: the best way to train your ear and your accent.</p>}
 
       {popup && (
         <div className="popup card" role="dialog">
