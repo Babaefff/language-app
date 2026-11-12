@@ -969,3 +969,31 @@ td .say { display: inline-flex; align-items: center; gap: 0.15rem; text-decorati
 .accent-box { display: grid; gap: 6px; margin-bottom: 14px; }
 .accent-pairs { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
 .accent-pairs li { display: grid; gap: 2px; padding: 8px 10px; border-radius: 10px; background: var(--surface-2, rgba(127,127,127,.08)); }
+
+/* Admin: learners overview */
+.learner-list { display: grid; gap: 10px; }
+.learner-row { display: block; text-decoration: none; color: inherit; }
+.learner-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.learner-email { overflow-wrap: anywhere; }
+.learner-stats { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 4px; color: var(--muted); }
+.bad-text { color: var(--bad); font-weight: 600; }
+.warn-text { color: var(--primary); font-weight: 600; }
+.learner-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 10px; margin: 8px 0 12px; }
+.learner-kpis .big-number { font-size: 1.8rem; line-height: 1.1; }
+.activity-grid { display: grid; grid-template-columns: repeat(14, 1fr); gap: 4px; max-width: 420px; }
+.act-cell { aspect-ratio: 1; border-radius: 4px; background: var(--border); }
+.act-cell.a1 { background: color-mix(in srgb, var(--good) 35%, transparent); }
+.act-cell.a2 { background: color-mix(in srgb, var(--good) 65%, transparent); }
+.act-cell.a3 { background: var(--good); }
+.danger-words { display: flex; flex-wrap: wrap; gap: 6px; }
+.danger-words .chip { display: inline-block; padding: 4px 10px; border-radius: 999px; background: var(--bad-soft); font-size: .9rem; }
+
+/* Phone tap sizes: every control gets a touch area of at least ~44px, without changing the layout. */
+.lang-switch { min-height: 40px; }
+.link { position: relative; }
+.link::after { content: ''; position: absolute; inset: -12px -6px; }
+p > .link:only-child, .back-link { display: inline-block; }
+details summary { padding: 10px 0; }
+.toggle { min-height: 44px; display: flex; align-items: center; gap: 10px; }
+input[type='checkbox'], input[type='radio'] { width: 22px; height: 22px; flex: none; accent-color: var(--primary); }
+input[type='range'] { min-height: 32px; }

@@ -199,6 +199,16 @@ export async function myResults(): Promise<PersonalResult[]> {
 }
 
 // ---- Admin -------------------------------------------------------------------------------
+export interface LearnerProgress { lang: string; updated_at: string; xp: Record<string, number>; exams: Record<string, { at: number; best: number }>; units: number; words: number; known: number; learning: number; due: number; danger: string[] }
+export interface Learner { user_id: string; email: string; created_at: string; last_sign_in_at: string | null; progress: LearnerProgress[] }
+/** Every learner with a summary of their progress (admin only; needs the "Admin overview" SQL). */
+export async function adminLearners(): Promise<Learner[]> {
+  const sb = await supabase();
+  const { data, error } = await sb.rpc('admin_learners');
+  if (error) throw new Error(/admin_learners|function/i.test(error.message) ? 'Run the “Admin overview” section of supabase/schema.sql in Supabase (SQL Editor) once.' : error.message);
+  return (data ?? []) as Learner[];
+}
+
 export async function adminSets() {
   const sb = await supabase();
   const [{ data: s }, { data: o }, { data: r }] = await Promise.all([

@@ -204,3 +204,35 @@ begin
 end $$;
 revoke all on function public.personal_overview() from public, anon;
 grant execute on function public.personal_overview() to authenticated;
+
+-- ============================================================================================
+-- Admin overview: one row per learner with a summary of their progress (no full copies).
+-- Only admins can call it. Re-runnable.
+-- ============================================================================================
+create or replace function public.admin_learners()
+returns table (user_id uuid, email text, created_at timestamptz, last_sign_in_at timestamptz, progress jsonb)
+language plpgsql stable security definer set search_path = '' as $$
+begin
+  if not public.is_admin() then raise exception 'Only admins.'; end if;
+  return query
+  select u.id, u.email::text, u.created_at, u.last_sign_in_at,
+    coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'lang', p.lang,
+        'updated_at', p.updated_at,
+        'xp', coalesce(p.data->'xp', '{}'::jsonb),
+        'exams', coalesce(p.data->'exams', '{}'::jsonb),
+        'units', (select count(*) from jsonb_object_keys(coalesce(p.data->'units', '{}'::jsonb))),
+        'words', (select count(*) from jsonb_each(coalesce(p.data->'cards', '{}'::jsonb))),
+        'known', (select count(*) from jsonb_each(coalesce(p.data->'cards', '{}'::jsonb)) c where (c.value->>'interval')::numeric >= 14),
+        'learning', (select count(*) from jsonb_each(coalesce(p.data->'cards', '{}'::jsonb)) c where (c.value->>'interval')::numeric < 1),
+        'due', (select count(*) from jsonb_each(coalesce(p.data->'cards', '{}'::jsonb)) c where (c.value->>'due')::numeric <= extract(epoch from now()) * 1000),
+        'danger', coalesce((select jsonb_agg(c.key) from jsonb_each(coalesce(p.data->'cards', '{}'::jsonb)) c where (c.value->>'lapses')::int >= 3), '[]'::jsonb)
+      ) order by p.updated_at desc)
+      from public.progress p where p.user_id = u.id
+    ), '[]'::jsonb)
+  from auth.users u
+  order by u.last_sign_in_at desc nulls last;
+end $$;
+revoke all on function public.admin_learners() from public, anon;
+grant execute on function public.admin_learners() to authenticated;

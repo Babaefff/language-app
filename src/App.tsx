@@ -4,6 +4,7 @@ import { Insights } from './pages/Insights';
 import { AdminFeedback, FeedbackThanks, MyFeedback } from './pages/FeedbackPages';
 import { Personal } from './pages/Personal';
 import { AdminPersonal } from './pages/AdminPersonal';
+import { AdminLearner, AdminLearners } from './pages/AdminLearners';
 import { usePersonal } from './lib/personal';
 import { ExamList, ExamPage } from './pages/Exam';
 import { Speaking } from './pages/Speaking';
@@ -106,6 +107,8 @@ function Shell() {
           <Route path="/feedback" element={<MyFeedback />} />
           <Route path="/admin" element={<AdminFeedback />} />
           <Route path="/admin/personal" element={<AdminPersonal />} />
+          <Route path="/admin/learners" element={<AdminLearners />} />
+          <Route path="/admin/learners/:id" element={<AdminLearner />} />
           <Route path="/mine" element={<Personal />} />
           <Route path="/course" element={<Course />} />
           <Route path="/unit/:id" element={<UnitPage />} />
