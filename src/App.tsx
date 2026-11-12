@@ -5,6 +5,7 @@ import { AdminFeedback, FeedbackThanks, MyFeedback } from './pages/FeedbackPages
 import { Personal } from './pages/Personal';
 import { AdminPersonal } from './pages/AdminPersonal';
 import { AdminLearner, AdminLearners } from './pages/AdminLearners';
+import { Welcome } from './pages/Welcome';
 import { usePersonal } from './lib/personal';
 import { ExamList, ExamPage } from './pages/Exam';
 import { Speaking } from './pages/Speaking';
@@ -64,6 +65,9 @@ function Shell() {
   const st = goalStreak(p);
   // Personal material shows as its own tab, only for the person it was given to.
   const personal = usePersonal(user?.id);
+  // First visit on this device with no progress at all: show the welcome (where to start).
+  const fresh = !p.settings.welcomed && Object.keys(p.xp).length === 0 && Object.keys(p.units).length === 0 && !user;
+  useEffect(() => { if (fresh && pathname === '/') navigate('/welcome', { replace: true }); }, [fresh, pathname, navigate]);
   const mine = personal?.find((s) => s.lang === LANG);
   const mineItem = mine ? [{ to: '/mine', icon: 'heart' as const, label: mine.tabName }] : [];
   const desktopNav = [...DESKTOP_NAV, ...mineItem];
@@ -102,6 +106,7 @@ function Shell() {
         <ErrorBoundary key={`${pathname}:${user?.id ?? 'guest'}`} onReset={() => navigate('/')}>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/welcome" element={<Welcome />} />
           <Route path="/daily" element={<Daily />} />
           <Route path="/progress" element={<Insights />} />
           <Route path="/feedback" element={<MyFeedback />} />

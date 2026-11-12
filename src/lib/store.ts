@@ -28,6 +28,8 @@ export interface Settings {
   planMinutes: number;
   /** Weekly goal: practise this many days a week (0 = aim for every day, with a daily streak). */
   weeklyDays: number;
+  /** The welcome (where to start, level test, optional sign-in) was shown on this device. */
+  welcomed: boolean;
 }
 
 export interface ExamResult { at: number; scores: Record<string, number>; best: number }
@@ -72,7 +74,7 @@ const DEFAULT: Progress = {
   xp: {},
   frozen: {},
   conj: { right: 0, wrong: 0 },
-  settings: { rate: 0.9, voiceURI: null, accent: 'es-ES', autoplay: true, ticker: true, natural: true, dailyGoal: 50, typeChoices: false, strictSpelling: false, theme: 'system', avatarGlyph: '', avatarShuffle: 0, avatarAt: 0, planTime: '', planCue: '', planMinutes: 10, weeklyDays: 0 },
+  settings: { rate: 0.9, voiceURI: null, accent: 'es-ES', autoplay: true, ticker: true, natural: true, dailyGoal: 50, typeChoices: false, strictSpelling: false, theme: 'system', avatarGlyph: '', avatarShuffle: 0, avatarAt: 0, planTime: '', planCue: '', planMinutes: 10, weeklyDays: 0, welcomed: false },
 };
 
 /** The colour theme is one choice for the whole app, not per language. */
@@ -204,6 +206,22 @@ export function completeStep(unitId: string, step: number, score: number, stepCo
     units = { ...units, [unitId]: { completedAt: units[unitId]?.completedAt ?? Date.now(), best: Math.max(avg, units[unitId]?.best ?? 0) } };
   }
   set({ ...state, steps, units });
+}
+
+/** Marker for lessons skipped thanks to the level test (best = -1: known, not practised here). */
+export const PLACED = -1;
+export const isPlaced = (u: { best: number } | undefined) => u?.best === PLACED;
+
+/**
+ * Level test result: every lesson before `startId` (in course order) counts as known, so the course
+ * continues from there. Lessons actually finished stay as they are; earlier placements are replaced.
+ */
+export function placeAt(orderedIds: string[], startId: string | null) {
+  const units = Object.fromEntries(Object.entries(state.units).filter(([, u]) => !isPlaced(u)));
+  const end = startId ? orderedIds.indexOf(startId) : orderedIds.length;
+  const now = Date.now();
+  for (const id of orderedIds.slice(0, Math.max(0, end))) if (!units[id]) units[id] = { completedAt: now, best: PLACED };
+  set({ ...state, units });
 }
 
 export function completeReading(id: string, score: number) {

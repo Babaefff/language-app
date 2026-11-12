@@ -18,7 +18,7 @@ export function Account() {
   const signedIn = !!user;
   const days = streak(p.xp, p.frozen);
   const best = Math.max(days, bestStreak(p.xp));
-  const lessons = Object.keys(p.units).length;
+  const lessons = Object.values(p.units).filter((u) => u.best !== -1).length;
   const examsPassed = EXAMS.filter((e) => p.exams[e.id] && Object.values(p.exams[e.id].scores).every((s) => s >= 60)).length;
   const songsDone = SONGS.filter((s) => p.readings[s.id]).length;
   const a1 = UNITS.filter((u) => u.level === 'A1');

@@ -1001,3 +1001,19 @@ input[type='range'] { min-height: 32px; }
 .reading-controls { gap: 8px; }
 .reading-controls .btn { white-space: nowrap; }
 .reading-controls .toggle { margin-top: 0; }
+
+/* Welcome and level test */
+.welcome-options { display: grid; gap: 10px; margin: 16px 0; }
+.welcome-option { display: flex; flex-direction: row; gap: 14px; align-items: center; text-align: left; width: 100%; font: inherit; color: inherit; cursor: pointer; }
+.welcome-option > span:last-child { display: flex; flex-direction: column; gap: 2px; }
+.welcome-emoji { font-size: 1.8rem; }
+.welcome-rules { padding-left: 1.2rem; line-height: 1.6; }
+.welcome-bar { margin: 10px 0 14px; flex: none; }
+.placement-q { display: grid; gap: 12px; }
+.placement-prompt { gap: 10px; align-items: center; font-size: 1.25rem; }
+.placement-options { display: grid; gap: 8px; }
+.placement-options .option { min-height: 48px; text-align: left; }
+.welcome-dontknow { justify-self: start; }
+.welcome-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin-top: 16px; }
+.welcome-skip { margin-top: 16px; }
+.welcome-option .welcome-emoji, .welcome-option .badge { flex: none; }
