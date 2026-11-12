@@ -6,6 +6,7 @@ import { Personal } from './pages/Personal';
 import { AdminPersonal } from './pages/AdminPersonal';
 import { AdminLearner, AdminLearners } from './pages/AdminLearners';
 import { Welcome } from './pages/Welcome';
+import { UpdateBanner } from './components/UpdateBanner';
 import { NEW_DEVICE } from './lib/firstVisit';
 /** The welcome opens by itself at most once per app start. */
 let welcomeShown = false;
@@ -77,6 +78,7 @@ function Shell() {
   return (
     <>
       <ScrollTop />
+      <UpdateBanner />
       <header className="topbar">
         <Link to="/" className="brand">Hablo<span>.</span></Link>
         <nav className="topnav" aria-label="Main navigation">

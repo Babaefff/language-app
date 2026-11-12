@@ -1047,3 +1047,5 @@ input[type='range'] { min-height: 32px; }
 .bloom-wrap { position: relative; display: inline-block; flex: none; line-height: 0; }
 .bloom-wrap .bloom { display: block; }
 .bloom-glyph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; line-height: 1; font-weight: 800; color: #222; font-family: system-ui, sans-serif; pointer-events: none; }
+.update-banner { position: fixed; z-index: 30; left: 0; right: 0; margin-inline: auto; width: min(92vw, 420px); top: calc(12px + env(safe-area-inset-top)); display: flex; align-items: center; gap: 10px; padding: 10px 12px; box-shadow: 0 8px 32px rgb(0 0 0 / .2); animation: fade-in .2s; }
+.update-banner span { flex: 1; font-weight: 600; }

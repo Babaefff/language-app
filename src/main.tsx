@@ -29,7 +29,14 @@ start().catch(() => {
 
 // Offline support + installability. Skipped in dev so hot reload isn't cached.
 if ('serviceWorker' in navigator && import.meta.env.PROD && !Capacitor.isNativePlatform()) {
+  // A page already controlled by an older version: when the new one takes over, offer a reload
+  // (never forced, so a lesson in progress isn't lost).
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) window.dispatchEvent(new Event('hablo:update')); });
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    navigator.serviceWorker.register('./sw.js').then((reg) => {
+      // Look for a new version when the app comes back to the foreground (phones keep it open for days).
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+    }).catch(() => {});
   });
 }

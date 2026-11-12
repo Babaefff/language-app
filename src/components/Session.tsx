@@ -110,7 +110,7 @@ export function Session({ exercises, onFinish, onExit, title, test = false, unti
   };
   const [index, setIndex] = useState(0);
   const [result, setResult] = useState<Result | null>(null);
-  const stats = useRef({ correct: 0, words: {} as Record<string, boolean>, close: {} as Record<string, boolean>, retried: new Set<string>(), exposed: new Set<string>(), retakes: new Set<string>(), answers: [] as NonNullable<SessionSummary['answers']> });
+  const stats = useRef({ correct: 0, words: {} as Record<string, boolean>, close: {} as Record<string, boolean>, retried: new Set<string>(), exposed: new Set<string>(), retakes: new Set<string>(), firstOk: new Map<string, boolean>(), answers: [] as NonNullable<SessionSummary['answers']> });
   const ex = queue[index];
 
   const answer = (r: Result) => {
@@ -118,7 +118,13 @@ export function Session({ exercises, onFinish, onExit, title, test = false, unti
     if (r.study) return next();
     const s = stats.current;
     // A second try of the same exercise ("Try again"): show the new result, score stays as it was.
-    if (s.retakes.has(ex.key)) { setResult(r); return; }
+    if (s.retakes.has(ex.key)) {
+      const first = s.firstOk.get(ex.key);
+      // The first try decides what comes back in review; say so after a retry.
+      setResult({ ...r, note: [r.note, first === false ? t('Your first try is saved for review, so this sentence comes back later.') : ''].filter(Boolean).join(' ') });
+      return;
+    }
+    s.firstOk.set(ex.key, r.ok);
     setResult(r);
     const firstTry = !s.retried.has(ex.key);
     if (r.ok && firstTry) s.correct++;
@@ -233,7 +239,7 @@ export function Session({ exercises, onFinish, onExit, title, test = false, unti
             {result.note && <div className="small">{result.note}</div>}
             {/* Spelling highlight — not for answers that are right in other words or another order. */}
             {result.typed && result.note && !result.alike && <Highlight typed={result.typed} expected={result.answer} />}
-            {!result.ok && <p className="small">{t('Saved for review.')}</p>}
+            {!result.ok && !stats.current.retakes.has(ex.key) && <p className="small">{t('Saved for review.')}</p>}
             {result.why && <details className="why"><summary>{t('Why?')}</summary><p>{result.why}</p></details>}
           </div>
           <div className="feedback-actions">
