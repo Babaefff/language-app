@@ -28,8 +28,6 @@ export interface Settings {
   planMinutes: number;
   /** Weekly goal: practise this many days a week (0 = aim for every day, with a daily streak). */
   weeklyDays: number;
-  /** The welcome (where to start, level test, optional sign-in) was shown on this device. */
-  welcomed: boolean;
 }
 
 export interface ExamResult { at: number; scores: Record<string, number>; best: number }
@@ -74,7 +72,7 @@ const DEFAULT: Progress = {
   xp: {},
   frozen: {},
   conj: { right: 0, wrong: 0 },
-  settings: { rate: 0.9, voiceURI: null, accent: 'es-ES', autoplay: true, ticker: true, natural: true, dailyGoal: 50, typeChoices: false, strictSpelling: false, theme: 'system', avatarGlyph: '', avatarShuffle: 0, avatarAt: 0, planTime: '', planCue: '', planMinutes: 10, weeklyDays: 0, welcomed: false },
+  settings: { rate: 0.9, voiceURI: null, accent: 'es-ES', autoplay: true, ticker: true, natural: true, dailyGoal: 50, typeChoices: false, strictSpelling: false, theme: 'system', avatarGlyph: '', avatarShuffle: 0, avatarAt: 0, planTime: '', planCue: '', planMinutes: 10, weeklyDays: 0 },
 };
 
 /** The colour theme is one choice for the whole app, not per language. */
@@ -203,7 +201,9 @@ export function completeStep(unitId: string, step: number, score: number, stepCo
   const scores = Array.from({ length: stepCount }, (_, i) => steps[`${unitId}:${i}`]);
   if (scores.every((s) => s !== undefined)) {
     const avg = Math.round(scores.reduce((a, b) => a + b, 0) / stepCount);
-    units = { ...units, [unitId]: { completedAt: units[unitId]?.completedAt ?? Date.now(), best: Math.max(avg, units[unitId]?.best ?? 0) } };
+    // A lesson skipped by the level test and now really finished counts from today.
+    const prev = units[unitId] && !isPlaced(units[unitId]) ? units[unitId] : undefined;
+    units = { ...units, [unitId]: { completedAt: prev?.completedAt ?? Date.now(), best: Math.max(avg, prev?.best ?? 0) } };
   }
   set({ ...state, steps, units });
 }

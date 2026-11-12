@@ -6,7 +6,8 @@ import { L, LANG } from '../data/lang';
 import { UNITS } from '../data/course';
 import { LEVEL_INFO, LEVELS, type Level } from '../data/types';
 import { PER_CHECKPOINT, checkpoints, decide, questionsFor, startUnit } from '../lib/placement';
-import { placeAt, updateSettings } from '../lib/store';
+import { placeAt } from '../lib/store';
+import { markWelcomed, hideStartCard } from '../lib/firstVisit';
 import { accountsEnabled, configProblem, useSync } from '../lib/sync';
 
 type Step =
@@ -31,18 +32,19 @@ export function Welcome() {
   const [wasSignedIn] = useState(!!user);
   useEffect(() => {
     if (!user || wasSignedIn) return;
-    if (step.name === 'choose') { updateSettings({ welcomed: true }); navigate('/', { replace: true }); }
-    else if (step.name === 'account') { updateSettings({ welcomed: true }); navigate(step.startId === ORDER[0] ? '/' : `/unit/${step.startId}`, { replace: true }); }
+    if (step.name === 'choose') { markWelcomed(); navigate('/', { replace: true }); }
+    else if (step.name === 'account') { markWelcomed(); navigate(step.startId === ORDER[0] ? '/' : `/unit/${step.startId}`, { replace: true }); }
   }, [user, wasSignedIn, step, navigate]);
 
   const begin = (startId: string) => {
+    hideStartCard(LANG);
     placeAt(ORDER, startId);
     // Sign-in is offered once, never required.
     if (accountsEnabled && !configProblem && !user) setStep({ name: 'account', startId });
     else finish(startId);
   };
   const finish = (startId: string) => {
-    updateSettings({ welcomed: true });
+    markWelcomed();
     navigate(startId === ORDER[0] ? '/' : `/unit/${startId}`, { replace: true });
   };
   const answer = (ok: boolean) => {

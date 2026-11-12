@@ -2,6 +2,7 @@ import { WordParts } from '../components/WordParts';
 import { Icon, type IconName } from '../components/Icon';
 import { L, LANG } from '../data/lang';
 import { WeekCard } from '../components/WeekCard';
+import { StartCard } from '../components/StartCard';
 import { lastWeek } from '../lib/weekly';
 import { Link } from '../components/Nav';
 import { UNITS, WORDS } from '../data/course';
@@ -100,6 +101,7 @@ export function Home() {
       </section>
     )}
     <header className="dashboard-heading"><h1>{L.hello}</h1><span className="muted small">{L.name}</span></header>
+    <StartCard />
     {/* Start of the week: last week's summary, if there was one. */}
     {[1, 2, 3].includes(new Date().getDay()) && lastWeek(p).active > 0 && <WeekCard which="last" dismissible />}
     <div className="dashboard-main">

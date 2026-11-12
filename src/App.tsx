@@ -6,6 +6,9 @@ import { Personal } from './pages/Personal';
 import { AdminPersonal } from './pages/AdminPersonal';
 import { AdminLearner, AdminLearners } from './pages/AdminLearners';
 import { Welcome } from './pages/Welcome';
+import { NEW_DEVICE } from './lib/firstVisit';
+/** The welcome opens by itself at most once per app start. */
+let welcomeShown = false;
 import { usePersonal } from './lib/personal';
 import { ExamList, ExamPage } from './pages/Exam';
 import { Speaking } from './pages/Speaking';
@@ -65,9 +68,8 @@ function Shell() {
   const st = goalStreak(p);
   // Personal material shows as its own tab, only for the person it was given to.
   const personal = usePersonal(user?.id);
-  // First visit on this device with no progress at all: show the welcome (where to start).
-  const fresh = !p.settings.welcomed && Object.keys(p.xp).length === 0 && Object.keys(p.units).length === 0 && !user;
-  useEffect(() => { if (fresh && pathname === '/') navigate('/welcome', { replace: true }); }, [fresh, pathname, navigate]);
+  // Brand-new device only (decided from storage at start-up, never while an account is loading).
+  useEffect(() => { if (NEW_DEVICE && pathname === '/' && !welcomeShown) { welcomeShown = true; navigate('/welcome', { replace: true }); } }, [pathname, navigate]);
   const mine = personal?.find((s) => s.lang === LANG);
   const mineItem = mine ? [{ to: '/mine', icon: 'heart' as const, label: mine.tabName }] : [];
   const desktopNav = [...DESKTOP_NAV, ...mineItem];
