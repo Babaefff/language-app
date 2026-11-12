@@ -1,6 +1,7 @@
 import { L, LANG } from '../data/lang';
 import { isNative } from './native';
 import { getProgress, today } from './store';
+import { weekLine, weekSummary } from './weekly';
 
 /**
  * Daily reminders in the app ("🇩🇪 12 words waiting"). Notifications are scheduled on the phone, so
@@ -16,12 +17,17 @@ const OLD_ID: Record<string, number> = { es: 1, de: 2, fr: 3, ru: 4 };
 
 /** Words left in the personal word drill (set by the personal tab), for the reminder text. */
 const DRILL_KEY = `hablo:drill-left:${LANG}`;
-export function setDrillLeft(n: number) {
-  try { localStorage.setItem(DRILL_KEY, String(n)); } catch { /* reminder just won't mention it */ }
+const DANGER_KEY = `hablo:drill-danger:${LANG}`;
+export function setDrillLeft(n: number, danger = 0) {
+  try { localStorage.setItem(DRILL_KEY, String(n)); localStorage.setItem(DANGER_KEY, String(danger)); } catch { /* reminder just won't mention it */ }
 }
+/** Danger words in the personal word drill (from the last visit to the personal tab). */
+export const drillDanger = () => { try { return Number(localStorage.getItem(DANGER_KEY)) || 0; } catch { return 0; } };
 const drillLeft = () => { try { return Number(localStorage.getItem(DRILL_KEY)) || 0; } catch { return 0; } };
 
-const ids = () => [OLD_ID[LANG] ?? 9, ...Array.from({ length: DAYS }, (_, k) => base() + k)];
+/** Sunday-evening weekly summary: one id per language after the daily ones. */
+const weeklyId = () => base() + DAYS;
+const ids = () => [OLD_ID[LANG] ?? 9, ...Array.from({ length: DAYS }, (_, k) => base() + k), weeklyId()];
 
 export interface Reminder { at: Date; title: string; body: string; route: string }
 
@@ -54,6 +60,15 @@ export function planReminders(now = new Date()): Reminder[] {
   return out;
 }
 
+/** Sunday 19:00: "Your week: 5 days · 48 new words · 3 danger words left". Re-planned with each visit. */
+export function weeklyReminder(now = new Date()): Reminder | null {
+  if (!getProgress().settings.planTime) return null;
+  const at = new Date(now.getFullYear(), now.getMonth(), now.getDate() + ((7 - now.getDay()) % 7), 19, 0);
+  if (at <= now) return null;
+  const w = weekSummary(getProgress(), now);
+  return { at, route: '/progress', title: `${L.flag} Your week in ${L.name}`, body: weekLine({ ...w, danger: w.danger + drillDanger() }) };
+}
+
 let listening = false;
 
 /** Re-plans this language's reminders (app only). Asks for permission only when `ask` is true. */
@@ -73,9 +88,14 @@ export async function refreshReminders(ask = false): Promise<boolean> {
     await LocalNotifications.cancel({ notifications: ids().map((id) => ({ id })) });
     if (perm.display !== 'granted') return false;
     const plan = planReminders();
-    if (plan.length) {
-      await LocalNotifications.schedule({ notifications: plan.map((r, k) => ({
-        id: base() + k, title: r.title, body: r.body, extra: { route: r.route },
+    const week = weeklyReminder();
+    const all = [
+      ...plan.map((r, k) => ({ id: base() + k, r })),
+      ...(week ? [{ id: weeklyId(), r: week }] : []),
+    ];
+    if (all.length) {
+      await LocalNotifications.schedule({ notifications: all.map(({ id, r }) => ({
+        id, title: r.title, body: r.body, extra: { route: r.route },
         schedule: { at: r.at, allowWhileIdle: true },
       })) });
     }

@@ -1,6 +1,8 @@
 import { WordParts } from '../components/WordParts';
 import { Icon, type IconName } from '../components/Icon';
 import { L, LANG } from '../data/lang';
+import { WeekCard } from '../components/WeekCard';
+import { lastWeek } from '../lib/weekly';
 import { Link } from '../components/Nav';
 import { UNITS, WORDS } from '../data/course';
 import { LEVELS } from '../data/types';
@@ -98,6 +100,8 @@ export function Home() {
       </section>
     )}
     <header className="dashboard-heading"><h1>{L.hello}</h1><span className="muted small">{L.name}</span></header>
+    {/* Start of the week: last week's summary, if there was one. */}
+    {[1, 2, 3].includes(new Date().getDay()) && lastWeek(p).active > 0 && <WeekCard which="last" dismissible />}
     <div className="dashboard-main">
       <section className="card dashboard-lesson">
         <span className="tag">{next ? `${next.level} · Lesson ${UNITS.indexOf(next) + 1} of ${UNITS.length}` : 'Course complete'}</span>

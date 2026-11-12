@@ -16,6 +16,8 @@ export interface Card {
   seen: number;
   stability?: number;
   difficulty?: number;
+  /** When the word was first learned (cards from before this field don't have it). */
+  added?: number;
   /** Legacy SM-2 ease factor (older saves). */
   ease?: number;
 }
@@ -97,6 +99,7 @@ export function review(card: Card | undefined, grade: Grade, now = Date.now()): 
     reps: g === 1 ? 0 : c.reps + 1,
     lapses: c.lapses + (g === 1 && c.reps > 0 ? 1 : 0),
     seen: now,
+    ...(card ? (card.added ? { added: card.added } : {}) : { added: now }),
     stability: s,
     difficulty: d,
   };

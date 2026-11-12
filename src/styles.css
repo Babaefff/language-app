@@ -1026,3 +1026,8 @@ input[type='range'] { min-height: 32px; }
 @media (min-width: 800px) { .shadow-turn { bottom: 2rem; } }
 .speak-pair { display: inline-flex; gap: 4px; align-items: center; vertical-align: middle; }
 .speak-slow { font-size: 1rem; line-height: 1; }
+
+/* Your week */
+.week-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); gap: 10px; margin: 8px 0; }
+.week-stats .big-number { font-size: 1.6rem; line-height: 1.1; }
+.week-card h2 { margin: 0; }

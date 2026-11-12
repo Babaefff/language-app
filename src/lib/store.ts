@@ -134,7 +134,7 @@ export function parseProgress(parsed: unknown): Progress {
       version: 1,
       learning: parseLearning(parsed.learning),
       cards: record<Card>(parsed.cards, v => fields(v, ['interval', 'due', 'reps', 'lapses', 'seen']) &&
-        ['stability', 'difficulty', 'ease'].every(k => !isObj(v) || v[k] === undefined || num(v[k]))),
+        ['stability', 'difficulty', 'ease', 'added'].every(k => !isObj(v) || v[k] === undefined || num(v[k]))),
       units: record(parsed.units, v => fields(v, ['completedAt', 'best'])),
       steps: numbers(parsed.steps),
       readings: record(parsed.readings, v => fields(v, ['readAt', 'score'])),
@@ -300,6 +300,9 @@ export function mergeProgress(a: Progress, b: Progress): Progress {
     const mine = cards[id];
     // The copy that was practised more is the more up-to-date one.
     if (!mine || c.seen > mine.seen || (c.seen === mine.seen && c.due > mine.due)) cards[id] = c;
+    // Keep the earliest "first learned" date of the two copies.
+    const added = Math.min(mine?.added ?? Infinity, c.added ?? Infinity);
+    if (Number.isFinite(added)) cards[id] = { ...cards[id], added };
   }
   const units = { ...a.units };
   for (const [id, u] of Object.entries(b.units)) {

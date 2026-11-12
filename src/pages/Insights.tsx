@@ -1,4 +1,5 @@
 import { Link } from '../components/Nav';
+import { WeekCard } from '../components/WeekCard';
 import { useProgress } from '../lib/store';
 import { dueMistakes } from '../lib/learning';
 import { UNITS } from '../data/course';
@@ -17,6 +18,8 @@ export function Insights() {
   return <div className="page narrow">
     <Link to="/" className="link">← Home</Link>
     <h1>Progress</h1>
+    <WeekCard />
+    <WeekCard which="last" />
     <section className="card">
       <h2>What you can do in {L.name}</h2>
       {done.length === 0 ? <p className="muted">Finish your first lesson and your new abilities will appear here.</p> : <>
