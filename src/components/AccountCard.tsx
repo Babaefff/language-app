@@ -1,7 +1,7 @@
 import { useCallback, useState, type ReactNode } from 'react';
 import { GoogleButton } from './GoogleButton';
 import { isNative } from '../lib/native';
-import { accountsEnabled, configProblem, configSummary, deleteAccount, deleteCloudData, googleClientId, googleEnabled, signInWithEmail, signInWithGoogle, signOut, verifyEmailCode, useSync } from '../lib/sync';
+import { accountsEnabled, configProblem, configSummary, deleteAccount, deleteCloudData, resumeCloudProgress, googleClientId, googleEnabled, signInWithEmail, signInWithGoogle, signOut, verifyEmailCode, useSync } from '../lib/sync';
 
 /** Optional sign-in so progress is saved in the cloud and follows you to other devices. */
 export function AccountCard({ bare = false }: { bare?: boolean } = {}) {
@@ -36,12 +36,13 @@ export function AccountCard({ bare = false }: { bare?: boolean } = {}) {
         <h2>Account</h2>
         {!bare && <p>Signed in as <strong>{user.email}</strong></p>}
         <p className="muted small">
-          {status === 'syncing' ? 'Saving…' : status === 'offline' ? '📴 Offline: progress is saved on this device and goes to your account when you’re back online.' : status === 'error' ? `⚠️ Sync problem: ${error}` : lastSync ? `✓ Progress saved to your account at ${new Date(lastSync).toLocaleTimeString()}` : '✓ Synced'}
+          {status === 'paused' ? 'Cloud progress syncing is paused. Progress stays on this device.' : status === 'syncing' ? 'Saving…' : status === 'offline' ? '📴 Offline: progress is saved on this device and goes to your account when you’re back online.' : status === 'error' ? `⚠️ Sync problem: ${error}` : lastSync ? `✓ Progress saved to your account at ${new Date(lastSync).toLocaleTimeString()}` : '✓ Synced'}
         </p>
-        <p className="muted small">Your progress in each language follows you to any device where you sign in.</p>
+        <p className="muted small">While syncing is enabled, your course progress follows you across devices. Personal tests and feedback are stored separately.</p>
         <div className="row wrap">
           <button className="btn" disabled={busy} onClick={() => run(signOut)}>Sign out</button>
-          <button className="btn" disabled={busy} onClick={() => { if (confirm('Delete your saved progress from the cloud? Your account’s progress remains saved on this device.')) void run(deleteCloudData); }}>Delete cloud data</button>
+          <button className="btn" disabled={busy} onClick={() => { if (confirm('Delete cloud course progress for all languages and pause uploading on all devices? Local progress, personal test results and feedback are kept.')) void run(deleteCloudData); }}>Delete cloud progress</button>
+          {status === 'paused' && <button className="btn" disabled={busy} onClick={() => { if (confirm('Resume cloud syncing and upload the progress kept on this device?')) void run(resumeCloudProgress); }}>Resume cloud sync</button>}
           <button className="btn danger" disabled={busy} onClick={() => { if (confirm('Delete your account permanently? Your email and cloud progress are removed. Your account’s progress remains saved on this device.')) void run(deleteAccount); }}>Delete account</button>
         </div>
         {msg && <p className="warn small">{msg}</p>}

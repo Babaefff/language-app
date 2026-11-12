@@ -1,3 +1,4 @@
+import { setAccountScope } from './accountScope';
 import { useSyncExternalStore } from 'react';
 import type { SupabaseClient, User } from '@supabase/supabase-js';
 import { LANG } from '../data/lang';
@@ -39,7 +40,7 @@ export const accountsEnabled = !!(URL_ && KEY);
 // Google blocks its sign-in inside apps' web views: in the Android app, sign-in is by email link.
 export const googleEnabled = clean(import.meta.env.VITE_SUPABASE_GOOGLE) === '1' && !isNative;
 
-type SyncState = { user: User | null; status: 'off' | 'idle' | 'syncing' | 'synced' | 'error' | 'offline'; lastSync: number | null; error?: string };
+type SyncState = { user: User | null; status: 'off' | 'idle' | 'syncing' | 'synced' | 'error' | 'offline' | 'paused'; lastSync: number | null; error?: string };
 let sync: SyncState = { user: null, status: accountsEnabled ? 'idle' : 'off', lastSync: null };
 const listeners = new Set<() => void>();
 const setSync = (patch: Partial<SyncState>) => { sync = { ...sync, ...patch }; listeners.forEach((l) => l()); };
@@ -111,20 +112,52 @@ export async function deleteAccount() {
   await sb.auth.signOut();
 }
 
-/** Deletes this account's saved progress in the cloud (all languages). Local progress stays. */
+/** Deletes course progress and pauses its uploads on every device. */
 export async function deleteCloudData() {
+  const user = sync.user;
+  if (!user) return;
+  const revision = ++accountRevision;
+  clearTimeout(timer); timer = undefined;
+  pausedOwner = user.id;
+  setSync({ status: 'paused', lastSync: null });
   const sb = await getClient();
-  if (!sync.user) return;
-  const { error } = await sb.from('progress').delete().eq('user_id', sync.user.id);
-  if (error) throw error;
-  setSync({ lastSync: null });
+  if (revision !== accountRevision) return;
+  const { error } = await sb.rpc('delete_cloud_progress', { expected_user: user.id });
+  if (revision !== accountRevision) return;
+  pulling = false;
+  if (error) {
+    // Keep this client paused even if the server deletion failed; do not claim success.
+    setSync({ status: 'paused', error: error.message });
+    throw new Error(`Cloud progress was not deleted: ${error.message}`);
+  }
+  setSync({ status: 'paused', lastSync: null, error: undefined });
 }
+export async function resumeCloudProgress() {
+  const user = sync.user;
+  if (!user) return;
+  const revision = ++accountRevision;
+  const sb = await getClient();
+  if (revision !== accountRevision) return;
+  const { error } = await sb.rpc('resume_cloud_progress', { expected_user: user.id });
+  if (revision !== accountRevision) return;
+  if (error) throw error;
+  pausedOwner = null; pulling = false;
+  await pull(user);
+}
+let pausedOwner: string | null = null;
 
 let accountRevision = 0;
 
 async function pull(user: User) {
   const revision = accountRevision;
   const sb = await getClient();
+  const control = await sb.rpc('cloud_progress_paused');
+  if (revision !== accountRevision || sync.user?.id !== user.id) return;
+  // Older installations can still sync until the migration is applied. Deletion
+  // itself never falls back to an unsafe client-side DELETE.
+  if (control.error && control.error.code !== 'PGRST202' && control.error.code !== '42883') throw control.error;
+  if (control.data === true) { pausedOwner = user.id; setSync({ status: 'paused', lastSync: null }); return; }
+  pausedOwner = null;
   setSync({ status: 'syncing' });
   const { data, error } = await sb.from('progress').select('data').eq('user_id', user.id).eq('lang', LANG).maybeSingle();
   if (error) throw error;
@@ -143,21 +176,24 @@ async function pull(user: User) {
 async function push() {
   const user = sync.user;
   const revision = accountRevision;
-  if (!user) return;
+  if (!user || pausedOwner === user.id) return;
   const { settings, ...progress } = getProgress();
   const sb = await getClient();
   if (revision !== accountRevision) return;
   setSync({ status: 'syncing' });
   const data = { ...progress, avatar: { glyph: settings.avatarGlyph, shuffle: settings.avatarShuffle, at: settings.avatarAt } };
   const { error } = await sb.from('progress').upsert({ user_id: user.id, lang: LANG, data, updated_at: new Date().toISOString() });
-  if (error) throw error;
   if (revision !== accountRevision) return;
+  if (error) throw error;
   setSync({ status: 'synced', lastSync: Date.now(), error: undefined });
 }
 
 /** No internet: not a problem — progress is kept on this device and sent when back online. */
 const isOffline = (e: unknown) => (typeof navigator !== 'undefined' && !navigator.onLine) || /failed to fetch|networkerror|network request failed|load failed/i.test((e as Error)?.message ?? String(e));
-const fail = (e: unknown) => setSync(isOffline(e) ? { status: 'offline', error: undefined } : { status: 'error', error: (e as Error).message ?? String(e) });
+const fail = (e: unknown) => {
+  if (/CLOUD_PROGRESS_PAUSED/.test((e as Error)?.message ?? '')) { pausedOwner = sync.user?.id ?? null; setSync({ status: 'paused', lastSync: null, error: undefined }); return; }
+  setSync(isOffline(e) ? { status: 'offline', error: undefined } : { status: 'error', error: (e as Error).message ?? String(e) });
+};
 
 let timer: ReturnType<typeof setTimeout> | undefined;
 let pulling = false;
@@ -191,6 +227,8 @@ export async function initSync() {
   const onUser = async (user: User | null) => {
     if (user?.id === sync.user?.id) return;
     const revision = ++accountRevision;
+    setAccountScope(user?.id ?? null);
+    pausedOwner = null;
     clearTimeout(timer);
     timer = undefined;
     pulling = true;
@@ -208,7 +246,7 @@ export async function initSync() {
   const { data } = await sb.auth.getSession();
   await onUser(data.session?.user ?? null);
   onProgressChange(() => {
-    if (!sync.user || pulling) return;
+    if (!sync.user || pulling || pausedOwner === sync.user.id) return;
     clearTimeout(timer);
     timer = setTimeout(() => push().catch(fail), 3000);
   });

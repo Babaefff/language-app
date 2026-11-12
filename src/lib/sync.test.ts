@@ -5,6 +5,7 @@ const mock = vi.hoisted(() => {
   const upsert = vi.fn(async (_row: unknown) => ({ error: null }));
   let listener: (event: string, session: { user: { id: string } } | null) => void;
   const client = {
+    rpc: vi.fn(async () => ({ data: false, error: null })),
     auth: {
       onAuthStateChange: vi.fn((cb: typeof listener) => { listener = cb; }),
       getSession: vi.fn(async () => ({ data: { session: null } })),

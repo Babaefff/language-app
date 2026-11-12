@@ -83,7 +83,12 @@ export function Personal() {
   const [ui, setUi] = useState<UiLang>(readUi);
   // Several materials (e.g. one per chapter): one is shown at a time, with a switch at the top.
   const [pick, setPick] = useState<string | null>(() => { try { return localStorage.getItem(PICK_KEY); } catch { return null; } });
-  useEffect(() => { if (user) void myResults().then(setResults); }, [user, mode.name]);
+  useEffect(() => {
+    let active = true;
+    setResults([]);
+    if (user) void myResults().then(rows => { if (active) setResults(rows); });
+    return () => { active = false; };
+  }, [user, mode.name]);
   // The exercise screens follow this tab's language while it is open, and go back to English after.
   useEffect(() => { setUiText(ui === 'et' ? ET : null); return () => setUiText(null); }, [ui]);
   const raw = useMemo(() => (sets ?? []).filter((s) => s.lang === LANG).sort((a, b) => a.title.localeCompare(b.title, undefined, { numeric: true })), [sets]);

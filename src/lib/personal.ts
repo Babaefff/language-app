@@ -1,3 +1,4 @@
+import { accountScope } from './accountScope';
 import { useEffect, useSyncExternalStore } from 'react';
 import type { Level, Unit } from '../data/types';
 import { units, type WordRow, type SentenceRow } from '../data/build';
@@ -47,19 +48,42 @@ export function validateContent(v: unknown): { ok: true; title: string; lang: st
   const lessons = Array.isArray(o.lessons) ? o.lessons : [];
   const tests = Array.isArray(o.tests) ? o.tests : [];
   if (!lessons.length && !tests.length) return { ok: false, error: 'No "lessons" and no "tests".' };
+  const text = (v: unknown, max = 10000): v is string => typeof v === 'string' && v.trim().length > 0 && v.length <= max;
+  const optionalText = (v: unknown) => v === undefined || typeof v === 'string';
+  const strings = (v: unknown) => Array.isArray(v) && v.every(x => typeof x === 'string');
+  if (!text(o.title, 200)) return { ok: false, error: 'Title must contain 1–200 characters.' };
+  if (o.lessons !== undefined && !Array.isArray(o.lessons) || o.tests !== undefined && !Array.isArray(o.tests)) return { ok: false, error: 'Lessons and tests must be arrays.' };
+  for (const [name, rows] of [['lessons', lessons], ['tests', tests]] as const) {
+    const ids = new Set<string>();
+    for (const row of rows) {
+      if (!text(row?.id, 100) || !text(row?.title, 200)) return { ok: false, error: `Every entry in ${name} needs a text id and title.` };
+      if (ids.has(row.id)) return { ok: false, error: `Duplicate ${name} id: ${row.id}` };
+      ids.add(row.id);
+    }
+  }
   for (const [i, l] of lessons.entries()) {
     if (!l?.id || !l?.title || !Array.isArray(l.words)) return { ok: false, error: `Lesson ${i + 1}: needs "id", "title" and "words".` };
-    for (const w of l.words) if (!Array.isArray(w) || typeof w[0] !== 'string' || typeof w[1] !== 'string') return { ok: false, error: `Lesson "${l.title}": every word must be ["word in the language", "English", …].` };
+    if (!['A1', 'A2', 'B1'].includes(l.level ?? 'A1') || ![l.titleDe, l.emoji, l.description, l.notes].every(optionalText)) return { ok: false, error: `Lesson "${l.title}": invalid level or text field.` };
+    if (l.sentences !== undefined && (!Array.isArray(l.sentences) || !l.sentences.every((r: unknown) => Array.isArray(r) && r.length === 2 && r.every(x => text(x))))) return { ok: false, error: `Lesson "${l.title}": sentences must be pairs of text.` };
+    for (const w of l.words) if (!Array.isArray(w) || w.length < 2 || w.length > 4 || !text(w[0]) || !text(w[1]) || !w.slice(2).every(optionalText)) return { ok: false, error: `Lesson "${l.title}": invalid word row.` };
   }
   for (const [i, t] of tests.entries()) {
     if (!t?.id || !t?.title || !Array.isArray(t.questions) || !t.questions.length) return { ok: false, error: `Test ${i + 1}: needs "id", "title" and "questions".` };
-    if (t.exam && !(t.exam.minutes >= 1 && t.exam.minutes <= 180 && t.exam.pass >= 1 && t.exam.pass <= 100)) return { ok: false, error: `Test "${t.title}": "exam" needs "minutes" (1–180) and "pass" (1–100, percent).` };
+    if (t.lesson !== undefined && (!text(t.lesson, 100) || !lessons.some(l => l.id === t.lesson))) return { ok: false, error: `Test "${t.title}": unknown lesson.` };
+    if (t.exam && !(typeof t.exam.minutes === 'number' && typeof t.exam.pass === 'number' && t.exam.minutes >= 1 && t.exam.minutes <= 180 && t.exam.pass >= 1 && t.exam.pass <= 100)) return { ok: false, error: `Test "${t.title}": "exam" needs "minutes" (1–180) and "pass" (1–100, percent).` };
     for (const [j, q] of t.questions.entries()) {
       const where = `Test "${t.title}", question ${j + 1}`;
+      if (!text(q?.q) || ![q?.en, q?.why].every(optionalText)) return { ok: false, error: `${where}: needs question text and valid optional explanations.` };
+      if (q.type === 'choice' && (!strings(q.options) || q.options.length < 2 || !q.options.every((x: unknown) => text(x)) || !Number.isInteger(q.answer))) return { ok: false, error: `${where}: needs text options and an integer answer index.` };
+      if ((q.type === 'type' || q.type === 'build') && !text(q.answer)) return { ok: false, error: `${where}: answer must be nonempty text.` };
+      if (q.accept !== undefined && !strings(q.accept)) return { ok: false, error: `${where}: accepted answers must be text.` };
       if (q?.type === 'choice' && (!Array.isArray(q.options) || typeof q.answer !== 'number' || !q.options[q.answer])) return { ok: false, error: `${where}: "answer" must be the number of the right option (0 = first).` };
-      if ((q?.type === 'type' || q?.type === 'build') && typeof q.answer !== 'string') return { ok: false, error: `${where}: "answer" must be the answer text.` };
       if (!['choice', 'type', 'build'].includes(q?.type)) return { ok: false, error: `${where}: "type" must be choice, type or build.` };
     }
+  }
+  if (o.i18n !== undefined) {
+    const record = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
+    if (!record(o.i18n) || !Object.values(o.i18n).every(v => record(v) && record(v.strings) && Object.values(v.strings).every(x => typeof x === 'string') && (v.notes === undefined || record(v.notes) && Object.values(v.notes).every(x => typeof x === 'string')))) return { ok: false, error: 'Translations must contain text maps for strings and optional notes.' };
   }
   const i18n = o.i18n && typeof o.i18n === 'object' ? (o.i18n as PersonalContent['i18n']) : undefined;
   return { ok: true, title: o.title, lang: o.lang as string, content: { lessons, tests, ...(i18n ? { i18n } : {}) } as PersonalContent };
@@ -88,6 +112,13 @@ export function testExercises(t: PersonalTest): Exercise[] {
 
 // ---- Loading (cached per sign-in, works offline) -----------------------------------------
 let sets: PersonalSet[] | null = null;
+let owner: string | null = null;
+let generation = 0;
+export function setPersonalAccount(uid: string | null) {
+  if (accountScope.id !== uid) return;
+  if (owner === uid) return;
+  owner = uid; generation++; sets = null; emit();
+}
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
 
@@ -106,11 +137,19 @@ async function userId(): Promise<string | null> {
   return data.session?.user.id ?? null;
 }
 
+function checkedSets(value: unknown): PersonalSet[] | null {
+  if (!Array.isArray(value)) return null;
+  return value.filter(s => s && typeof s.id === 'string' && typeof s.tabName === 'string' && s.content && validateContent({ ...s.content, title: s.title, lang: s.lang }).ok);
+}
+
 export async function loadPersonal(): Promise<PersonalSet[]> {
   if (!accountsEnabled) return (sets = []);
+  const revision = generation;
+  const identityRevision = accountScope.revision;
   const uid = await userId();
+  if (revision !== generation || identityRevision !== accountScope.revision || uid !== owner) return [];
   if (!uid) { sets = []; emit(); return sets; }
-  const cached = readCache<PersonalSet[] | null>(cacheKey(uid, 'sets'), null);
+  const cached = checkedSets(readCache<unknown>(cacheKey(uid, 'sets'), null));
   if (cached && !sets?.length) { sets = cached; emit(); }
   try {
     const sb = await supabase();
@@ -123,20 +162,23 @@ export async function loadPersonal(): Promise<PersonalSet[]> {
       if (error) throw error;
       fresh = (data ?? []).map((s) => ({ ...(s as Omit<PersonalSet, 'tabName'>), tabName: (access ?? []).find((a) => a.set_id === s.id)?.tab_name ?? 'Mu kalli jaoks' }));
     }
+    if (revision !== generation || identityRevision !== accountScope.revision || owner !== uid) return [];
+    fresh = checkedSets(fresh) ?? [];
     sets = fresh;
     writeCache(cacheKey(uid, 'sets'), fresh);
   } catch {
     // Offline: keep this device's copy.
+    if (revision !== generation || identityRevision !== accountScope.revision || owner !== uid) return [];
     sets = cached ?? [];
   }
   emit();
   return sets;
 }
-export function clearPersonal() { sets = null; emit(); }
+export function clearPersonal() { generation++; sets = null; emit(); }
 /** The learner's personal sets (empty for everyone else). Reloads when the account changes. */
 export function usePersonal(userId: string | undefined): PersonalSet[] | null {
-  const v = useSyncExternalStore((l) => { listeners.add(l); return () => listeners.delete(l); }, () => sets);
-  useEffect(() => { if (userId) void loadPersonal(); else { sets = []; emit(); } }, [userId]);
+  const v = useSyncExternalStore((l) => { listeners.add(l); return () => listeners.delete(l); }, () => owner === (userId ?? null) && owner === accountScope.id ? sets : null);
+  useEffect(() => { setPersonalAccount(userId ?? null); if (userId) void loadPersonal(); else { sets = []; emit(); } }, [userId]);
   return v;
 }
 
@@ -144,37 +186,53 @@ type Pending = Omit<PersonalResult, 'id' | 'user_id'> & { id: string };
 const isNetworkError = (e: unknown) => !navigator.onLine || /fetch|network|load failed/i.test(e instanceof Error ? e.message : String(e));
 
 /** Saves a result; without internet it waits on this device and is sent later (flushResults). */
+const queues = new Map<string, Promise<unknown>>();
+function withOutbox<T>(uid: string, action: () => Promise<T>): Promise<T> {
+  // Web Locks also serialize different tabs of the same origin.
+  if (typeof navigator !== 'undefined' && navigator.locks) return navigator.locks.request(cacheKey(uid, 'outbox'), action);
+  const next = (queues.get(uid) ?? Promise.resolve()).catch(() => {}).then(action);
+  queues.set(uid, next);
+  void next.finally(() => { if (queues.get(uid) === next) queues.delete(uid); }).catch(() => {});
+  return next;
+}
+function saveOutbox(uid: string, box: Pending[]) {
+  // A quota/storage error must reach the UI, never be reported as successfully queued.
+  localStorage.setItem(cacheKey(uid, 'outbox'), JSON.stringify(box));
+}
 export async function saveResult(setId: string, testId: string, score: number, total: number, answers: TestAnswer[], seconds?: number): Promise<'saved' | 'queued'> {
   const uid = await userId();
   if (!uid) throw new Error('Sign in to save your result.');
-  const row: Pending = { id: `local-${Date.now()}`, set_id: setId, test_id: testId, score, total, answers, created_at: new Date().toISOString(), ...(seconds != null ? { seconds } : {}) };
-  try {
-    await sendResult(uid, row);
+  const row: Pending = { id: crypto.randomUUID(), set_id: setId, test_id: testId, score, total, answers, created_at: new Date().toISOString(), ...(seconds != null ? { seconds } : {}) };
+  return withOutbox(uid, async () => {
+    saveOutbox(uid, [...readCache<Pending[]>(cacheKey(uid, 'outbox'), []), row]);
+    try { await sendResult(uid, row); }
+    catch (e) { if (isNetworkError(e)) return 'queued'; throw e; }
+    saveOutbox(uid, readCache<Pending[]>(cacheKey(uid, 'outbox'), []).filter(r => r.id !== row.id));
     return 'saved';
-  } catch (e) {
-    if (!isNetworkError(e)) throw e;
-    writeCache(cacheKey(uid, 'outbox'), [...readCache<Pending[]>(cacheKey(uid, 'outbox'), []), row]);
-    return 'queued';
-  }
+  });
 }
 async function sendResult(uid: string, r: Pending) {
   const sb = await supabase();
-  const { id: _local, ...row } = r;
-  const { error } = await sb.from('personal_results').insert({ ...row, user_id: uid });
+  if (await userId() !== uid) throw new Error('Account changed. This result remains saved for its original account.');
+  const { error } = await sb.from('personal_results').upsert({ ...r, user_id: uid }, { onConflict: 'id', ignoreDuplicates: true });
   if (error) throw new Error(error.message);
 }
-/** Sends results saved while offline (oldest first). Returns how many are still waiting. */
+/** Retry the same UUID, including after an ambiguous network failure. */
 export async function flushResults(): Promise<number> {
   if (!accountsEnabled) return 0;
   const uid = await userId();
   if (!uid) return 0;
-  const box = readCache<Pending[]>(cacheKey(uid, 'outbox'), []);
-  while (box.length) {
-    try { await sendResult(uid, box[0]); } catch { break; }
-    box.shift();
-    writeCache(cacheKey(uid, 'outbox'), box);
-  }
-  return box.length;
+  return withOutbox(uid, async () => {
+    const box = readCache<Pending[]>(cacheKey(uid, 'outbox'), []);
+    // Upgrade legacy local IDs once, before the first network request.
+    for (const r of box) if (r.id.startsWith('local-')) r.id = crypto.randomUUID();
+    saveOutbox(uid, box);
+    for (const r of box) {
+      try { await sendResult(uid, r); } catch { break; }
+      saveOutbox(uid, readCache<Pending[]>(cacheKey(uid, 'outbox'), []).filter(x => x.id !== r.id));
+    }
+    return readCache<Pending[]>(cacheKey(uid, 'outbox'), []).length;
+  });
 }
 /** Results not yet sent from this device. */
 export async function pendingResults(): Promise<number> {
@@ -182,6 +240,8 @@ export async function pendingResults(): Promise<number> {
   return uid ? readCache<Pending[]>(cacheKey(uid, 'outbox'), []).length : 0;
 }
 export async function myResults(): Promise<PersonalResult[]> {
+  const revision = generation;
+  const identityRevision = accountScope.revision;
   const uid = await userId();
   if (!uid) return [];
   await flushResults();
@@ -190,9 +250,11 @@ export async function myResults(): Promise<PersonalResult[]> {
     const sb = await supabase();
     const { data, error } = await sb.from('personal_results').select('*').eq('user_id', uid).order('created_at', { ascending: false }).limit(1000);
     if (error) throw error;
+    if (revision !== generation || identityRevision !== accountScope.revision || uid !== owner) return [];
     writeCache(cacheKey(uid, 'results'), data ?? []);
     return [...pending.reverse(), ...((data ?? []) as PersonalResult[])];
   } catch {
+    if (revision !== generation || identityRevision !== accountScope.revision || uid !== owner) return [];
     // Offline: the last copy plus what waits to be sent, so the drill knows today's answers.
     return [...pending.reverse(), ...readCache<PersonalResult[]>(cacheKey(uid, 'results'), [])];
   }
@@ -264,7 +326,7 @@ export const clock = (sec: number) => `${Math.floor(sec / 60)}:${String(Math.max
 export function localize(c: PersonalContent, lang: string): PersonalContent {
   const tr = c.i18n?.[lang];
   if (!tr) return c;
-  const T = (x?: string) => (x ? (tr.strings[x] ?? x) : x);
+  const T = (x?: string) => (x ? (Object.hasOwn(tr.strings, x) ? tr.strings[x] : x) : x);
   return {
     ...c,
     lessons: c.lessons.map((l) => ({
