@@ -1,3 +1,4 @@
+import { latestCheckpoint } from '../lib/checkpoint';
 import { WordParts } from '../components/WordParts';
 import { Icon, type IconName } from '../components/Icon';
 import { L, LANG } from '../data/lang';
@@ -36,6 +37,7 @@ function GoalRing({ value, goal }: { value: number; goal: number }) {
 
 export function Home() {
   const p = useProgress();
+  const savedSession = latestCheckpoint();
   const { user } = useSync();
   const [hideBanner, setHideBanner] = useState(bannerHidden);
   const now = Date.now();
@@ -96,7 +98,7 @@ export function Home() {
           <div className="row wrap"><Link className="btn primary" to="/daily?catchup=1">Start a 5-minute catch-up</Link></div>
         </> : <>
           <p>It’s been {away} days. Your words are still fresh, so you can pick up right where you left off.</p>
-          <div className="row wrap"><Link className="btn primary" to={lessonLink}>{lessonLabel}</Link></div>
+          <div className="row wrap"><Link className={savedSession ? "btn" : "btn primary"} to={lessonLink}>{lessonLabel}</Link></div>
         </>}
       </section>
     )}
@@ -104,6 +106,7 @@ export function Home() {
     <StartCard />
     {/* Start of the week: last week's summary, if there was one. */}
     {[1, 2, 3].includes(new Date().getDay()) && lastWeek(p).active > 0 && <WeekCard which="last" dismissible />}
+    {savedSession && <div className="row wrap"><Link className="btn primary" to={savedSession.route}>Resume session</Link><span className="muted small">Saved on this device</span></div>}
     <div className="dashboard-main">
       <section className="card dashboard-lesson">
         <span className="tag">{next ? `${next.level} · Lesson ${UNITS.indexOf(next) + 1} of ${UNITS.length}` : 'Course complete'}</span>
@@ -113,9 +116,9 @@ export function Home() {
           : <p className="muted">Keep reviewing, or test yourself with a mock exam.</p>}
         {dailyDone
           ? <><p className="small daily-note"><Icon name="shield" size={16} /> Daily session done today.</p>
-            <div className="row wrap"><Link className="btn primary" to={lessonLink}>{lessonLabel}</Link><Link className="btn" to="/course">All lessons</Link></div></>
+            <div className="row wrap"><Link className={savedSession ? "btn" : "btn primary"} to={lessonLink}>{lessonLabel}</Link><Link className="btn" to="/course">All lessons</Link></div></>
           : <><p className="small muted daily-note">Today’s session{plan.length ? `: ${plan.join(' · ')}` : ''}. About 10 minutes.</p>
-            <div className="row wrap"><Link className="btn primary" to="/daily">Start daily session</Link><Link className="btn" to={lessonLink}>{next ? 'Lesson only' : 'Browse course'}</Link></div></>}
+            <div className="row wrap"><Link className={savedSession ? "btn" : "btn primary"} to="/daily">Start daily session</Link><Link className="btn" to={lessonLink}>{next ? 'Lesson only' : 'Browse course'}</Link></div></>}
       </section>
       <aside className="dashboard-sidebar">
         <section className="card dashboard-streak">

@@ -1,3 +1,5 @@
+import { latestCheckpoint } from './lib/checkpoint';
+import { CheckpointPage } from './components/Checkpoint';
 import { Icon, type IconName } from './components/Icon';
 import { Daily } from './pages/Daily';
 import { Insights } from './pages/Insights';
@@ -70,7 +72,7 @@ function Shell() {
   // Personal material shows as its own tab, only for the person it was given to.
   const personal = usePersonal(user?.id);
   // Brand-new device only (decided from storage at start-up, never while an account is loading).
-  useEffect(() => { if (NEW_DEVICE && pathname === '/' && !welcomeShown) { welcomeShown = true; navigate('/welcome', { replace: true }); } }, [pathname, navigate]);
+  useEffect(() => { if (NEW_DEVICE && !latestCheckpoint() && pathname === '/' && !welcomeShown) { welcomeShown = true; navigate('/welcome', { replace: true }); } }, [pathname, navigate]);
   const mine = personal?.find((s) => s.lang === LANG);
   const mineItem = mine ? [{ to: '/mine', icon: 'heart' as const, label: mine.tabName }] : [];
   const desktopNav = [...DESKTOP_NAV, ...mineItem];
@@ -111,17 +113,17 @@ function Shell() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/welcome" element={<Welcome />} />
-          <Route path="/daily" element={<Daily />} />
+          <Route path="/daily" element={<CheckpointPage><Daily /></CheckpointPage>} />
           <Route path="/progress" element={<Insights />} />
           <Route path="/feedback" element={<MyFeedback />} />
           <Route path="/admin" element={<AdminFeedback />} />
           <Route path="/admin/personal" element={<AdminPersonal />} />
           <Route path="/admin/learners" element={<AdminLearners />} />
           <Route path="/admin/learners/:id" element={<AdminLearner />} />
-          <Route path="/mine" element={<Personal />} />
+          <Route path="/mine" element={<CheckpointPage><Personal /></CheckpointPage>} />
           <Route path="/course" element={<Course />} />
-          <Route path="/unit/:id" element={<UnitPage />} />
-          <Route path="/review" element={<Review />} />
+          <Route path="/unit/:id" element={<CheckpointPage><UnitPage /></CheckpointPage>} />
+          <Route path="/review" element={<CheckpointPage><Review /></CheckpointPage>} />
           <Route path="/practice" element={<Practice />} />
           <Route path="/practice/verbs" element={<Verbs />} />
           <Route path="/practice/sentences" element={<Sentences />} />

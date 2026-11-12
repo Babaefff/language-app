@@ -1,0 +1,11 @@
+import { createRoot } from 'react-dom/client';
+import { MemoryRouter } from 'react-router-dom';
+import { loadContent } from '../../src/data/load';
+import { setAccountScope } from '../../src/lib/accountScope';
+import { selectProgressAccount } from '../../src/lib/store';
+await loadContent();
+const owner = localStorage.getItem('test:owner') ?? 'alice';
+setAccountScope(owner); selectProgressAccount(owner);
+const { CheckpointPage } = await import('../../src/components/Checkpoint');
+const { Personal } = await import('../../src/pages/Personal');
+createRoot(document.getElementById('root')!).render(<MemoryRouter initialEntries={['/mine']}><CheckpointPage><Personal /></CheckpointPage></MemoryRouter>);

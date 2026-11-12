@@ -1,7 +1,8 @@
+import { useCheckpointState, useCheckpoint } from '../components/Checkpoint';
 import { Icon } from '../components/Icon';
 import { MistakeNotebook } from '../components/MistakeNotebook';
 import { LANG } from '../data/lang';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Link } from '../components/Nav';
 import { WORD_MAP } from '../data/course';
 import type { Word } from '../data/types';
@@ -39,7 +40,7 @@ function weakestWords(n: number): Word[] {
 
 export function Review() {
   const p = useProgress();
-  const [mode, setMode] = useState<Mode>({ name: 'menu' });
+  const [mode, setMode] = useCheckpointState<Mode>('review', { name: 'menu' });
   const due = dueWords();
   const total = Object.keys(p.cards).length;
 
@@ -134,9 +135,10 @@ function TrickyWords({ onPractise }: { onPractise: (w: Word[]) => void }) {
 }
 
 function Flashcards({ words, onDone, onExit }: { words: Word[]; onDone: (s: SessionSummary) => void; onExit: () => void }) {
-  const [i, setI] = useState(0);
-  const [shown, setShown] = useState(false);
-  const [results, setResults] = useState<Record<string, boolean>>({});
+  const checkpoint = useCheckpoint();
+  const [i, setI] = useCheckpointState('flash:index', 0);
+  const [shown, setShown] = useCheckpointState('flash:shown', false);
+  const [results, setResults] = useCheckpointState<Record<string, boolean>>('flash:results', {});
   const w = words[i];
 
   useEffect(() => {
@@ -150,6 +152,7 @@ function Flashcards({ words, onDone, onExit }: { words: Word[]; onDone: (s: Sess
     setResults(next);
     setShown(false);
     if (i + 1 >= words.length) {
+      checkpoint?.finish();
       onDone({ correct: Object.values(next).filter(Boolean).length, total: words.length, words: next });
     } else setI(i + 1);
   };
@@ -170,7 +173,7 @@ function Flashcards({ words, onDone, onExit }: { words: Word[]; onDone: (s: Sess
   return (
     <div className="session">
       <div className="session-top">
-        <button className="icon-btn" onClick={onExit} aria-label="Exit"><Icon name="close" /></button>
+        <button className="icon-btn" onClick={checkpoint?.pause ?? onExit} aria-label="Exit"><Icon name="close" /></button>
         <div className="bar"><div style={{ width: `${(i / words.length) * 100}%` }} /></div>
         <span className="muted small">{i + 1}/{words.length}</span>
       </div>

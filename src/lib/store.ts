@@ -1,3 +1,4 @@
+import { clearCheckpoints } from './checkpoint';
 import { emptyLearning, parseLearning, mergeLearning, learningOutcome, type Learning, type Mistake } from './learning';
 import { useSyncExternalStore } from 'react';
 import { review, type Card, type Grade } from './srs';
@@ -252,6 +253,7 @@ export function updateSettings(patch: Partial<Settings>) {
 }
 
 export function resetProgress() {
+  clearCheckpoints();
   set({ ...DEFAULT, settings: state.settings });
 }
 

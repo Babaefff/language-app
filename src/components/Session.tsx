@@ -1,3 +1,4 @@
+import { CheckpointFields, useCheckpoint, useCheckpointState } from './Checkpoint';
 import { Icon } from './Icon';
 import { L, LANG } from '../data/lang';
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
@@ -92,8 +93,14 @@ export function typedTrap(options: string[], answer: string, typed: string): str
 }
 
 export function Session({ exercises, onFinish, onExit, title, test = false, untilRight = false }: { exercises: Exercise[]; onFinish: (s: SessionSummary) => void; onExit: () => void; title?: string; /** A test: wrong answers aren't asked again. */ test?: boolean; /** A drill: a wrong answer comes back until it is right, and every attempt is recorded. */ untilRight?: boolean }) {
-  const [queue, setQueue] = useState(() => adaptAll(exercises));
-  const [total, setTotal] = useState(() => adaptAll(exercises).filter((e) => e.kind !== 'study' && e.kind !== 'teach').length);
+  const checkpoint = useCheckpoint();
+  const completed = useRef(false);
+  const finish = (summary: SessionSummary) => {
+    if (completed.current) return;
+    completed.current = true; checkpoint?.finish(); onFinish(summary);
+  };
+  const [queue, setQueue] = useCheckpointState('session:queue', () => adaptAll(exercises));
+  const [total, setTotal] = useCheckpointState('session:total', () => adaptAll(exercises).filter((e) => e.kind !== 'study' && e.kind !== 'teach').length);
   const [quiet, setQuietState] = useState({ listen: isQuiet('listen'), speak: isQuiet('speak') });
   /** "Can't listen / speak now": from this exercise on, for an hour. */
   const goQuiet = (what: Quiet, on = true) => {
@@ -104,13 +111,15 @@ export function Session({ exercises, onFinish, onExit, title, test = false, unti
     setQueue((q) => {
       const rest = adaptAll(q.slice(index));
       setTotal((t) => t - (q.length - index - rest.length));
-      if (!rest.length) setTimeout(() => onFinish({ correct: stats.current.correct, total: Math.max(1, total), words: stats.current.words, close: stats.current.close }), 0);
+      if (!rest.length) setTimeout(() => finish({ correct: stats.current.correct, total: Math.max(1, total), words: stats.current.words, close: stats.current.close }), 0);
       return [...q.slice(0, index), ...rest];
     });
   };
-  const [index, setIndex] = useState(0);
-  const [result, setResult] = useState<Result | null>(null);
-  const stats = useRef({ correct: 0, words: {} as Record<string, boolean>, close: {} as Record<string, boolean>, retried: new Set<string>(), exposed: new Set<string>(), retakes: new Set<string>(), firstOk: new Map<string, boolean>(), answers: [] as NonNullable<SessionSummary['answers']> });
+  const [index, setIndex] = useCheckpointState('session:index', 0);
+  const [result, setResult] = useCheckpointState<Result | null>('session:result', null);
+  const [savedStats] = useCheckpointState('session:stats', () => ({ correct: 0, words: {} as Record<string, boolean>, close: {} as Record<string, boolean>, retried: new Set<string>(), exposed: new Set<string>(), retakes: new Set<string>(), firstOk: new Map<string, boolean>(), answers: [] as NonNullable<SessionSummary['answers']> }));
+  const stats = useRef(savedStats);
+  useEffect(() => { checkpoint?.save(); });
   const ex = queue[index];
 
   const answer = (r: Result) => {
@@ -169,7 +178,7 @@ export function Session({ exercises, onFinish, onExit, title, test = false, unti
 
   const next = () => {
     setResult(null);
-    if (index + 1 >= queue.length) onFinish({ correct: stats.current.correct, total, words: stats.current.words, close: stats.current.close, answers: stats.current.answers });
+    if (index + 1 >= queue.length) finish({ correct: stats.current.correct, total, words: stats.current.words, close: stats.current.close, answers: stats.current.answers });
     else setIndex(index + 1);
   };
 
@@ -211,7 +220,7 @@ export function Session({ exercises, onFinish, onExit, title, test = false, unti
   return (
     <div className="session">
       <div className="session-top">
-        <button className="icon-btn" onClick={onExit} aria-label="Exit"><Icon name="close" /></button>
+        <button className="icon-btn" onClick={checkpoint?.pause ?? onExit} aria-label="Exit"><Icon name="close" /></button>
         <div className="bar" role="progressbar" aria-label="Session progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)}><div style={{ width: `${progress}%` }} /></div>
         {title && <span className="muted small">{title}</span>}
         <FeedbackButton compact />
@@ -223,7 +232,7 @@ export function Session({ exercises, onFinish, onExit, title, test = false, unti
         </p>
       )}
       <div className="session-body" key={`${ex.key}-${index}`}>
-        <ExerciseView ex={ex} onResult={answer} locked={!!result} onQuiet={goQuiet} />
+        <CheckpointFields name={`answer:${index}:`}><ExerciseView ex={ex} onResult={answer} locked={!!result} onQuiet={goQuiet} /></CheckpointFields>
       </div>
       {result && (
         <div role="status" className={`feedback ${result.ok ? 'good' : result.grade ? 'close' : 'bad'}`}>
@@ -280,8 +289,8 @@ function useAutoplay(text: string | undefined) {
 }
 
 function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'choice' }>; onResult: (r: Result) => void; locked: boolean }) {
-  const [chosen, setChosen] = useState<string | null>(null);
-  const [typing, setTyping] = useState(() => !!ex.typed || getProgress().settings.typeChoices);
+  const [chosen, setChosen] = useCheckpointState<string | null>('chosen', null);
+  const [typing, setTyping] = useCheckpointState('typing', () => !!ex.typed || getProgress().settings.typeChoices);
   useAutoplay(ex.audio);
   // Options in the language being learned can be typed instead (the setting is remembered).
   const canType = ex.optionsSpanish;
@@ -351,7 +360,7 @@ function ChoiceView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'c
 }
 
 function TextAnswer({ onSubmit, locked, placeholder }: { onSubmit: (v: string) => void; locked: boolean; placeholder?: string }) {
-  const [value, setValue] = useState('');
+  const [value, setValue] = useCheckpointState('typed', '');
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => {
     input.current?.focus();
@@ -507,7 +516,7 @@ const readMeanings = () => { try { return localStorage.getItem(MEANINGS_KEY) ===
 
 function BuildView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'build' }>; onResult: (r: Result) => void; locked: boolean }) {
   const tiles = useMemo(() => ex.tiles.map((t, i) => ({ t, i })), [ex.tiles]);
-  const [picked, setPicked] = useState<number[]>([]);
+  const [picked, setPicked] = useCheckpointState<number[]>('tiles', []);
   const [meanings, setMeanings] = useState(readMeanings);
   // Words this lesson hasn't taught yet always show their meaning, marked as new.
   const fresh = useMemo(() => newWordsIn(ex.es), [ex.es]);
@@ -661,12 +670,13 @@ function BuildView({ ex, onResult, locked }: { ex: Extract<Exercise, { kind: 'bu
 }
 
 function MatchView({ ex, onResult }: { ex: Extract<Exercise, { kind: 'match' }>; onResult: (r: Result) => void }) {
-  const left = useMemo(() => shuffle(ex.pairs), [ex.pairs]);
-  const right = useMemo(() => shuffle(ex.pairs), [ex.pairs]);
-  const [sel, setSel] = useState<{ side: 'es' | 'en'; id: string } | null>(null);
-  const [done, setDone] = useState<string[]>([]);
+  const [left] = useCheckpointState('match-left-order', () => shuffle(ex.pairs));
+  const [right] = useCheckpointState('match-order', () => shuffle(ex.pairs));
+  const [sel, setSel] = useCheckpointState<{ side: 'es' | 'en'; id: string } | null>('match-selected', null);
+  const [done, setDone] = useCheckpointState<string[]>('match-done', []);
   const [wrong, setWrong] = useState<string | null>(null);
-  const missed = useRef<Record<string, boolean>>({});
+  const [missedWords] = useCheckpointState<Record<string, boolean>>('match-missed', {});
+  const missed = useRef(missedWords);
 
   const tap = (side: 'es' | 'en', id: string) => {
     if (done.includes(id)) return;

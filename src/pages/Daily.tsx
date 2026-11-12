@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCheckpointState } from '../components/Checkpoint';
 import { useSearchParams } from 'react-router-dom';
 import { Link } from '../components/Nav';
 import { Session, type SessionSummary } from '../components/Session';
@@ -10,9 +10,10 @@ import { addXp, applyWordResults, completeDailySession, getProgress } from '../l
 export function Daily() {
   const [params] = useSearchParams();
   const catchup = params.get('catchup') === '1';
-  const [plan] = useState(() => dailyPlan(getProgress(), UNITS, WORD_MAP, Date.now(), catchup));
-  const [index, setIndex] = useState(-1);
-  const [finished, setFinished] = useState(false);
+  const [state, setState] = useCheckpointState('daily', () => ({ plan: dailyPlan(getProgress(), UNITS, WORD_MAP, Date.now(), catchup), index: -1, finished: false }));
+  const { plan, index, finished } = state;
+  const setIndex = (index: number) => setState(s => ({ ...s, index }));
+  const setFinished = (finished: boolean) => setState(s => ({ ...s, finished }));
   const stages = [
     ...(plan.review.length ? [{ title: 'Review', exercises: plan.review }] : []),
     ...(plan.mistakes.length ? [{ title: 'Mistakes', exercises: plan.mistakes }] : []),
@@ -40,6 +41,6 @@ export function Daily() {
     <section className="card"><ol className="daily-agenda">{stages.map((s, i) => <li key={s.title}><span className="step-num">{i + 1}</span><div><strong>{s.title}</strong><p className="small muted">{'lesson' in s && s.lesson ? s.lesson.unit.title : `${s.exercises?.length} questions`}</p></div></li>)}</ol>
       {stages.length ? <button className="btn primary" onClick={() => setIndex(0)}>Begin daily session</button> : <p>You’re caught up. Return tomorrow, or explore a reading.</p>}
     </section>
-    <p className="muted small">Completed steps are saved. Unfinished sessions restart.</p>
+    <p className="muted small">Unfinished sessions can be resumed on this device.</p>
   </div>;
 }

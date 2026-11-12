@@ -15,7 +15,7 @@ function storedKeys(): string[] {
 
 /** True only on a device with no account, no progress and no earlier welcome. */
 export function isNewDevice(keys: string[] = storedKeys(), get = (k: string) => { try { return localStorage.getItem(k); } catch { return null; } }): boolean {
-  if (get(KEY)) return false;
+  if (get(KEY) || keys.some(k => k.startsWith('hablo:session:v1:'))) return false;
   // A Supabase session saved on this device: a returning learner.
   if (keys.some((k) => k.startsWith('sb-') && k.endsWith('-auth-token'))) return false;
   // Any progress in any language or account on this device.

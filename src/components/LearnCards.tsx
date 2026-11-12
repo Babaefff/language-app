@@ -1,9 +1,10 @@
+import { useCheckpoint, useCheckpointState } from './Checkpoint';
 import { WordParts } from './WordParts';
 import { phrasesIn } from '../lib/phrases';
 import { PhraseNote } from './PhraseNote';
 import { Icon } from './Icon';
 import { LANG } from '../data/lang';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import type { Word } from '../data/types';
 import { speak } from '../lib/speech';
 import { getProgress } from '../lib/store';
@@ -12,13 +13,15 @@ import { SpeakButton } from './SpeakButton';
 
 /** Introduces new words one at a time with audio before they are quizzed. */
 export function LearnCards({ words, onDone, onExit }: { words: Word[]; onDone: () => void; onExit: () => void }) {
-  const [i, setI] = useState(0);
+  const checkpoint = useCheckpoint();
+  const [i, setI] = useCheckpointState('learn:index', 0);
   const w = words[i];
   useEffect(() => {
     if (w && getProgress().settings.autoplay) speak(w.es);
   }, [w]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof Element && e.target.closest('button, input, textarea, select, a')) return;
       if (e.key === 'ArrowRight' || e.key === 'Enter') i + 1 < words.length ? setI(i + 1) : onDone();
       if (e.key === 'ArrowLeft') setI(Math.max(0, i - 1));
     };
@@ -29,7 +32,7 @@ export function LearnCards({ words, onDone, onExit }: { words: Word[]; onDone: (
   return (
     <div className="session">
       <div className="session-top">
-        <button className="icon-btn" onClick={onExit} aria-label="Exit"><Icon name="close" /></button>
+        <button className="icon-btn" onClick={checkpoint?.pause ?? onExit} aria-label="Exit"><Icon name="close" /></button>
         <div className="bar"><div style={{ width: `${(i / words.length) * 100}%` }} /></div>
         <span className="muted small">{i + 1}/{words.length}</span>
       </div>

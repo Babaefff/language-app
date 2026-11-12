@@ -1,3 +1,4 @@
+import { useCheckpointState } from '../components/Checkpoint';
 import { setDrillLeft } from '../lib/reminders';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from '../components/Nav';
@@ -78,7 +79,7 @@ export function Personal() {
   const { user } = useSync();
   const sets = usePersonal(user?.id);
   const p = useProgress();
-  const [mode, setMode] = useState<Mode>({ name: 'list' });
+  const [mode, setMode] = useCheckpointState<Mode>('personal', { name: 'list' });
   const [results, setResults] = useState<PersonalResult[]>([]);
   const [ui, setUi] = useState<UiLang>(readUi);
   // Several materials (e.g. one per chapter): one is shown at a time, with a switch at the top.
@@ -102,6 +103,11 @@ export function Personal() {
   if (!mine.length) return <div className="page narrow"><h1>Personal lessons</h1><p className="muted">There’s nothing here for this language yet.</p></div>;
 
   const back = () => setMode({ name: 'list' });
+  const materialChanged = mode.name === 'test'
+    ? !mine.some(set => set.id === mode.set.id && JSON.stringify(set.content) === JSON.stringify(mode.set.content))
+    : 'unit' in mode && !mine.some(set => set.content.lessons.some(lesson => JSON.stringify(lessonUnit(set, lesson)) === JSON.stringify(mode.unit)));
+  if (materialChanged) return <section className="page narrow"><h1>Saved session unavailable</h1><p>The personal material has changed or is no longer assigned to you.</p><button className="btn primary" onClick={back}>Back to personal lessons</button></section>;
+
   const finishStep = (unit: Unit, step: number, s: SessionSummary) => {
     const score = Math.round((s.correct / Math.max(1, s.total)) * 100);
     const xp = s.correct + 10;

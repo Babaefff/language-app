@@ -1,3 +1,4 @@
+import { useCheckpointState } from '../components/Checkpoint';
 import { Icon } from '../components/Icon';
 import { L, LANG } from '../data/lang';
 import { canDoFor } from '../data/can-do';
@@ -8,7 +9,6 @@ import { PhraseNote } from '../components/PhraseNote';
 import { AccentBox, accentsOfUnit } from '../components/AccentBox';
 import { useFeedbackPage } from '../lib/feedback';
 import { FeedbackButton } from '../components/FeedbackButton';
-import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Link } from '../components/Nav';
 import { UNIT_LESSONS, UNIT_MAP, UNITS } from '../data/course';
@@ -35,7 +35,7 @@ export function UnitPage({ unitId, initialStep, onComplete }: { unitId?: string;
   const unit = UNIT_MAP[unitId ?? id];
   const p = useProgress();
   const navigate = useNavigate();
-  const [mode, setMode] = useState<Mode>(() => initialStep === 0 ? { name: 'learn' } : initialStep === 2 ? { name: 'grammar' } : initialStep === 1 && unit ? { name: 'quiz', step: 1, exercises: stepExercises(unit, 1) } : { name: 'overview' });
+  const [mode, setMode] = useCheckpointState<Mode>('unit', () => initialStep === 0 ? { name: 'learn' } : initialStep === 2 ? { name: 'grammar' } : initialStep === 1 && unit ? { name: 'quiz', step: 1, exercises: stepExercises(unit, 1) } : { name: 'overview' });
 
   const stepName = mode.name === 'learn' ? STEPS[0].title : mode.name === 'quiz' || mode.name === 'done' ? STEPS[mode.step].title : mode.name === 'grammar' ? STEPS[2].title : undefined;
   useFeedbackPage(unit ? `${unit.level} · ${unit.title}` : undefined, stepName, unit ? `Course · ${unit.level} · Lesson ${UNITS.indexOf(unit) + 1} of ${UNITS.length}` : undefined);
